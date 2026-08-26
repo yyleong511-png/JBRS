@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jesse L Backstage Record System</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7E4A5C">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JL Backstage">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FAF7F2;
+    --paper:#FFFDFA;
+    --ink:#2B2724;
+    --ink-soft:#6B6259;
+    --rose:#A9647A;
+    --rose-deep:#7E4A5C;
+    --gold:#C9A66B;
+    --line:#E4DDD3;
+    --green:#5C7A5E;
+    --loss:#B0524A;
+    --shadow: 0 1px 2px rgba(43,39,36,0.04), 0 8px 24px rgba(43,39,36,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:1240px;margin:0 auto;padding:0 24px 80px;}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:18px 0;position:sticky;top:0;background:var(--ivory);z-index:40;
+    border-bottom:1px solid transparent;
+  }
+  .topbar.scrolled{border-bottom-color:var(--line);}
+  .topbar-left{display:flex;align-items:center;gap:10px;}
+  .icon-btn{
+    width:36px;height:36px;border-radius:50%;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink);font-size:16px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{border-color:var(--rose);color:var(--rose-deep);}
+  .topbar-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;letter-spacing:0.2px;}
+  .lang-toggle{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink);padding:8px 14px;border-radius:20px;
+    cursor:pointer;letter-spacing:0.5px;
+  }
+  .lang-toggle:hover{border-color:var(--rose);color:var(--rose-deep);}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Home ---------- */
+  .home-hero{text-align:center;padding:36px 10px 20px;}
+  .home-icon{width:64px;height:64px;border-radius:16px;box-shadow:var(--shadow);margin-bottom:16px;}
+  .home-hero h1{
+    font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(26px,5vw,42px);
+    margin:0 0 8px;letter-spacing:0.2px;
+  }
+  .home-hero p{font-size:13px;color:var(--ink-soft);margin:0;font-family:'IBM Plex Mono',monospace;letter-spacing:0.3px;}
+  .home-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;
+  }
+  @media (max-width:820px){.home-grid{grid-template-columns:1fr;}}
+  .home-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:16px;
+    padding:26px 22px;text-align:left;cursor:pointer;box-shadow:var(--shadow);
+    font-family:'Inter',sans-serif;transition:transform .15s ease, border-color .15s ease;
+  }
+  .home-card:hover{border-color:var(--rose);transform:translateY(-2px);}
+  .hc-icon{font-size:28px;margin-bottom:12px;}
+  .hc-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;margin-bottom:6px;}
+  .hc-desc{font-size:12.5px;color:var(--ink-soft);line-height:1.5;}
+
+  /* ---------- Panels (shared) ---------- */
+  .panel{
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:22px 22px 24px;box-shadow:var(--shadow);
+  }
+  .panel + .panel{margin-top:20px;}
+  .panel h2{
+    font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin:0 0 14px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .panel h2 .num{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--rose);
+    border:1px solid var(--rose);border-radius:20px;padding:2px 8px;
+  }
+  .panel .hint{font-size:11.5px;color:var(--ink-soft);margin:-8px 0 14px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
+  input[type=text], input[type=number], select, textarea{
+    font-family:'Inter',sans-serif;font-size:14px;padding:9px 11px;border:1px solid var(--line);
+    border-radius:8px;background:var(--ivory);color:var(--ink);outline:none;width:100%;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--rose);background:#fff;}
+  textarea{resize:vertical;min-height:52px;font-family:'Inter',sans-serif;}
+  .sub-divider{
+    font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.5px;
+    margin:16px 0 10px;padding-top:12px;border-top:1px dashed var(--line);
+  }
+
+  /* ---------- Date picker ---------- */
+  .datepicker-wrap{position:relative;}
+  input.date-picker-input{cursor:pointer;background:var(--ivory) url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236B6259%22 stroke-width=%222%22><rect x=%223%22 y=%224%22 width=%2218%22 height=%2218%22 rx=%222%22/><line x1=%2216%22 y1=%222%22 x2=%2216%22 y2=%226%22/><line x1=%228%22 y1=%222%22 x2=%228%22 y2=%226%22/><line x1=%223%22 y1=%2210%22 x2=%2221%22 y2=%2210%22/></svg>') no-repeat right 10px center;background-size:15px;padding-right:34px;}
+  .datepicker-popup{
+    position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:var(--paper);
+    border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+    padding:12px;width:240px;
+  }
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .cal-title{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;}
+  .cal-nav{
+    width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--ivory);
+    cursor:pointer;font-size:13px;color:var(--ink-soft);
+  }
+  .cal-nav:hover{border-color:var(--rose);color:var(--rose-deep);}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:4px;}
+  .cal-weekdays span{font-size:10px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .cal-day{
+    aspect-ratio:1;border:none;background:none;border-radius:8px;font-size:12px;cursor:pointer;
+    color:var(--ink);font-family:'Inter',sans-serif;
+  }
+  .cal-day:hover{background:var(--ivory);}
+  .cal-day.today{border:1px solid var(--rose);}
+  .cal-day.selected{background:var(--rose-deep);color:#fff;}
+  .cal-day.empty{cursor:default;}
+  .cal-footer{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+  .cal-footer button{
+    background:none;border:none;font-size:11px;color:var(--ink-soft);cursor:pointer;
+    font-family:'Inter',sans-serif;padding:4px 6px;
+  }
+  .cal-footer button:hover{color:var(--rose-deep);}
+
+  /* ---------- Items table ---------- */
+  table.items{width:100%;border-collapse:collapse;margin-bottom:10px;}
+  table.items th{
+    font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;
+    text-align:left;padding:0 6px 8px;font-weight:600;
+  }
+  table.items td{padding:4px 6px;vertical-align:top;}
+  table.items input{padding:7px 8px;font-size:13px;}
+  .col-desc{width:46%;} .col-qty{width:14%;} .col-price{width:20%;}
+  .col-sum{width:16%;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;padding-top:10px;}
+  .col-del{width:20px;}
+  .del-btn{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:15px;
+    line-height:1;padding:6px;border-radius:6px;
+  }
+  .del-btn:hover{color:var(--loss);background:var(--ivory);}
+  .add-item{
+    background:none;border:1px dashed var(--line);color:var(--ink-soft);font-size:13px;
+    padding:8px 12px;border-radius:8px;cursor:pointer;width:100%;font-family:'Inter',sans-serif;margin-top:2px;
+  }
+  .add-item:hover{border-color:var(--rose);color:var(--rose-deep);}
+
+  .totals-mini{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  .totals-mini .row{display:flex;justify-content:space-between;padding:3px 0;color:var(--ink-soft);}
+  .totals-mini .row.total{color:var(--ink);font-size:16px;font-weight:600;padding-top:6px;}
+  .totals-mini .row.profit{font-size:15px;font-weight:700;padding-top:8px;border-top:1px dashed var(--line);margin-top:6px;}
+  .totals-mini .row.profit.pos span:last-child{color:var(--green);}
+  .totals-mini .row.profit.neg span:last-child{color:var(--loss);}
+
+  .btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  button.primary, button.secondary, button.ghost{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:11px 18px;
+    border-radius:9px;cursor:pointer;border:none;
+  }
+  button.primary{background:var(--rose-deep);color:#fff;}
+  button.primary:hover{background:var(--rose);}
+  button.secondary{background:var(--ink);color:#fff;}
+  button.secondary:hover{background:#141210;}
+  button.ghost{background:none;border:1px solid var(--line);color:var(--ink-soft);}
+  button.ghost:hover{border-color:var(--rose);color:var(--rose-deep);}
+
+  /* ---------- Generator layout ---------- */
+  .gen-layout{display:grid;grid-template-columns:1.05fr 0.95fr;gap:28px;align-items:start;margin-top:20px;}
+  @media (max-width:900px){.gen-layout{grid-template-columns:1fr;}}
+  .receipt-wrap{position:sticky;top:82px;}
+  .receipt-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;}
+  .receipt{background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);padding:30px 28px 20px;position:relative;}
+  .receipt::before, .receipt::after{
+    content:"";position:absolute;left:0;right:0;height:14px;
+    background-image: radial-gradient(circle, var(--ivory) 6px, transparent 6.5px);
+    background-size: 20px 20px;background-position: -4px 0;
+  }
+  .receipt::before{top:-7px;} .receipt::after{bottom:-7px;transform:rotate(180deg);}
+  .r-head{text-align:center;margin-bottom:14px;}
+  .r-head .biz{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;}
+  .r-head .biz-sub{font-size:11px;color:var(--ink-soft);margin-top:2px;letter-spacing:0.3px;}
+  .r-head .contact{font-size:11px;color:var(--ink-soft);margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+  .r-divider{border:none;border-top:1px dashed var(--line);margin:14px 0;}
+  .r-meta{display:flex;justify-content:space-between;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);margin-bottom:4px;}
+  .r-meta b{color:var(--ink);font-weight:600;}
+  .r-client{margin:12px 0 4px;font-size:13px;}
+  .r-client .l{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:0.4px;}
+  .r-items{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:12.5px;}
+  .r-items th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:5px;font-weight:600;}
+  .r-items td{padding:6px 0;border-bottom:1px solid #F0EAE1;}
+  .r-items td.num, .r-items th.num{text-align:right;font-family:'IBM Plex Mono',monospace;}
+  .r-totals{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  .r-totals .row{display:flex;justify-content:space-between;padding:3px 0;}
+  .r-totals .row.grand{font-size:17px;font-weight:700;color:var(--rose-deep);border-top:1px solid var(--ink);margin-top:6px;padding-top:8px;}
+  .r-pay{margin-top:16px;padding:12px 14px;background:var(--ivory);border:1px solid var(--line);border-radius:8px;font-size:12px;}
+  .r-pay .l{font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .r-pay .row{display:flex;justify-content:space-between;padding:2px 0;}
+  .r-pay .row span:first-child{color:var(--ink-soft);}
+  .r-pay .row span:last-child{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+  .r-note{margin-top:14px;font-size:11.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;}
+  .r-footer{text-align:center;margin-top:18px;font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;}
+  .stamp{
+    position:absolute;top:22px;right:26px;width:70px;height:70px;border:2px solid var(--green);
+    border-radius:50%;color:var(--green);display:flex;align-items:center;justify-content:center;
+    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;transform:rotate(-14deg);
+    opacity:0.85;letter-spacing:1px;text-align:center;
+  }
+
+  /* ---------- Filters (records/income) ---------- */
+  .filter-panel{margin-top:20px;}
+  .filter-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;}
+  @media (max-width:900px){.filter-row{grid-template-columns:1fr 1fr;} .filter-row .field:nth-child(5){grid-column:span 2;}}
+
+  .preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .preset-btn{
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:7px 14px;
+    border-radius:20px;border:1px solid var(--line);background:var(--ivory);color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .preset-btn:hover{border-color:var(--rose);color:var(--rose-deep);}
+  .preset-btn.active{background:var(--rose-deep);color:#fff;border-color:var(--rose-deep);}
+
+  .chip-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .chip{
+    display:flex;align-items:center;gap:6px;background:var(--ivory);border:1px solid var(--line);
+    border-radius:20px;padding:6px 8px 6px 12px;font-size:12.5px;color:var(--ink);
+  }
+  .chip button{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:13px;
+    width:18px;height:18px;border-radius:50%;line-height:1;padding:0;
+  }
+  .chip button:hover{color:var(--loss);background:#fff;}
+
+  /* ---------- Stats bar ---------- */
+  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;}
+  @media (max-width:700px){.stats-bar{grid-template-columns:1fr;}}
+  .stat-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);}
+  .stat-box .sl{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+  .stat-box .sv{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;}
+  .stat-box.profit .sv.pos{color:var(--green);}
+  .stat-box.profit .sv.neg{color:var(--loss);}
+
+  /* ---------- Records table ---------- */
+  .records-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .records-table th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);
+    padding:0 8px 10px;font-weight:600;border-bottom:1px solid var(--line);
+  }
+  .records-table td{padding:11px 8px;border-bottom:1px solid #F0EAE1;vertical-align:middle;}
+  .records-table tr.rec-row{cursor:pointer;}
+  .records-table tr.rec-row:hover{background:var(--ivory);}
+  .records-table td.num{text-align:right;font-family:'IBM Plex Mono',monospace;}
+  .records-table td.profit.pos{color:var(--green);font-weight:600;}
+  .records-table td.profit.neg{color:var(--loss);font-weight:600;}
+  .cat-pill{
+    display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:20px;
+    background:var(--ivory);border:1px solid var(--line);color:var(--ink-soft);
+  }
+  .empty-hint{font-size:12.5px;color:var(--ink-soft);padding:20px 4px;text-align:center;}
+
+  /* ---------- Income breakdown ---------- */
+  .cat-row{padding:14px 0;border-bottom:1px solid #F0EAE1;}
+  .cat-row:last-child{border-bottom:none;}
+  .cat-row-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+  .cat-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;}
+  .cat-figures{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
+  .cat-figures b{color:var(--ink);}
+  .cat-bar-track{height:8px;border-radius:8px;background:var(--ivory);overflow:hidden;}
+  .cat-bar-fill{height:100%;background:linear-gradient(90deg,var(--rose-deep),var(--rose));border-radius:8px;}
+  .cat-sub{font-size:11px;color:var(--ink-soft);margin-top:6px;}
+  .cat-sub .profit-pos{color:var(--green);font-weight:600;}
+  .cat-sub .profit-neg{color:var(--loss);font-weight:600;}
+
+  .insight-item{
+    display:flex;gap:10px;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.55;
+  }
+  .insight-item:last-child{border-bottom:none;}
+  .insight-emoji{font-size:16px;flex:none;}
+  .insight-note{font-size:11px;color:var(--ink-soft);margin-top:4px;font-style:italic;}
+
+  select#serviceType, select#payMethod, select#recCategory{cursor:pointer;}
+
+  @media print{
+    body *{visibility:hidden;}
+    .receipt, .receipt *{visibility:visible;}
+    .receipt{position:absolute;top:0;left:0;width:100%;box-shadow:none;border:none;}
+    .receipt-wrap{position:static;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" id="btnBack" style="display:none;" aria-label="Back">←</button>
+      <div class="topbar-title" id="topbarTitle">Jesse L Backstage Record System</div>
+    </div>
+    <button class="lang-toggle" id="langToggle">EN</button>
+  </header>
+
+  <!-- ============ HOME ============ -->
+  <section id="view-home" class="view active">
+    <div class="home-hero">
+      <img src="icon-192.png" class="home-icon" alt="">
+      <h1>Jesse L Backstage Record System</h1>
+      <p id="homeSubtitle">私人后台记录系统 · 本地保存</p>
+    </div>
+    <div class="home-grid">
+      <button class="home-card" data-nav="generator">
+        <div class="hc-icon">🧾</div>
+        <div class="hc-title" id="cardGenTitle">生成收据</div>
+        <div class="hc-desc" id="cardGenDesc">开立新的英文收据，含项目明细与银行收款资料</div>
+      </button>
+      <button class="home-card" data-nav="records">
+        <div class="hc-icon">📋</div>
+        <div class="hc-title" id="cardRecTitle">查看账单明细</div>
+        <div class="hc-desc" id="cardRecDesc">浏览所有开过的收据，按日期与类别筛选</div>
+      </button>
+      <button class="home-card" data-nav="income">
+        <div class="hc-icon">📊</div>
+        <div class="hc-title" id="cardIncTitle">收入列表</div>
+        <div class="hc-desc" id="cardIncDesc">按领域拆解收入与利润，附智能分析建议</div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ GENERATOR ============ -->
+  <section id="view-generator" class="view">
+    <div class="gen-layout">
+      <div class="left">
+
+        <div class="panel">
+          <h2><span class="num">01</span> <span id="h_panel1">我的资料</span></h2>
+          <div class="field-row">
+            <div class="field">
+              <label id="l_bizName">姓名 / 工作室名称</label>
+              <input type="text" id="bizName" placeholder="例如：Jesse Leong">
+            </div>
+            <div class="field">
+              <label id="l_bizSub">身份 / 副标题</label>
+              <input type="text" id="bizSub" placeholder="模特 · 博主 · 化妆师">
+            </div>
+          </div>
+          <div class="field">
+            <label id="l_bizContact">联络方式（电话 / IG / Email）</label>
+            <input type="text" id="bizContact" placeholder="IG @jesse.leong · jesse@email.com">
+          </div>
+
+          <div class="sub-divider" id="h_bankSection">银行收款资料（会显示在收据上）</div>
+          <div class="field-row">
+            <div class="field">
+              <label id="l_bankName">银行名称</label>
+              <input type="text" id="bankName" value="CIMB Bank">
+            </div>
+            <div class="field">
+              <label id="l_bankHolder">账户持有人姓名</label>
+              <input type="text" id="bankHolder" value="Leong Yuan Yi">
+            </div>
+          </div>
+          <div class="field">
+            <label id="l_bankAccount">银行账号</label>
+            <input type="text" id="bankAccount" value="7642093373">
+          </div>
+
+          <div class="field-row" style="margin-top:4px;">
+            <div class="field">
+              <label id="l_numPrefix">收据编号前缀</label>
+              <input type="text" id="numPrefix" placeholder="JL" value="JL">
+            </div>
+            <div class="field">
+              <label id="l_numCounter">下一个流水号</label>
+              <input type="number" id="numCounter" value="1" min="1">
+            </div>
+          </div>
+          <button class="ghost" id="saveBiz">保存我的资料</button>
+
+          <div class="sub-divider" id="h_professionSection">职业分类管理</div>
+          <div class="hint" id="professionHint">职业名称建议使用英文，因为会显示在收据上</div>
+          <div class="chip-list" id="professionChips"></div>
+          <div class="field-row" style="margin-top:2px;grid-template-columns:1fr auto;align-items:end;">
+            <div class="field" style="margin-bottom:0;">
+              <input type="text" id="newProfession" placeholder="例如：Wedding Makeup">
+            </div>
+            <button class="ghost" id="addProfession">+ 添加职业</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2><span class="num">02</span> <span id="h_panel2">客户与项目</span></h2>
+          <div class="field-row">
+            <div class="field">
+              <label id="l_clientName">客户 / 品牌名称</label>
+              <input type="text" id="clientName" placeholder="例如：ABC 化妆品品牌">
+            </div>
+            <div class="field">
+              <label id="l_serviceType">服务类型</label>
+              <select id="serviceType"></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label id="l_rDate">日期</label>
+              <input type="text" id="rDate" class="date-picker-input" readonly>
+            </div>
+            <div class="field">
+              <label id="l_payMethod">付款方式</label>
+              <select id="payMethod">
+                <option value="Bank Transfer" data-zh="银行转账" data-en="Bank Transfer">银行转账</option>
+                <option value="Cash" data-zh="现金" data-en="Cash">现金</option>
+                <option value="PayPal" data-zh="PayPal" data-en="PayPal">PayPal</option>
+                <option value="E-wallet" data-zh="Touch 'n Go / 电子钱包" data-en="E-wallet">Touch 'n Go / 电子钱包</option>
+                <option value="Other" data-zh="其他" data-en="Other">其他</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2><span class="num">03</span> <span id="h_panel3">项目明细</span></h2>
+          <table class="items">
+            <thead>
+              <tr>
+                <th class="col-desc" id="th_desc">项目描述</th>
+                <th class="col-qty" id="th_qty">数量</th>
+                <th class="col-price" id="th_price">单价 (RM)</th>
+                <th class="col-sum" id="th_sum">小计</th>
+                <th class="col-del"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+          <button class="add-item" id="addItem">+ 添加项目</button>
+
+          <div class="field-row" style="margin-top:14px;">
+            <div class="field">
+              <label id="l_discount">折扣 (RM)</label>
+              <input type="number" id="discount" value="0" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label id="l_deposit">已付订金 (RM)</label>
+              <input type="number" id="deposit" value="0" min="0" step="0.01">
+            </div>
+          </div>
+
+          <div class="field">
+            <label id="l_notes">备注</label>
+            <textarea id="notes" placeholder="例如：拍摄地点、使用条款、感谢语等"></textarea>
+          </div>
+
+          <div class="sub-divider" id="h_costSection">内部记录（不会显示在收据上）</div>
+          <div class="hint" id="costHint">用来记录这笔收入实际花了多少成本，方便计算净利润</div>
+          <div class="field-row">
+            <div class="field">
+              <label id="l_costAmount">支出 / 车费 (RM)</label>
+              <input type="number" id="costAmount" value="0" min="0" step="0.01">
+            </div>
+            <div class="field">
+              <label id="l_costNote">支出说明</label>
+              <input type="text" id="costNote" placeholder="例如：Grab 车费、化妆品材料">
+            </div>
+          </div>
+
+          <div class="totals-mini">
+            <div class="row"><span id="l_miniSubtotal">小计</span><span id="miniSubtotal">RM 0.00</span></div>
+            <div class="row"><span id="l_miniDiscount">折扣</span><span id="miniDiscount">- RM 0.00</span></div>
+            <div class="row total"><span id="l_miniTotal">应付总额</span><span id="miniTotal">RM 0.00</span></div>
+            <div class="row profit pos" id="miniProfitRow"><span id="l_miniProfit">净利润</span><span id="miniProfit">RM 0.00</span></div>
+          </div>
+
+          <div class="btn-row">
+            <button class="primary" id="saveReceipt">保存收据</button>
+            <button class="secondary" id="printReceipt">打印 / 存为 PDF</button>
+            <button class="ghost" id="newReceipt">开新收据</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Receipt preview — always English -->
+      <div class="receipt-wrap">
+        <div class="receipt-label" id="receiptLabel">Receipt preview (always in English)</div>
+        <div class="receipt" id="receiptPreview">
+          <div class="stamp" id="stampEl" style="display:none;">PAID</div>
+          <div class="r-head">
+            <div class="biz" id="pBizName">Your Name</div>
+            <div class="biz-sub" id="pBizSub">Model · Content Creator · Makeup Artist</div>
+            <div class="contact" id="pBizContact"></div>
+          </div>
+          <hr class="r-divider">
+          <div class="r-meta"><span>Receipt No.</span><b id="pReceiptNo">JL-0001</b></div>
+          <div class="r-meta"><span>Date</span><b id="pDate">-</b></div>
+          <div class="r-meta"><span>Service</span><b id="pService">-</b></div>
+          <div class="r-client">
+            <div class="l">Client / Brand</div>
+            <div id="pClient">-</div>
+          </div>
+          <table class="r-items">
+            <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Subtotal</th></tr></thead>
+            <tbody id="pItemsBody"></tbody>
+          </table>
+          <div class="r-totals">
+            <div class="row"><span>Subtotal</span><span id="pSubtotal">RM 0.00</span></div>
+            <div class="row"><span>Discount</span><span id="pDiscount">- RM 0.00</span></div>
+            <div class="row"><span>Deposit Paid</span><span id="pDeposit">- RM 0.00</span></div>
+            <div class="row grand"><span>Balance Due</span><span id="pTotal">RM 0.00</span></div>
+          </div>
+          <div class="r-pay">
+            <div class="l">Pay to</div>
+            <div class="row"><span>Bank</span><span id="pBankName">-</span></div>
+            <div class="row"><span>Account Name</span><span id="pBankHolder">-</span></div>
+            <div class="row"><span>Account No.</span><span id="pBankAccount">-</span></div>
+          </div>
+          <div class="r-note" id="pNotes"></div>
+          <div class="r-footer">Payment Method: <span id="pPayMethod">-</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECORDS ============ -->
+  <section id="view-records" class="view">
+    <div class="panel filter-panel">
+      <div class="preset-row" id="recPresets">
+        <button type="button" class="preset-btn" data-preset="today" id="pr_today">今天</button>
+        <button type="button" class="preset-btn" data-preset="week" id="pr_week">本周</button>
+        <button type="button" class="preset-btn" data-preset="month" id="pr_month">本月</button>
+        <button type="button" class="preset-btn" data-preset="lastMonth" id="pr_lastMonth">上月</button>
+        <button type="button" class="preset-btn" data-preset="year" id="pr_year">今年</button>
+        <button type="button" class="preset-btn" data-preset="all" id="pr_all">全部</button>
+      </div>
+      <div class="filter-row">
+        <div class="field">
+          <label id="l_recStart">开始日期</label>
+          <input type="text" id="recStartDate" class="date-picker-input" readonly>
+        </div>
+        <div class="field">
+          <label id="l_recEnd">结束日期</label>
+          <input type="text" id="recEndDate" class="date-picker-input" readonly>
+        </div>
+        <div class="field">
+          <label id="l_recCategory">职业类别</label>
+          <select id="recCategory"></select>
+        </div>
+        <div class="field">
+          <label id="l_recSearch">搜索客户</label>
+          <input type="text" id="recSearch" placeholder="客户 / 品牌名称">
+        </div>
+        <button class="ghost" id="recClear">清除筛选</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div class="sl" id="l_statCount">收据数量</div>
+        <div class="sv" id="statCount">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="sl" id="l_statRevenue">总收入</div>
+        <div class="sv" id="statRevenue">RM 0.00</div>
+      </div>
+      <div class="stat-box profit">
+        <div class="sl" id="l_statProfit2">总利润</div>
+        <div class="sv" id="statProfit">RM 0.00</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;overflow-x:auto;">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th id="th_no">编号</th>
+            <th id="th_date">日期</th>
+            <th id="th_client">客户</th>
+            <th id="th_cat">类别</th>
+            <th class="num" id="th_income">收入</th>
+            <th class="num" id="th_cost">支出</th>
+            <th class="num" id="th_profit">利润</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+      <div class="empty-hint" id="recordsEmpty" style="display:none;">还没有保存的收据。</div>
+    </div>
+  </section>
+
+  <!-- ============ INCOME ============ -->
+  <section id="view-income" class="view">
+    <div class="panel filter-panel">
+      <div class="preset-row" id="incPresets">
+        <button type="button" class="preset-btn" data-preset="today" id="pi_today">今天</button>
+        <button type="button" class="preset-btn" data-preset="week" id="pi_week">本周</button>
+        <button type="button" class="preset-btn" data-preset="month" id="pi_month">本月</button>
+        <button type="button" class="preset-btn" data-preset="lastMonth" id="pi_lastMonth">上月</button>
+        <button type="button" class="preset-btn" data-preset="year" id="pi_year">今年</button>
+        <button type="button" class="preset-btn" data-preset="all" id="pi_all">全部</button>
+      </div>
+      <div class="filter-row" style="grid-template-columns:1fr 1fr auto;">
+        <div class="field">
+          <label id="l_incStart">开始日期</label>
+          <input type="text" id="incStartDate" class="date-picker-input" readonly>
+        </div>
+        <div class="field">
+          <label id="l_incEnd">结束日期</label>
+          <input type="text" id="incEndDate" class="date-picker-input" readonly>
+        </div>
+        <button class="ghost" id="incClear">清除筛选</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-box">
+        <div class="sl" id="l_statRevenue2">总收入</div>
+        <div class="sv" id="incStatRevenue">RM 0.00</div>
+      </div>
+      <div class="stat-box profit">
+        <div class="sl" id="l_statProfit3">总利润</div>
+        <div class="sv" id="incStatProfit">RM 0.00</div>
+      </div>
+      <div class="stat-box">
+        <div class="sl" id="l_statCount2">收据数量</div>
+        <div class="sv" id="incStatCount">0</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <h2><span id="h_catBreakdown">收入分类拆解</span></h2>
+      <div id="categoryBreakdown"></div>
+      <div class="empty-hint" id="incomeEmpty" style="display:none;">还没有足够的数据。</div>
+    </div>
+
+    <div class="panel">
+      <h2><span id="h_insights">智能分析建议</span></h2>
+      <div class="hint" id="insightsHint">以下建议根据你保存的收据自动运算得出</div>
+      <div id="insightsBox"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmt = n => 'RM ' + (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+  const todayStr = () => new Date().toISOString().slice(0,10);
+
+  let currentEditId = null;
+  let lang = localStorage.getItem('receiptUiLang') || 'zh';
+  let currentView = 'home';
+
+  function catLabel(v){ return v || (lang==='zh' ? '未分类' : 'Uncategorized'); }
+
+  // ================= i18n =================
+  const I18N = {
+    zh: {
+      topbar_home:'Jesse L Backstage Record System', topbar_generator:'生成收据', topbar_records:'查看账单明细', topbar_income:'收入列表',
+      homeSubtitle:'私人后台记录系统 · 本地保存', toggleLabel:'EN',
+      cardGenTitle:'生成收据', cardGenDesc:'开立新的英文收据，含项目明细与银行收款资料',
+      cardRecTitle:'查看账单明细', cardRecDesc:'浏览所有开过的收据，按日期与类别筛选',
+      cardIncTitle:'收入列表', cardIncDesc:'按领域拆解收入与利润，附智能分析建议',
+      h_panel1:'我的资料', l_bizName:'姓名 / 工作室名称', l_bizSub:'身份 / 副标题',
+      l_bizContact:'联络方式（电话 / IG / Email）', h_bankSection:'银行收款资料（会显示在收据上）',
+      l_bankName:'银行名称', l_bankHolder:'账户持有人姓名', l_bankAccount:'银行账号',
+      l_numPrefix:'收据编号前缀', l_numCounter:'下一个流水号', saveBiz:'保存我的资料',
+      h_professionSection:'职业分类管理', professionHint:'职业名称建议使用英文，因为会显示在收据上',
+      addProfession:'+ 添加职业', confirmDeleteProfession:'删除这个职业分类？已保存的收据不会受影响。',
+      alertProfessionDup:'这个职业已经存在了', newProfessionPh:'例如：Wedding Makeup',
+      pr_today:'今天', pr_week:'本周', pr_month:'本月', pr_lastMonth:'上月', pr_year:'今年', pr_all:'全部',
+      pi_today:'今天', pi_week:'本周', pi_month:'本月', pi_lastMonth:'上月', pi_year:'今年', pi_all:'全部',
+      h_panel2:'客户与项目', l_clientName:'客户 / 品牌名称', l_serviceType:'服务类型',
+      l_rDate:'日期', l_payMethod:'付款方式',
+      h_panel3:'项目明细', th_desc:'项目描述', th_qty:'数量', th_price:'单价 (RM)', th_sum:'小计',
+      addItem:'+ 添加项目', l_discount:'折扣 (RM)', l_deposit:'已付订金 (RM)',
+      l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语等',
+      h_costSection:'内部记录（不会显示在收据上）', costHint:'用来记录这笔收入实际花了多少成本，方便计算净利润',
+      l_costAmount:'支出 / 车费 (RM)', l_costNote:'支出说明', costNotePh:'例如：Grab 车费、化妆品材料',
+      l_miniSubtotal:'小计', l_miniDiscount:'折扣', l_miniTotal:'应付总额', l_miniProfit:'净利润',
+      saveReceipt:'保存收据', printReceipt:'打印 / 存为 PDF', newReceipt:'开新收据',
+      receiptLabel:'收据预览（永远显示英文）',
+      alertSaved:'已保存我的资料', alertNeedClient:'请填写客户 / 品牌名称',
+      alertReceiptSaved:'收据已保存：', confirmNew:'开始新的收据？未保存的内容会遗失。',
+      l_recStart:'开始日期', l_recEnd:'结束日期', l_recCategory:'职业类别', l_recSearch:'搜索客户',
+      recSearchPh:'客户 / 品牌名称', recClear:'清除筛选',
+      l_statCount:'收据数量', l_statRevenue:'总收入', l_statProfit2:'总利润',
+      th_no:'编号', th_date:'日期', th_client:'客户', th_cat:'类别', th_income:'收入', th_cost:'支出', th_profit:'利润',
+      recordsEmpty:'还没有保存的收据。', confirmDelete:'确定要删除这张收据吗？此操作无法复原。',
+      l_incStart:'开始日期', l_incEnd:'结束日期', incClear:'清除筛选',
+      l_statRevenue2:'总收入', l_statProfit3:'总利润', l_statCount2:'收据数量',
+      h_catBreakdown:'收入分类拆解', incomeEmpty:'还没有足够的数据。',
+      h_insights:'智能分析建议', insightsHint:'以下建议根据你保存的收据自动运算得出',
+      insightsEmpty:'保存几张收据后，这里会自动分析哪个领域最赚钱。',
+      catJobsSuffix:'单', calToday:'今天', calClear:'清除'
+    },
+    en: {
+      topbar_home:'Jesse L Backstage Record System', topbar_generator:'Generate Receipt', topbar_records:'Invoice Records', topbar_income:'Income Breakdown',
+      homeSubtitle:'Private backstage record system · Saved locally', toggleLabel:'中文',
+      cardGenTitle:'Generate Receipt', cardGenDesc:'Create a new English receipt with itemized details and bank info',
+      cardRecTitle:'Invoice Records', cardRecDesc:'Browse every receipt you have issued, filter by date and category',
+      cardIncTitle:'Income Breakdown', cardIncDesc:'See income and profit by category, with smart insights',
+      h_panel1:'My Info', l_bizName:'Name / Studio Name', l_bizSub:'Role / Subtitle',
+      l_bizContact:'Contact (Phone / IG / Email)', h_bankSection:'Bank Details (shown on the receipt)',
+      l_bankName:'Bank Name', l_bankHolder:'Account Holder Name', l_bankAccount:'Bank Account Number',
+      l_numPrefix:'Receipt Number Prefix', l_numCounter:'Next Sequence Number', saveBiz:'Save My Info',
+      h_professionSection:'Profession Categories', professionHint:'Enter profession names in English — they appear on the printed receipt',
+      addProfession:'+ Add Profession', confirmDeleteProfession:'Remove this profession category? Saved receipts are not affected.',
+      alertProfessionDup:'This profession already exists', newProfessionPh:'e.g. Wedding Makeup',
+      pr_today:'Today', pr_week:'This Week', pr_month:'This Month', pr_lastMonth:'Last Month', pr_year:'This Year', pr_all:'All Time',
+      pi_today:'Today', pi_week:'This Week', pi_month:'This Month', pi_lastMonth:'Last Month', pi_year:'This Year', pi_all:'All Time',
+      h_panel2:'Client & Project', l_clientName:'Client / Brand Name', l_serviceType:'Service Type',
+      l_rDate:'Date', l_payMethod:'Payment Method',
+      h_panel3:'Item Details', th_desc:'Description', th_qty:'Qty', th_price:'Unit Price (RM)', th_sum:'Subtotal',
+      addItem:'+ Add Item', l_discount:'Discount (RM)', l_deposit:'Deposit Paid (RM)',
+      l_notes:'Notes', notesPh:'e.g. shoot location, terms of use, thank-you note',
+      h_costSection:'Internal Notes (not shown on receipt)', costHint:'Track what this job actually cost you, so net profit can be calculated',
+      l_costAmount:'Cost / Transport (RM)', l_costNote:'Expense Note', costNotePh:'e.g. Grab fare, makeup supplies',
+      l_miniSubtotal:'Subtotal', l_miniDiscount:'Discount', l_miniTotal:'Total Due', l_miniProfit:'Net Profit',
+      saveReceipt:'Save Receipt', printReceipt:'Print / Save as PDF', newReceipt:'New Receipt',
+      receiptLabel:'Receipt preview (always in English)',
+      alertSaved:'Your info has been saved', alertNeedClient:'Please enter the client / brand name',
+      alertReceiptSaved:'Receipt saved: ', confirmNew:'Start a new receipt? Unsaved changes will be lost.',
+      l_recStart:'Start Date', l_recEnd:'End Date', l_recCategory:'Profession', l_recSearch:'Search Client',
+      recSearchPh:'Client / brand name', recClear:'Clear Filters',
+      l_statCount:'Receipts', l_statRevenue:'Total Revenue', l_statProfit2:'Total Profit',
+      th_no:'No.', th_date:'Date', th_client:'Client', th_cat:'Category', th_income:'Income', th_cost:'Cost', th_profit:'Profit',
+      recordsEmpty:'No saved receipts yet.', confirmDelete:'Delete this receipt? This cannot be undone.',
+      l_incStart:'Start Date', l_incEnd:'End Date', incClear:'Clear Filters',
+      l_statRevenue2:'Total Revenue', l_statProfit3:'Total Profit', l_statCount2:'Receipts',
+      h_catBreakdown:'Income by Category', incomeEmpty:'Not enough data yet.',
+      h_insights:'Smart Insights', insightsHint:'These suggestions are calculated automatically from your saved receipts',
+      insightsEmpty:'Save a few receipts and this section will automatically surface your most profitable category.',
+      catJobsSuffix:'jobs', calToday:'Today', calClear:'Clear'
+    }
+  };
+
+  function applyLang(){
+    const t = I18N[lang];
+    document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+    $('langToggle').textContent = t.toggleLabel;
+    Object.keys(t).forEach(key => {
+      const el = $(key);
+      if(el && !/Ph$|^alert|^confirm|^topbar_|^catJobsSuffix|^calToday|^calClear/.test(key)){
+        el.textContent = t[key];
+      }
+    });
+    $('notes').placeholder = t.notesPh;
+    $('costNote').placeholder = t.costNotePh;
+    $('recSearch').placeholder = t.recSearchPh;
+    $('newProfession').placeholder = t.newProfessionPh;
+    document.querySelectorAll('select option[data-zh]').forEach(opt => {
+      opt.textContent = opt.dataset[lang];
+    });
+    renderProfessionSelects();
+    localStorage.setItem('receiptUiLang', lang);
+    setTopbarTitle();
+    closeAllPopups();
+    if(currentView === 'records') renderRecords();
+    if(currentView === 'income') renderIncome();
+    render();
+  }
+
+  $('langToggle').addEventListener('click', () => {
+    lang = lang === 'zh' ? 'en' : 'zh';
+    applyLang();
+  });
+
+  // ================= view routing =================
+  function setTopbarTitle(){
+    $('topbarTitle').textContent = I18N[lang]['topbar_' + currentView];
+  }
+  function showView(name){
+    currentView = name;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $('view-' + name).classList.add('active');
+    $('btnBack').style.display = name === 'home' ? 'none' : 'flex';
+    setTopbarTitle();
+    closeAllPopups();
+    if(name === 'records') renderRecords();
+    if(name === 'income') renderIncome();
+    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  }
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.addEventListener('click', () => showView(el.dataset.nav));
+  });
+  $('btnBack').addEventListener('click', () => showView('home'));
+
+  // ================= storage helpers =================
+  function loadBiz(){ try{ return JSON.parse(localStorage.getItem('receiptBiz')) || {}; }catch(e){ return {}; } }
+  function saveBizFn(obj){ localStorage.setItem('receiptBiz', JSON.stringify(obj)); }
+  function loadReceipts(){ try{ return JSON.parse(localStorage.getItem('receipts')) || []; }catch(e){ return []; } }
+  function saveReceipts(arr){ localStorage.setItem('receipts', JSON.stringify(arr)); }
+
+  // ================= professions (custom job categories) =================
+  const DEFAULT_PROFESSIONS = ['Photoshoot Service','Modeling Job','Makeup & Styling','Influencer Collaboration','Other'];
+  function loadProfessions(){
+    try{
+      const p = JSON.parse(localStorage.getItem('professions'));
+      return (Array.isArray(p) && p.length) ? p : DEFAULT_PROFESSIONS.slice();
+    }catch(e){ return DEFAULT_PROFESSIONS.slice(); }
+  }
+  function saveProfessions(arr){ localStorage.setItem('professions', JSON.stringify(arr)); }
+  let professions = loadProfessions();
+
+  function renderProfessionChips(){
+    const box = $('professionChips');
+    box.innerHTML = '';
+    professions.forEach(p => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = `<span>${escapeHtml(p)}</span><button type="button" data-name="${escapeAttr(p)}">✕</button>`;
+      chip.querySelector('button').addEventListener('click', () => {
+        if(confirm(I18N[lang].confirmDeleteProfession)){
+          professions = professions.filter(x => x !== p);
+          saveProfessions(professions);
+          renderProfessionChips();
+          renderProfessionSelects();
+        }
+      });
+      box.appendChild(chip);
+    });
+  }
+
+  function renderProfessionSelects(){
+    const genVal = $('serviceType').value;
+    const recVal = $('recCategory') ? $('recCategory').value : '';
+
+    $('serviceType').innerHTML = professions.map(p =>
+      `<option value="${escapeAttr(p)}">${escapeHtml(p)}</option>`
+    ).join('');
+    if(professions.includes(genVal)) $('serviceType').value = genVal;
+
+    const allLabel = lang === 'zh' ? '全部类别' : 'All Categories';
+    $('recCategory').innerHTML = `<option value="">${allLabel}</option>` + professions.map(p =>
+      `<option value="${escapeAttr(p)}">${escapeHtml(p)}</option>`
+    ).join('');
+    if(professions.includes(recVal)) $('recCategory').value = recVal;
+  }
+
+  $('addProfession').addEventListener('click', () => {
+    const v = $('newProfession').value.trim();
+    if(!v) return;
+    if(professions.includes(v)){
+      alert(I18N[lang].alertProfessionDup);
+      return;
+    }
+    professions.push(v);
+    saveProfessions(professions);
+    $('newProfession').value = '';
+    renderProfessionChips();
+    renderProfessionSelects();
+  });
+  $('newProfession').addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); $('addProfession').click(); }
+  });
+
+  function escapeAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // ================= calendar / date picker =================
+  const openPopups = [];
+  function closeAllPopups(){ openPopups.forEach(p => p.style.display = 'none'); }
+
+  function initDatePicker(input){
+    const wrap = document.createElement('div');
+    wrap.className = 'datepicker-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+
+    const popup = document.createElement('div');
+    popup.className = 'datepicker-popup';
+    popup.style.display = 'none';
+    wrap.appendChild(popup);
+    openPopups.push(popup);
+
+    let viewDate = input.value ? new Date(input.value + 'T00:00:00') : new Date();
+
+    function draw(){
+      const y = viewDate.getFullYear(), m = viewDate.getMonth();
+      const first = new Date(y, m, 1);
+      const startWeekday = first.getDay();
+      const daysInMonth = new Date(y, m+1, 0).getDate();
+      const monthNamesZh = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+      const monthNamesEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const monthNames = lang === 'zh' ? monthNamesZh : monthNamesEn;
+      const weekdays = lang === 'zh' ? ['日','一','二','三','四','五','六'] : ['Su','Mo','Tu','We','Th','Fr','Sa'];
+      const t = I18N[lang];
+
+      let html = `<div class="cal-header">
+        <button type="button" class="cal-nav" data-dir="-1">‹</button>
+        <span class="cal-title">${monthNames[m]} ${y}</span>
+        <button type="button" class="cal-nav" data-dir="1">›</button>
+      </div>
+      <div class="cal-weekdays">${weekdays.map(w => `<span>${w}</span>`).join('')}</div>
+      <div class="cal-grid">`;
+      for(let i=0; i<startWeekday; i++) html += `<span class="cal-day empty"></span>`;
+      const ts = todayStr();
+      for(let d=1; d<=daysInMonth; d++){
+        const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const cls = ['cal-day'];
+        if(dateStr === input.value) cls.push('selected');
+        if(dateStr === ts) cls.push('today');
+        html += `<button type="button" class="${cls.join(' ')}" data-date="${dateStr}">${d}</button>`;
+      }
+      html += `</div>
+      <div class="cal-footer">
+        <button type="button" class="cal-today">${t.calToday}</button>
+        <button type="button" class="cal-clear">${t.calClear}</button>
+      </div>`;
+      popup.innerHTML = html;
+
+      popup.querySelectorAll('.cal-nav').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          viewDate = new Date(y, m + Number(btn.dataset.dir), 1);
+          draw();
+        });
+      });
+      popup.querySelectorAll('.cal-day:not(.empty)').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          input.value = btn.dataset.date;
+          input.dispatchEvent(new Event('input', {bubbles:true}));
+          popup.style.display = 'none';
+        });
+      });
+      popup.querySelector('.cal-today').addEventListener('click', e => {
+        e.stopPropagation();
+        const nowStr = todayStr();
+        input.value = nowStr;
+        viewDate = new Date();
+        input.dispatchEvent(new Event('input', {bubbles:true}));
+        popup.style.display = 'none';
+      });
+      popup.querySelector('.cal-clear').addEventListener('click', e => {
+        e.stopPropagation();
+        input.value = '';
+        input.dispatchEvent(new Event('input', {bubbles:true}));
+        popup.style.display = 'none';
+      });
+    }
+
+    input.addEventListener('click', e => {
+      e.stopPropagation();
+      viewDate = input.value ? new Date(input.value + 'T00:00:00') : new Date();
+      draw();
+      closeAllPopups();
+      popup.style.display = 'block';
+    });
+    popup.addEventListener('click', e => e.stopPropagation());
+  }
+
+  document.addEventListener('click', closeAllPopups);
+
+  ['rDate','recStartDate','recEndDate','incStartDate','incEndDate'].forEach(id => initDatePicker($(id)));
+
+  // ================= biz info =================
+  const biz = loadBiz();
+  $('bizName').value = biz.name || '';
+  $('bizSub').value = biz.sub || 'Model · Content Creator · Makeup Artist';
+  $('bizContact').value = biz.contact || '';
+  $('bankName').value = biz.bankName || 'CIMB Bank';
+  $('bankHolder').value = biz.bankHolder || 'Leong Yuan Yi';
+  $('bankAccount').value = biz.bankAccount || '7642093373';
+  $('numPrefix').value = biz.prefix || 'JL';
+  $('numCounter').value = biz.counter || 1;
+
+  $('saveBiz').addEventListener('click', () => {
+    saveBizFn({
+      name: $('bizName').value, sub: $('bizSub').value, contact: $('bizContact').value,
+      bankName: $('bankName').value, bankHolder: $('bankHolder').value, bankAccount: $('bankAccount').value,
+      prefix: $('numPrefix').value, counter: Number($('numCounter').value) || 1
+    });
+    render();
+    alert(I18N[lang].alertSaved);
+  });
+
+  // ================= items =================
+  let items = [];
+  function addItemRow(desc='', qty=1, price=0){
+    items.push({desc, qty, price});
+    renderItemsTable();
+  }
+  function renderItemsTable(){
+    const body = $('itemsBody');
+    body.innerHTML = '';
+    items.forEach((it, idx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="col-desc"><input type="text" data-idx="${idx}" data-field="desc" value="${escapeAttr(it.desc)}" placeholder="${lang==='zh' ? '例如：外拍 3 小时' : 'e.g. Outdoor shoot, 3 hours'}"></td>
+        <td class="col-qty"><input type="number" min="0" step="1" data-idx="${idx}" data-field="qty" value="${it.qty}"></td>
+        <td class="col-price"><input type="number" min="0" step="0.01" data-idx="${idx}" data-field="price" value="${it.price}"></td>
+        <td class="col-sum">${fmt(it.qty * it.price)}</td>
+        <td class="col-del"><button class="del-btn" data-idx="${idx}" title="Remove">✕</button></td>
+      `;
+      body.appendChild(tr);
+    });
+    body.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = Number(e.target.dataset.idx);
+        const field = e.target.dataset.field;
+        items[idx][field] = field === 'desc' ? e.target.value : Number(e.target.value) || 0;
+        renderItemsTable();
+        render();
+      });
+    });
+    body.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        items.splice(Number(e.target.dataset.idx), 1);
+        renderItemsTable();
+        render();
+      });
+    });
+  }
+  $('addItem').addEventListener('click', () => addItemRow());
+
+  // ================= totals =================
+  function computeTotals(){
+    const subtotal = items.reduce((s,it) => s + (it.qty * it.price), 0);
+    const discount = Number($('discount').value) || 0;
+    const deposit = Number($('deposit').value) || 0;
+    const total = Math.max(0, subtotal - discount - deposit);
+    const cost = Number($('costAmount').value) || 0;
+    const profit = total - cost;
+    return {subtotal, discount, deposit, total, cost, profit};
+  }
+  function currentReceiptNo(){
+    const prefix = $('numPrefix').value || 'JL';
+    const counter = Number($('numCounter').value) || 1;
+    return `${prefix}-${String(counter).padStart(4,'0')}`;
+  }
+
+  // ================= render generator =================
+  function render(){
+    $('pBizName').textContent = $('bizName').value || 'Your Name';
+    $('pBizSub').textContent = $('bizSub').value || '';
+    $('pBizContact').textContent = $('bizContact').value || '';
+    $('pReceiptNo').textContent = currentReceiptNo();
+    $('pDate').textContent = $('rDate').value || '-';
+    $('pService').textContent = $('serviceType').value || '-';
+    $('pClient').textContent = $('clientName').value || '-';
+    $('pPayMethod').textContent = $('payMethod').value || '-';
+    $('pNotes').textContent = $('notes').value || '';
+    $('pBankName').textContent = $('bankName').value || '-';
+    $('pBankHolder').textContent = $('bankHolder').value || '-';
+    $('pBankAccount').textContent = $('bankAccount').value || '-';
+
+    const pBody = $('pItemsBody');
+    pBody.innerHTML = '';
+    items.forEach(it => {
+      if(!it.desc && !it.qty && !it.price) return;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(it.desc)}</td><td class="num">${it.qty}</td><td class="num">${fmt(it.qty*it.price)}</td>`;
+      pBody.appendChild(tr);
+    });
+
+    const t = computeTotals();
+    $('miniSubtotal').textContent = fmt(t.subtotal);
+    $('miniDiscount').textContent = '- ' + fmt(t.discount);
+    $('miniTotal').textContent = fmt(t.total);
+    $('miniProfit').textContent = fmt(t.profit);
+    const profitRow = $('miniProfitRow');
+    profitRow.classList.toggle('pos', t.profit >= 0);
+    profitRow.classList.toggle('neg', t.profit < 0);
+
+    $('pSubtotal').textContent = fmt(t.subtotal);
+    $('pDiscount').textContent = '- ' + fmt(t.discount);
+    $('pDeposit').textContent = '- ' + fmt(t.deposit);
+    $('pTotal').textContent = fmt(t.total);
+
+    $('stampEl').style.display = t.total <= 0 && t.subtotal > 0 ? 'flex' : 'none';
+  }
+
+  ['discount','deposit','rDate','serviceType','payMethod','clientName','notes','bizName','bizSub','bizContact',
+   'numPrefix','numCounter','bankName','bankHolder','bankAccount','costAmount','costNote']
+    .forEach(id => $(id).addEventListener('input', render));
+
+  // ================= save / print / new =================
+  function resetForm(){
+    currentEditId = null;
+    $('clientName').value = '';
+    $('serviceType').selectedIndex = 0;
+    $('payMethod').selectedIndex = 0;
+    $('discount').value = 0;
+    $('deposit').value = 0;
+    $('notes').value = '';
+    $('costAmount').value = 0;
+    $('costNote').value = '';
+    $('rDate').value = todayStr();
+    items = [];
+    addItemRow();
+    render();
+  }
+
+  $('saveReceipt').addEventListener('click', () => {
+    if(!$('clientName').value.trim()){
+      alert(I18N[lang].alertNeedClient);
+      return;
+    }
+    const t = computeTotals();
+    const record = {
+      id: currentEditId || ('r_' + Date.now()),
+      no: currentReceiptNo(),
+      client: $('clientName').value,
+      service: $('serviceType').value,
+      date: $('rDate').value || todayStr(),
+      payMethod: $('payMethod').value,
+      items: JSON.parse(JSON.stringify(items)),
+      discount: t.discount,
+      deposit: t.deposit,
+      subtotal: t.subtotal,
+      total: t.total,
+      cost: t.cost,
+      costNote: $('costNote').value,
+      notes: $('notes').value,
+      bizSnapshot: {
+        name: $('bizName').value, sub: $('bizSub').value, contact: $('bizContact').value,
+        bankName: $('bankName').value, bankHolder: $('bankHolder').value, bankAccount: $('bankAccount').value
+      }
+    };
+    let list = loadReceipts();
+    const existingIdx = list.findIndex(r => r.id === record.id);
+    if(existingIdx >= 0){
+      list[existingIdx] = record;
+    } else {
+      list.unshift(record);
+      const b = loadBiz();
+      b.counter = (Number($('numCounter').value) || 1) + 1;
+      saveBizFn(b);
+      $('numCounter').value = b.counter;
+    }
+    saveReceipts(list);
+    currentEditId = record.id;
+    render();
+    alert(I18N[lang].alertReceiptSaved + record.no);
+  });
+
+  $('printReceipt').addEventListener('click', () => window.print());
+  $('newReceipt').addEventListener('click', () => {
+    if(confirm(I18N[lang].confirmNew)) resetForm();
+  });
+
+  function loadRecord(r){
+    currentEditId = r.id;
+    $('clientName').value = r.client;
+    $('serviceType').value = r.service;
+    $('rDate').value = r.date;
+    $('payMethod').value = r.payMethod;
+    $('discount').value = r.discount;
+    $('deposit').value = r.deposit;
+    $('notes').value = r.notes;
+    $('costAmount').value = r.cost || 0;
+    $('costNote').value = r.costNote || '';
+    items = JSON.parse(JSON.stringify(r.items || []));
+    if(items.length === 0) addItemRow();
+    renderItemsTable();
+    render();
+    showView('generator');
+  }
+
+  // ================= date range helper =================
+  function inRange(dateStr, start, end){
+    if(!dateStr) return false;
+    if(start && dateStr < start) return false;
+    if(end && dateStr > end) return false;
+    return true;
+  }
+
+  // ================= time preset picker =================
+  function computePresetRange(key){
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    if(key === 'today'){ const s = toStr(now); return [s, s]; }
+    if(key === 'week'){
+      const day = now.getDay() || 7;
+      const monday = new Date(now); monday.setDate(now.getDate() - day + 1);
+      return [toStr(monday), toStr(now)];
+    }
+    if(key === 'month'){
+      const first = new Date(now.getFullYear(), now.getMonth(), 1);
+      const last = new Date(now.getFullYear(), now.getMonth()+1, 0);
+      return [toStr(first), toStr(last)];
+    }
+    if(key === 'lastMonth'){
+      const first = new Date(now.getFullYear(), now.getMonth()-1, 1);
+      const last = new Date(now.getFullYear(), now.getMonth(), 0);
+      return [toStr(first), toStr(last)];
+    }
+    if(key === 'year'){
+      const first = new Date(now.getFullYear(), 0, 1);
+      const last = new Date(now.getFullYear(), 11, 31);
+      return [toStr(first), toStr(last)];
+    }
+    return ['', '']; // 'all'
+  }
+
+  function attachPresets(containerId, startId, endId, renderFn){
+    const container = $(containerId);
+    container.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const [s, e] = computePresetRange(btn.dataset.preset);
+        $(startId).value = s;
+        $(endId).value = e;
+        container.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderFn();
+      });
+    });
+    // manual date edits (via calendar) deselect presets
+    [startId, endId].forEach(id => {
+      $(id).addEventListener('input', () => {
+        container.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      });
+    });
+  }
+
+  // ================= records view =================
+  function renderRecords(){
+    const start = $('recStartDate').value;
+    const end = $('recEndDate').value;
+    const cat = $('recCategory').value;
+    const q = $('recSearch').value.trim().toLowerCase();
+
+    let list = loadReceipts().filter(r => {
+      if((start || end) && !inRange(r.date, start, end)) return false;
+      if(cat && r.service !== cat) return false;
+      if(q && !(r.client || '').toLowerCase().includes(q)) return false;
+      return true;
+    });
+
+    const totalIncome = list.reduce((s,r) => s + (r.total || 0), 0);
+    const totalCost = list.reduce((s,r) => s + (r.cost || 0), 0);
+    const totalProfit = totalIncome - totalCost;
+
+    $('statCount').textContent = list.length;
+    $('statRevenue').textContent = fmt(totalIncome);
+    const spEl = $('statProfit');
+    spEl.textContent = fmt(totalProfit);
+    spEl.classList.toggle('pos', totalProfit >= 0);
+    spEl.classList.toggle('neg', totalProfit < 0);
+
+    const body = $('recordsBody');
+    body.innerHTML = '';
+    $('recordsEmpty').style.display = list.length === 0 ? 'block' : 'none';
+
+    list.forEach(r => {
+      const cost = r.cost || 0;
+      const profit = (r.total || 0) - cost;
+      const tr = document.createElement('tr');
+      tr.className = 'rec-row';
+      tr.innerHTML = `
+        <td>${escapeHtml(r.no)}</td>
+        <td>${escapeHtml(r.date || '')}</td>
+        <td>${escapeHtml(r.client)}</td>
+        <td><span class="cat-pill">${escapeHtml(catLabel(r.service))}</span></td>
+        <td class="num">${fmt(r.total || 0)}</td>
+        <td class="num">${fmt(cost)}</td>
+        <td class="num profit ${profit >= 0 ? 'pos' : 'neg'}">${fmt(profit)}</td>
+        <td><button class="del-btn" title="Delete">✕</button></td>
+      `;
+      tr.querySelector('td:not(:last-child)').parentElement.addEventListener('click', (e) => {
+        if(e.target.closest('.del-btn')) return;
+        loadRecord(r);
+      });
+      tr.querySelector('.del-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if(confirm(I18N[lang].confirmDelete)){
+          const all = loadReceipts().filter(x => x.id !== r.id);
+          saveReceipts(all);
+          renderRecords();
+        }
+      });
+      body.appendChild(tr);
+    });
+  }
+
+  ['recStartDate','recEndDate','recCategory','recSearch'].forEach(id => $(id).addEventListener('input', renderRecords));
+  $('recCategory').addEventListener('change', renderRecords);
+  attachPresets('recPresets', 'recStartDate', 'recEndDate', renderRecords);
+  $('recClear').addEventListener('click', () => {
+    $('recStartDate').value = ''; $('recEndDate').value = '';
+    $('recCategory').value = ''; $('recSearch').value = '';
+    $('recPresets').querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    renderRecords();
+  });
+
+  // ================= income view =================
+  function renderIncome(){
+    const start = $('incStartDate').value;
+    const end = $('incEndDate').value;
+    const all = loadReceipts().filter(r => !(start || end) || inRange(r.date, start, end));
+
+    const totalIncome = all.reduce((s,r) => s + (r.total || 0), 0);
+    const totalCost = all.reduce((s,r) => s + (r.cost || 0), 0);
+    const totalProfit = totalIncome - totalCost;
+
+    $('incStatRevenue').textContent = fmt(totalIncome);
+    const ipEl = $('incStatProfit');
+    ipEl.textContent = fmt(totalProfit);
+    ipEl.classList.toggle('pos', totalProfit >= 0);
+    ipEl.classList.toggle('neg', totalProfit < 0);
+    $('incStatCount').textContent = all.length;
+
+    // group by category
+    const groups = {};
+    all.forEach(r => {
+      const key = r.service || 'Other';
+      if(!groups[key]) groups[key] = {income:0, cost:0, count:0};
+      groups[key].income += (r.total || 0);
+      groups[key].cost += (r.cost || 0);
+      groups[key].count += 1;
+    });
+    const rows = Object.keys(groups).map(k => ({
+      key: k, ...groups[k], profit: groups[k].income - groups[k].cost
+    })).sort((a,b) => b.income - a.income);
+
+    const maxIncome = rows.length ? rows[0].income : 0;
+    const box = $('categoryBreakdown');
+    box.innerHTML = '';
+    $('incomeEmpty').style.display = rows.length === 0 ? 'block' : 'none';
+
+    rows.forEach(row => {
+      const pct = maxIncome > 0 ? (row.income / maxIncome * 100) : 0;
+      const share = totalIncome > 0 ? (row.income / totalIncome * 100) : 0;
+      const div = document.createElement('div');
+      div.className = 'cat-row';
+      div.innerHTML = `
+        <div class="cat-row-top">
+          <div class="cat-name">${escapeHtml(catLabel(row.key))}</div>
+          <div class="cat-figures"><b>${fmt(row.income)}</b> · ${share.toFixed(0)}%</div>
+        </div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+        <div class="cat-sub">${row.count} ${I18N[lang].catJobsSuffix} · ${lang==='zh' ? '利润' : 'Profit'}: <span class="${row.profit>=0?'profit-pos':'profit-neg'}">${fmt(row.profit)}</span></div>
+      `;
+      box.appendChild(div);
+    });
+
+    renderInsights(all, rows, totalIncome);
+  }
+
+  function renderInsights(records, rows, totalIncome){
+    const box = $('insightsBox');
+    box.innerHTML = '';
+    if(records.length < 2 || rows.length === 0){
+      box.innerHTML = `<div class="empty-hint">${I18N[lang].insightsEmpty}</div>`;
+      return;
+    }
+    const items = [];
+
+    // top revenue category
+    const topRev = rows[0];
+    const topRevShare = totalIncome > 0 ? (topRev.income/totalIncome*100) : 0;
+    items.push({
+      emoji:'💡',
+      text: lang==='zh'
+        ? `「${catLabel(topRev.key)}」是你收入最高的类别，共赚 ${fmt(topRev.income)}，占总收入的 ${topRevShare.toFixed(0)}%。`
+        : `"${catLabel(topRev.key)}" is your top revenue category — ${fmt(topRev.income)} total, ${topRevShare.toFixed(0)}% of overall income.`
+    });
+
+    // highest profit margin category (income > 0)
+    const withMargin = rows.filter(r => r.income > 0).map(r => ({...r, margin: r.profit / r.income}));
+    if(withMargin.length){
+      const topMargin = withMargin.slice().sort((a,b) => b.margin - a.margin)[0];
+      items.push({
+        emoji:'📈',
+        text: lang==='zh'
+          ? `「${catLabel(topMargin.key)}」的利润率最高，达到 ${(topMargin.margin*100).toFixed(0)}%，是目前最划算的项目。`
+          : `"${catLabel(topMargin.key)}" has the highest profit margin at ${(topMargin.margin*100).toFixed(0)}%, your most efficient work type.`
+      });
+    }
+
+    // highest average income per job
+    const withAvg = rows.map(r => ({...r, avg: r.count ? r.income / r.count : 0}));
+    const topAvg = withAvg.slice().sort((a,b) => b.avg - a.avg)[0];
+    if(topAvg){
+      items.push({
+        emoji:'⭐',
+        text: lang==='zh'
+          ? `平均每单收入最高的是「${catLabel(topAvg.key)}」，平均 ${fmt(topAvg.avg)} / 单。`
+          : `"${catLabel(topAvg.key)}" has the highest average income per job at ${fmt(topAvg.avg)}.`
+      });
+    }
+
+    // 30-day trend vs previous 30 days (based on all-time data, not the date filter)
+    const allRecords = loadReceipts();
+    const now = new Date();
+    const d30 = new Date(now); d30.setDate(d30.getDate()-30);
+    const d60 = new Date(now); d60.setDate(d60.getDate()-60);
+    const recentSum = allRecords.filter(r => r.date && r.date >= d30.toISOString().slice(0,10)).reduce((s,r)=>s+(r.total||0),0);
+    const prevSum = allRecords.filter(r => r.date && r.date >= d60.toISOString().slice(0,10) && r.date < d30.toISOString().slice(0,10)).reduce((s,r)=>s+(r.total||0),0);
+    if(prevSum > 0){
+      const change = ((recentSum - prevSum) / prevSum) * 100;
+      const up = change >= 0;
+      items.push({
+        emoji: up ? '📊' : '📉',
+        text: lang==='zh'
+          ? `最近 30 天收入比之前 30 天${up ? '增加' : '减少'}了 ${Math.abs(change).toFixed(0)}%。`
+          : `Income over the last 30 days is ${up ? 'up' : 'down'} ${Math.abs(change).toFixed(0)}% compared to the previous 30 days.`
+      });
+    }
+
+    items.forEach(it => {
+      const div = document.createElement('div');
+      div.className = 'insight-item';
+      div.innerHTML = `<span class="insight-emoji">${it.emoji}</span><span>${it.text}</span>`;
+      box.appendChild(div);
+    });
+  }
+
+  ['incStartDate','incEndDate'].forEach(id => $(id).addEventListener('input', renderIncome));
+  attachPresets('incPresets', 'incStartDate', 'incEndDate', renderIncome);
+  $('incClear').addEventListener('click', () => {
+    $('incStartDate').value = ''; $('incEndDate').value = '';
+    $('incPresets').querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    renderIncome();
+  });
+
+  // ================= boot =================
+  renderProfessionChips();
+  applyLang();
+  addItemRow();
+  $('rDate').value = todayStr();
+  render();
+  showView('home');
+})();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

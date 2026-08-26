@@ -1,0 +1,15 @@
+{
+  "name": "Jesse L Backstage Record System",
+  "short_name": "JL Backstage",
+  "description": "Private receipt, invoice, and income record system for modeling, blogging, and makeup artist work.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FAF7F2",
+  "theme_color": "#7E4A5C",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
