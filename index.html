@@ -949,6 +949,7 @@
         <button class="ghost" id="btnExport" data-t="btnExport">导出备份</button>
         <button class="ghost" id="btnCsv" data-t="btnCsv">导出 CSV</button>
         <button class="ghost" id="btnImport" data-t="btnImport">导入备份</button>
+        <button class="ghost" id="btnRestoreBackup" data-t="btnRestoreBackup">恢复上次自动备份</button>
       </div>
       <input type="file" id="importFile" accept="application/json,.json" style="display:none;">
     </div>
@@ -1082,6 +1083,11 @@
       printedNew:' 已存档 · 已为你开好新的空白单据',
       exported:'备份已导出', csvExported:'CSV 已导出', imported:'备份已导入',
       importFail:'这个文件读不到，请确认是本 App 导出的备份',
+      btnRestoreBackup:'恢复上次自动备份',
+      confirmRestore:'用最近的自动备份覆盖当前记录？此操作会替换现有单据。',
+      restored:'已从自动备份恢复',
+      noBackup:'还没有自动备份记录',
+      restoredMsg:'检测到单据记录为空，已从自动备份恢复 ',
       jobs:'单', profitWord:'利润'
     },
     en:{
@@ -1172,6 +1178,11 @@
       printedNew:' filed · a blank document is ready for you',
       exported:'Backup exported', csvExported:'CSV exported', imported:'Backup imported',
       importFail:'Could not read that file — use a backup exported from this app',
+      btnRestoreBackup:'Restore auto-backup',
+      confirmRestore:'Replace current records with the latest auto-backup? This overwrites existing documents.',
+      restored:'Restored from auto-backup',
+      noBackup:'No auto-backup found yet',
+      restoredMsg:'Records were empty — restored from auto-backup: ',
       jobs:'jobs', profitWord:'Profit'
     }
   };
@@ -1253,28 +1264,56 @@
     if(biz.contact && !biz.address){ biz.address = biz.contact; delete biz.contact; }
     if(!biz.thanks || /thank you for your business/i.test(biz.thanks)) biz.thanks = DEFAULTS.thanks;
   }
-  function saveBiz(){ localStorage.setItem('jl.biz', JSON.stringify(biz)); }
-
-  let docs = readJSON('jl.docs', null);
-  if(!docs){
-    docs = (readJSON('receipts', []) || []).map(r => ({
-      id: r.id || uid(), docType:'receipt', no: r.no || '', client: r.client || '',
-      clientContact:'', clientTin:'', service: r.service || '', date: r.date || todayStr(),
-      dueDate:'', payMethod: r.payMethod || 'Bank Transfer', status:'paid', style:'classic',
-      refInvoiceNo:'',
-      items:(r.items||[]).map(it => ({id:uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)})),
-      discount:num(r.discount), deposit:num(r.deposit), subtotal:num(r.subtotal),
-      taxRate:0, tax:0, total:num(r.total),
-      cost:num(r.cost), costNote:r.costNote||'', notes:r.notes||'',
-      bizSnapshot:r.bizSnapshot||null, createdAt:Date.now()
-    }));
-  }
-  docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
-  function saveDocs(){ localStorage.setItem('jl.docs', JSON.stringify(docs)); }
+  function saveBiz(){ localStorage.setItem('jl.biz', JSON.stringify(biz)); saveBackup(); }
 
   let professions = readJSON('jl.professions', null) || readJSON('professions', null) || DEFAULT_PROFESSIONS.slice();
   if(!Array.isArray(professions) || !professions.length) professions = DEFAULT_PROFESSIONS.slice();
-  function saveProfessions(){ localStorage.setItem('jl.professions', JSON.stringify(professions)); }
+  function saveProfessions(){ localStorage.setItem('jl.professions', JSON.stringify(professions)); saveBackup(); }
+
+  // ============================================================
+  // auto backup + restore — keeps your records safe across app updates.
+  // Every save also writes a timestamped snapshot to a separate key.
+  // If the main data ever goes missing (e.g. after updating the code),
+  // the app restores from the newest snapshot automatically, and you can
+  // also restore manually from Settings → Data Management.
+  // ============================================================
+  const BAK_KEY = 'jl.bak';
+  let restoredFromBackup = false;
+  function saveBackup(){
+    try{
+      const arr = readJSON(BAK_KEY, []);
+      arr.unshift({at: Date.now(), docs, biz, professions});
+      localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
+    }catch(e){}
+  }
+
+  let docs = readJSON('jl.docs', null);
+  if(!docs){
+    // Main store is missing or empty: restore from the newest auto-backup
+    // first, otherwise fall back to the legacy 'receipts' key.
+    const bak = readJSON(BAK_KEY, []);
+    const latest = bak.find(x => x && Array.isArray(x.docs) && x.docs.length);
+    if(latest){
+      docs = latest.docs;
+      if(latest.biz) biz = Object.assign({}, DEFAULTS, biz, latest.biz);
+      if(Array.isArray(latest.professions) && latest.professions.length) professions = latest.professions;
+      restoredFromBackup = true;
+    } else {
+      docs = (readJSON('receipts', []) || []).map(r => ({
+        id: r.id || uid(), docType:'receipt', no: r.no || '', client: r.client || '',
+        clientContact:'', clientTin:'', service: r.service || '', date: r.date || todayStr(),
+        dueDate:'', payMethod: r.payMethod || 'Bank Transfer', status:'paid', style:'classic',
+        refInvoiceNo:'',
+        items:(r.items||[]).map(it => ({id:uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)})),
+        discount:num(r.discount), deposit:num(r.deposit), subtotal:num(r.subtotal),
+        taxRate:0, tax:0, total:num(r.total),
+        cost:num(r.cost), costNote:r.costNote||'', notes:r.notes||'',
+        bizSnapshot:r.bizSnapshot||null, createdAt:Date.now()
+      }));
+    }
+  }
+  docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
+  function saveDocs(){ localStorage.setItem('jl.docs', JSON.stringify(docs)); saveBackup(); }
 
   saveBiz(); saveDocs(); saveProfessions();
 
@@ -2342,6 +2381,18 @@
     };
     fr.readAsText(file);
   });
+  $('btnRestoreBackup').addEventListener('click', () => {
+    const bak = readJSON(BAK_KEY, []);
+    const latest = bak.find(x => x && Array.isArray(x.docs) && x.docs.length);
+    if(!latest){ toast(T().noBackup); return; }
+    if(!confirm(T().confirmRestore)) return;
+    docs = latest.docs;
+    if(latest.biz) biz = Object.assign({}, DEFAULTS, biz, latest.biz);
+    if(Array.isArray(latest.professions) && latest.professions.length) professions = latest.professions;
+    saveBiz(); saveDocs(); saveProfessions();
+    fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
+    toast(T().restored);
+  });
 
   // ============================================================
   // home + routing
@@ -2421,6 +2472,7 @@
   applyLang();
   refreshHome();
   showView('home');
+  if(restoredFromBackup) setTimeout(() => toast(T().restoredMsg + docs.length), 500);
 })();
 
 if('serviceWorker' in navigator){
