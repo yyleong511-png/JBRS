@@ -773,6 +773,8 @@
         <div class="field"><label data-t="l_search">搜索客户</label><input type="text" id="fSearch" data-tp="searchPh" placeholder="客户 / 品牌名称"></div>
       </div>
       <button class="ghost" id="fClear" style="width:100%;" data-t="clearFilters">清除筛选</button>
+      <button class="ghost" id="btnImportDocs" style="width:100%;margin-top:10px;" data-t="btnImportDocs">导入单据（PDF / JSON）</button>
+      <input type="file" id="importDocsFile" accept=".pdf,.json,application/pdf,application/json" style="display:none;">
     </div>
 
     <div class="stats-bar">
@@ -1088,6 +1090,13 @@
       restored:'已从自动备份恢复',
       noBackup:'还没有自动备份记录',
       restoredMsg:'检测到单据记录为空，已从自动备份恢复 ',
+      btnImportDocs:'导入单据（PDF / JSON）',
+      confirmImportMerge:'合并导入备份？不会覆盖现有单据，只加入备份里有而本地没有的记录。',
+      importedDocs:'已合并导入 ',
+      importedDoc:'已导入单据 ',
+      needNetForPdf:'导入 PDF 需要网络连接（首次使用会加载 PDF 解析器）',
+      pdfParseFail:'读不出这张 PDF 的内容，可能是扫描 / 图片型 PDF',
+      pdfImported:'已从 PDF 恢复为可编辑单据，请检查后点保存',
       jobs:'单', profitWord:'利润'
     },
     en:{
@@ -1183,6 +1192,13 @@
       restored:'Restored from auto-backup',
       noBackup:'No auto-backup found yet',
       restoredMsg:'Records were empty — restored from auto-backup: ',
+      btnImportDocs:'Import Documents (PDF / JSON)',
+      confirmImportMerge:'Merge this backup into your records? Existing documents are kept; only missing ones are added.',
+      importedDocs:'Merged ',
+      importedDoc:'Imported document ',
+      needNetForPdf:'Importing PDF needs an internet connection (loads the PDF parser on first use)',
+      pdfParseFail:'Could not read this PDF — it may be a scanned / image PDF',
+      pdfImported:'Restored from PDF as an editable document — check it, then tap Save',
       jobs:'jobs', profitWord:'Profit'
     }
   };
@@ -1429,7 +1445,7 @@
   // editor state
   // ============================================================
   const S = {
-    docType:'receipt', editingId:null, no:'', status:'unpaid',
+    docType:'receipt', editingId:null, importNo:'', no:'', status:'unpaid',
     service: professions[0] || 'Other', payMethod:'Bank Transfer',
     style:'classic', styleLocked:false, items:[]
   };
@@ -1438,7 +1454,7 @@
       ? `${biz.invoicePrefix||'INV'}-${String(biz.invoiceCounter||1).padStart(4,'0')}`
       : `${biz.receiptPrefix||'JL'}-${String(biz.receiptCounter||1).padStart(4,'0')}`;
   }
-  function currentNo(){ return S.editingId ? S.no : numberFor(S.docType); }
+  function currentNo(){ return S.editingId ? S.no : (S.importNo || numberFor(S.docType)); }
   function totals(){
     const subtotal = S.items.reduce((s,it) => s + it.qty * it.price, 0);
     const discount = num($('dDiscount').value);
@@ -1767,7 +1783,7 @@
   // ---------- new / load / save ----------
   function plusDays(n){ const d = new Date(); d.setDate(d.getDate()+n); return toStr(d); }
   function newDoc(type){
-    S.editingId = null; S.no = ''; S.docType = type || S.docType; S.status = 'unpaid';
+    S.editingId = null; S.importNo = ''; S.no = ''; S.docType = type || S.docType; S.status = 'unpaid';
     S.service = professions.includes(S.service) ? S.service : (professions[0] || 'Other');
     S.styleLocked = false; S.items = [];
     ['dClient','dClientContact','dClientTin','dRefInvoice','dCostNote','dNotes'].forEach(id => $(id).value = '');
@@ -1817,7 +1833,7 @@
     if(!client){ toast(T().needClient); return null; }
     const t = totals();
     const isNew = !S.editingId;
-    const no = isNew ? numberFor(S.docType) : S.no;
+    const no = isNew ? (S.importNo || numberFor(S.docType)) : S.no;
     const rec = {
       id: S.editingId || uid(), docType:S.docType, no, client,
       clientContact:$('dClientContact').value, clientTin:$('dClientTin').value,
@@ -2392,6 +2408,280 @@
     saveBiz(); saveDocs(); saveProfessions();
     fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
     toast(T().restored);
+  });
+
+  // ============================================================
+  // import documents (PDF / JSON) from the Documents view
+  // ============================================================
+  // pdf.js is loaded lazily on demand, with CDN fallbacks
+  const PDFJS_SOURCES = [
+    { main:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', worker:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js' },
+    { main:'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js', worker:'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js' },
+    { main:'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js', worker:'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js' }
+  ];
+  let pdfjsReady = false;
+  function loadPdfJs(){
+    return new Promise(resolve => {
+      if(window.pdfjsLib){
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_SOURCES[0].worker;
+        resolve(true); return;
+      }
+      const tryNext = i => {
+        if(i >= PDFJS_SOURCES.length || pdfjsReady){ resolve(false); return; }
+        const s = document.createElement('script');
+        s.src = PDFJS_SOURCES[i].main;
+        s.onload = () => {
+          if(window.pdfjsLib){
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_SOURCES[i].worker;
+            pdfjsReady = true;
+            resolve(true);
+          } else tryNext(i + 1);
+        };
+        s.onerror = () => tryNext(i + 1);
+        document.head.appendChild(s);
+      };
+      tryNext(0);
+    });
+  }
+  const pNum = v => { const n = parseFloat(String(v).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? 0 : n; };
+  function groupRows(items){
+    const rows = {};
+    items.forEach(it => {
+      const key = Math.round(it.y / 3) * 3;
+      (rows[key] = rows[key] || []).push(it);
+    });
+    return rows;
+  }
+  function parsePdfDoc(items){
+    const rows = groupRows(items);
+    const ys = Object.keys(rows).map(Number).sort((a, b) => b - a);
+    const rowTexts = {};
+    ys.forEach(y => { rowTexts[y] = rows[y].slice().sort((a, b) => a.x - b.x).map(r => r.str).join(' '); });
+    const fullText = ys.map(y => rowTexts[y]).join('\n');
+    const lower = fullText.toLowerCase();
+
+    let docType = null;
+    if(/receipt no\./.test(lower) || /received from/.test(lower) || /amount paid/.test(lower)) docType = 'receipt';
+    else if(/bill to/.test(lower) || /balance due/.test(lower)) docType = 'invoice';
+    if(!docType) return null;
+
+    const noRe = /^[A-Z]{2,}(?:-[A-Z]{2,})?-\d{3,}$/;
+    let no = '';
+    for (const s of items.map(i => i.str.trim())) { if(noRe.test(s)){ no = s; break; } }
+
+    const dRe = /\d{4}-\d{2}-\d{2}/;
+    function dateAfterWord(word){
+      for (let i = 0; i < ys.length; i++) {
+        const t = rowTexts[ys[i]];
+        if(!t.includes(word)) continue;
+        if(word === 'Due date' && t.includes('Issue date')) continue;
+        const idx = t.indexOf(word);
+        const m = t.slice(idx).match(dRe);
+        if(m) return m[0];
+        for (let j = i + 1; j < Math.min(i + 3, ys.length); j++) {
+          const m2 = rowTexts[ys[j]].match(dRe);
+          if(m2) return m2[0];
+        }
+        break;
+      }
+      return '';
+    }
+    const date = dateAfterWord('Issue date') || dateAfterWord('Date received');
+    const dueDate = dateAfterWord('Due date');
+
+    let client = '', clientContact = '', clientTin = '', service = '';
+    for (let i = 0; i < ys.length; i++) {
+      const t = rowTexts[ys[i]];
+      if(!client && /^Bill to$|^Received from$/.test(t)){
+        const next = rowTexts[ys[i + 1]];
+        if(next && !/TIN:/.test(next)) client = next;
+        const c2 = rowTexts[ys[i + 2]];
+        if(c2 && !/TIN:/.test(c2) && !/Issue date/.test(c2) && !/Due date/.test(c2) && !/Service/.test(c2)) clientContact = c2;
+        continue;
+      }
+      if(!clientTin){
+        const m = t.match(/^TIN:\s*(.+)$/);
+        if(m && client) clientTin = m[1].trim();
+      }
+      if(!service){
+        const m = t.match(/^Service\s+(.+)$/);
+        if(m){ service = m[1].trim(); }
+        else if(/^Service$/.test(t)){
+          const v = rowTexts[ys[i + 1]];
+          if(v && !/^TIN:/.test(v)) service = v;
+        }
+      }
+    }
+
+    const headerY = ys.find(y => /Description/.test(rowTexts[y]) && /Amount/.test(rowTexts[y]));
+    const itemsList = [];
+    if(headerY !== undefined){
+      const header = rows[headerY].slice().sort((a, b) => a.x - b.x);
+      const colX = {};
+      header.forEach(h => { colX[h.str.trim()] = h.x; });
+      const colKeys = ['Description', 'Qty', 'Unit', 'Amount'].filter(c => colX[c] !== undefined);
+      const totY = ys.find(y => y < headerY && /Subtotal/.test(rowTexts[y]));
+      for (const y of ys) {
+        if(y >= headerY) continue;
+        if(totY !== undefined && y <= totY) break;
+        const row = rows[y].slice().sort((a, b) => a.x - b.x);
+        const cell = { Description: [], Qty: [], Unit: [], Amount: [] };
+        row.forEach(it => {
+          let best = colKeys[0], bestD = Infinity;
+          colKeys.forEach(c => { const d = Math.abs(it.x - colX[c]); if(d < bestD){ bestD = d; best = c; } });
+          cell[best].push(it.str);
+        });
+        const desc = cell.Description.join(' ').trim();
+        if(!desc) continue;
+        const qty = pNum(cell.Qty.join(''));
+        const price = pNum(cell.Unit.join(''));
+        itemsList.push({ desc, qty: qty || 1, price: price || 0 });
+      }
+    }
+
+    function valOfRow(labelRe){
+      for (const y of ys) {
+        if(labelRe.test(rowTexts[y])){
+          const vm = rowTexts[y].match(/RM\s*([\d,]+\.?\d*)/);
+          return vm ? pNum(vm[1]) : 0;
+        }
+      }
+      return 0;
+    }
+    const subtotal = valOfRow(/^Subtotal\b/);
+    const discount = valOfRow(/^Discount\b/);
+    const deposit = valOfRow(/^Deposit (paid|received earlier)\b/);
+    const total = valOfRow(/^Balance due\b|^Amount paid\b/);
+    let taxRate = 0, tax = 0;
+    for (const y of ys) {
+      const m = rowTexts[y].match(/^SST\s*(\d+\.?\d*)%/);
+      if(m){ taxRate = pNum(m[1]); const vm = rowTexts[y].match(/RM\s*([\d,]+\.?\d*)/); tax = vm ? pNum(vm[1]) : 0; break; }
+    }
+
+    let payMethod = 'Bank Transfer';
+    for (const y of ys) {
+      const m = rowTexts[y].match(/^Method\s+(.+)$/);
+      if(m){ payMethod = m[1].trim(); break; }
+    }
+
+    let status = docType === 'invoice' ? 'unpaid' : 'paid';
+    if(docType === 'invoice'){
+      for (const s of items.map(i => i.str.trim())) {
+        const m = s.match(/^(Unpaid|Partially Paid|Paid|Overdue|Void)$/);
+        if(m){ status = m[1] === 'Partially Paid' ? 'partial' : (m[1] === 'Overdue' ? 'unpaid' : m[1].toLowerCase()); break; }
+      }
+    }
+
+    const notesParts = [];
+    let inNotes = false;
+    for (const y of ys) {
+      const t = rowTexts[y];
+      if(/^Please pay to$|^Paid to$/.test(t)){ inNotes = true; continue; }
+      if(!inNotes) continue;
+      if(/^(Bank|Account Name|Account No\.?|DuitNow|Method)\b/.test(t)) continue;
+      notesParts.push(t);
+    }
+    const notes = notesParts.join('\n').trim();
+
+    return {
+      docType, no, client: client || '', clientContact, clientTin, service: service || '',
+      date: date || todayStr(), dueDate, payMethod, status,
+      items: itemsList, discount, deposit, subtotal, taxRate, tax, total,
+      notes, cost: 0, costNote: '', refInvoiceNo: ''
+    };
+  }
+  async function parsePdfFile(file){
+    if(!window.pdfjsLib) return null;
+    const buf = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise;
+    const items = [];
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const tc = await page.getTextContent();
+      tc.items.forEach(it => { if(it.str && it.str.trim()) items.push({ x: it.transform[4], y: it.transform[5], str: it.str.trim() }); });
+    }
+    return items.length ? parsePdfDoc(items) : null;
+  }
+  function normalizeImported(d){
+    const docType = d.docType === 'invoice' ? 'invoice' : 'receipt';
+    return {
+      docType, no: d.no || '', client: d.client || '', clientContact: d.clientContact || '',
+      clientTin: d.clientTin || '', service: d.service || professions[0] || 'Other',
+      date: d.date || todayStr(), dueDate: d.dueDate || '',
+      payMethod: d.payMethod || 'Bank Transfer', status: d.status || (docType === 'invoice' ? 'unpaid' : 'paid'),
+      items: Array.isArray(d.items) ? d.items.filter(it => it && (it.desc || it.qty || it.price)).map(it => ({ desc: it.desc || '', qty: num(it.qty), price: num(it.price) })) : [],
+      discount: num(d.discount), deposit: num(d.deposit), subtotal: num(d.subtotal),
+      taxRate: num(d.taxRate), tax: num(d.tax), total: num(d.total),
+      notes: d.notes || '', cost: num(d.cost), costNote: d.costNote || '', refInvoiceNo: d.refInvoiceNo || '',
+      style: d.style || (isAtelierCat(d.service || '') ? 'atelier' : 'classic')
+    };
+  }
+  function importToEditor(rec){
+    S.editingId = null; S.importNo = rec.no || ''; S.docType = rec.docType;
+    S.status = rec.status || (rec.docType === 'invoice' ? 'unpaid' : 'paid');
+    S.service = rec.service || professions[0] || 'Other';
+    S.payMethod = rec.payMethod || 'Bank Transfer';
+    S.styleLocked = false; S.style = rec.style || (isAtelierCat(S.service) ? 'atelier' : 'classic');
+    S.items = rec.items && rec.items.length
+      ? rec.items.map(it => ({ id: uid(), desc: it.desc || '', qty: num(it.qty), price: num(it.price) }))
+      : [{ id: uid(), desc: '', qty: 1, price: 0 }];
+    $('dClient').value = rec.client || '';
+    $('dClientContact').value = rec.clientContact || '';
+    $('dClientTin').value = rec.clientTin || '';
+    $('dRefInvoice').value = rec.refInvoiceNo || '';
+    $('dDate').value = rec.date || todayStr();
+    $('dDueDate').value = rec.dueDate || '';
+    $('dDiscount').value = rec.discount || 0;
+    $('dDeposit').value = rec.deposit || 0;
+    $('dCost').value = rec.cost || 0;
+    $('dCostNote').value = rec.costNote || '';
+    $('dNotes').value = rec.notes || '';
+    setPicker('pkService', S.service);
+    setPicker('pkPayMethod', payLabel(S.payMethod));
+    setPicker('pkStatus', T()['st_' + S.status]);
+    renderItems(); reindexItems();
+    setStyle(S.style);
+    setDocType(S.docType, true);
+    $('docNo').value = rec.no || currentNo();
+    $('convertRow').style.display = 'none';
+    showView('editor');
+  }
+  $('btnImportDocs').addEventListener('click', () => $('importDocsFile').click());
+  $('importDocsFile').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0];
+    $('importDocsFile').value = '';
+    if(!f) return;
+    const name = f.name.toLowerCase();
+    try{
+      if(name.endsWith('.json')){
+        const data = JSON.parse(await f.text());
+        if(data && Array.isArray(data.docs)){
+          if(!confirm(T().confirmImportMerge)) return;
+          let added = 0;
+          const ids = new Set(docs.map(d => d.id));
+          data.docs.forEach(d => { if(d && d.id && !ids.has(d.id)){ docs.push(d); ids.add(d.id); added++; } });
+          if(data.biz) biz = Object.assign({}, DEFAULTS, biz, data.biz);
+          if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
+          saveBiz(); saveDocs(); saveProfessions();
+          fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
+          toast(T().importedDocs + added);
+        } else if(data && data.docType){
+          importToEditor(normalizeImported(data));
+          toast(T().importedDoc + (data.no || ''));
+        } else { toast(T().importFail); }
+        return;
+      }
+      if(name.endsWith('.pdf')){
+        const ok = await loadPdfJs();
+        if(!ok){ toast(T().needNetForPdf); return; }
+        const rec = await parsePdfFile(f);
+        if(!rec){ toast(T().pdfParseFail); return; }
+        importToEditor(rec);
+        toast(T().pdfImported);
+        return;
+      }
+      toast(T().importFail);
+    }catch(err){ toast(T().importFail); }
   });
 
   // ============================================================
