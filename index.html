@@ -2,8 +2,8 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jesse L Backstage Record System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Jesse L Backstage</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7E4A5C">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -12,1442 +12,2161 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="JL Backstage">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ivory:#FAF7F2;
     --paper:#FFFDFA;
     --ink:#2B2724;
     --ink-soft:#6B6259;
+    --ink-mute:#9C9187;
     --rose:#A9647A;
     --rose-deep:#7E4A5C;
     --gold:#C9A66B;
     --line:#E4DDD3;
+    --line-soft:#F0EAE1;
     --green:#5C7A5E;
+    --amber:#B98B3E;
     --loss:#B0524A;
     --shadow: 0 1px 2px rgba(43,39,36,0.04), 0 8px 24px rgba(43,39,36,0.06);
+    --tap: 46px;
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:rgba(126,74,92,0.12);}
+  html,body{overscroll-behavior-y:none;}
   body{
-    margin:0;
-    background:var(--ivory);
-    color:var(--ink);
-    font-family:'Inter',sans-serif;
+    margin:0;background:var(--ivory);color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.5;
     -webkit-font-smoothing:antialiased;
   }
-  .app{max-width:1240px;margin:0 auto;padding:0 24px 80px;}
+  .app{max-width:1240px;margin:0 auto;padding:0 20px 140px;}
+  @media (min-width:900px){ .app{padding-bottom:80px;} }
 
   /* ---------- Topbar ---------- */
   .topbar{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:18px 0;position:sticky;top:0;background:var(--ivory);z-index:40;
+    padding:14px 0;position:sticky;top:0;background:var(--ivory);z-index:40;
     border-bottom:1px solid transparent;
   }
   .topbar.scrolled{border-bottom-color:var(--line);}
-  .topbar-left{display:flex;align-items:center;gap:10px;}
+  .topbar-left{display:flex;align-items:center;gap:10px;min-width:0;}
+  .topbar-right{display:flex;align-items:center;gap:8px;flex:none;}
   .icon-btn{
-    width:36px;height:36px;border-radius:50%;border:1px solid var(--line);
-    background:var(--paper);color:var(--ink);font-size:16px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
+    width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink);font-size:17px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex:none;
   }
-  .icon-btn:hover{border-color:var(--rose);color:var(--rose-deep);}
-  .topbar-title{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;letter-spacing:0.2px;}
+  .icon-btn:active{background:var(--ivory);}
+  .topbar-title{
+    font-family:'Cormorant Garamond',serif;font-weight:600;font-size:19px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
   .lang-toggle{
     font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--line);
-    background:var(--paper);color:var(--ink);padding:8px 14px;border-radius:20px;
+    background:var(--paper);color:var(--ink);height:40px;padding:0 14px;border-radius:20px;
     cursor:pointer;letter-spacing:0.5px;
   }
-  .lang-toggle:hover{border-color:var(--rose);color:var(--rose-deep);}
 
   .view{display:none;}
   .view.active{display:block;}
 
   /* ---------- Home ---------- */
-  .home-hero{text-align:center;padding:36px 10px 20px;}
-  .home-icon{width:64px;height:64px;border-radius:16px;box-shadow:var(--shadow);margin-bottom:16px;}
+  .home-hero{text-align:center;padding:26px 6px 8px;}
+  .home-icon{width:60px;height:60px;border-radius:15px;box-shadow:var(--shadow);margin-bottom:14px;}
   .home-hero h1{
-    font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(26px,5vw,42px);
-    margin:0 0 8px;letter-spacing:0.2px;
+    font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(25px,6vw,40px);
+    margin:0 0 6px;
   }
-  .home-hero p{font-size:13px;color:var(--ink-soft);margin:0;font-family:'IBM Plex Mono',monospace;letter-spacing:0.3px;}
-  .home-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;
-  }
-  @media (max-width:820px){.home-grid{grid-template-columns:1fr;}}
-  .home-card{
-    background:var(--paper);border:1px solid var(--line);border-radius:16px;
-    padding:26px 22px;text-align:left;cursor:pointer;box-shadow:var(--shadow);
-    font-family:'Inter',sans-serif;transition:transform .15s ease, border-color .15s ease;
-  }
-  .home-card:hover{border-color:var(--rose);transform:translateY(-2px);}
-  .hc-icon{font-size:28px;margin-bottom:12px;}
-  .hc-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;margin-bottom:6px;}
-  .hc-desc{font-size:12.5px;color:var(--ink-soft);line-height:1.5;}
+  .home-hero p{font-size:12.5px;color:var(--ink-soft);margin:0;font-family:'IBM Plex Mono',monospace;}
 
-  /* ---------- Panels (shared) ---------- */
+  .home-summary{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px;
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:16px 8px;box-shadow:var(--shadow);
+  }
+  .hs-cell{text-align:center;padding:0 4px;}
+  .hs-cell + .hs-cell{border-left:1px solid var(--line-soft);}
+  .hs-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;}
+  .hs-val.due{color:var(--amber);}
+  .hs-lab{font-size:10.5px;color:var(--ink-soft);margin-top:4px;}
+
+  .home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;}
+  @media (max-width:640px){.home-grid{grid-template-columns:1fr;}}
+  .home-card{
+    display:flex;align-items:center;gap:14px;width:100%;
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:18px;text-align:left;cursor:pointer;box-shadow:var(--shadow);
+    font-family:'Inter',sans-serif;color:var(--ink);
+  }
+  .home-card:active{background:var(--ivory);}
+  .hc-icon{
+    width:44px;height:44px;border-radius:12px;flex:none;display:flex;
+    align-items:center;justify-content:center;font-size:21px;background:var(--ivory);
+    border:1px solid var(--line);
+  }
+  .hc-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1.2;}
+  .hc-desc{font-size:12px;color:var(--ink-soft);line-height:1.45;margin-top:3px;}
+
+  /* ---------- Panels ---------- */
   .panel{
     background:var(--paper);border:1px solid var(--line);border-radius:14px;
-    padding:22px 22px 24px;box-shadow:var(--shadow);
+    padding:18px;box-shadow:var(--shadow);margin-top:16px;
   }
-  .panel + .panel{margin-top:20px;}
-  .panel h2{
-    font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin:0 0 14px;
-    display:flex;align-items:center;gap:8px;
+  .panel > h2{
+    font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin:0 0 4px;
   }
-  .panel h2 .num{
-    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--rose);
-    border:1px solid var(--rose);border-radius:20px;padding:2px 8px;
-  }
-  .panel .hint{font-size:11.5px;color:var(--ink-soft);margin:-8px 0 14px;}
-  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .panel .hint{font-size:11.5px;color:var(--ink-soft);margin:0 0 14px;line-height:1.5;}
+  .panel > h2 + .field, .panel > h2 + .field-row, .panel > h2 + table, .panel > h2 + .seg{margin-top:14px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:520px){.field-row{grid-template-columns:1fr;}}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
   .field label{font-size:12px;color:var(--ink-soft);font-weight:500;}
-  input[type=text], input[type=number], select, textarea{
-    font-family:'Inter',sans-serif;font-size:14px;padding:9px 11px;border:1px solid var(--line);
-    border-radius:8px;background:var(--ivory);color:var(--ink);outline:none;width:100%;
+  .field-row .field{margin-bottom:14px;}
+  input[type=text], input[type=number], textarea{
+    font-family:'Inter',sans-serif;font-size:16px;padding:12px 12px;border:1px solid var(--line);
+    border-radius:10px;background:var(--ivory);color:var(--ink);outline:none;width:100%;
+    min-height:var(--tap);-webkit-appearance:none;appearance:none;
   }
-  input:focus, select:focus, textarea:focus{border-color:var(--rose);background:#fff;}
-  textarea{resize:vertical;min-height:52px;font-family:'Inter',sans-serif;}
+  input:focus, textarea:focus{border-color:var(--rose);background:#fff;}
+  input:focus-visible, button:focus-visible{outline:2px solid var(--rose);outline-offset:1px;}
+  textarea{resize:vertical;min-height:66px;line-height:1.5;}
   .sub-divider{
-    font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.5px;
-    margin:16px 0 10px;padding-top:12px;border-top:1px dashed var(--line);
+    font-size:12px;color:var(--ink-soft);font-weight:600;
+    margin:6px 0 12px;padding-top:14px;border-top:1px dashed var(--line);
   }
+
+  /* ---------- Picker button (replaces <select>) ---------- */
+  .picker{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+    min-height:var(--tap);padding:12px;border:1px solid var(--line);border-radius:10px;
+    background:var(--ivory);color:var(--ink);font-family:'Inter',sans-serif;font-size:15px;
+    cursor:pointer;text-align:left;
+  }
+  .picker:active{background:#fff;border-color:var(--rose);}
+  .picker .pk-val{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .picker .pk-val.placeholder{color:var(--ink-mute);}
+  .picker .pk-arrow{flex:none;color:var(--ink-soft);font-size:11px;}
+
+  /* ---------- Bottom sheet ---------- */
+  .sheet-wrap{position:fixed;inset:0;z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+  .sheet-wrap[hidden]{display:none;}
+  .sheet-backdrop{position:absolute;inset:0;background:rgba(43,39,36,0.42);}
+  .sheet{
+    position:relative;width:100%;max-width:520px;background:var(--paper);
+    border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(43,39,36,0.18);
+    max-height:80vh;display:flex;flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom);
+    animation:sheetUp .18s ease-out;
+  }
+  @keyframes sheetUp{from{transform:translateY(14px);opacity:0;}to{transform:none;opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.sheet{animation:none;}}
+  @media (min-width:720px){
+    .sheet-wrap{align-items:center;}
+    .sheet{border-radius:16px;max-height:72vh;}
+  }
+  .sheet-head{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:16px 18px 12px;border-bottom:1px solid var(--line);
+  }
+  .sheet-head span{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;}
+  .sheet-body{overflow-y:auto;padding:8px 10px 18px;-webkit-overflow-scrolling:touch;}
+  .sheet-opt{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    min-height:52px;padding:13px 14px;border:none;background:none;border-radius:10px;
+    font-family:'Inter',sans-serif;font-size:15.5px;color:var(--ink);text-align:left;cursor:pointer;
+  }
+  .sheet-opt:active{background:var(--ivory);}
+  .sheet-opt.sel{background:var(--ivory);font-weight:600;color:var(--rose-deep);}
+  .sheet-opt .tick{color:var(--rose-deep);font-size:15px;}
+  .sheet-opt small{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
+
+  /* ---------- Segmented control ---------- */
+  .seg{display:flex;gap:6px;background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:5px;}
+  .seg button{
+    flex:1;min-height:42px;border:none;background:none;border-radius:9px;cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .seg button.on{background:var(--rose-deep);color:#fff;}
 
   /* ---------- Date picker ---------- */
   .datepicker-wrap{position:relative;}
-  input.date-picker-input{cursor:pointer;background:var(--ivory) url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236B6259%22 stroke-width=%222%22><rect x=%223%22 y=%224%22 width=%2218%22 height=%2218%22 rx=%222%22/><line x1=%2216%22 y1=%222%22 x2=%2216%22 y2=%226%22/><line x1=%228%22 y1=%222%22 x2=%228%22 y2=%226%22/><line x1=%223%22 y1=%2210%22 x2=%2221%22 y2=%2210%22/></svg>') no-repeat right 10px center;background-size:15px;padding-right:34px;}
+  input.date-picker-input{
+    cursor:pointer;
+    background:var(--ivory) url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236B6259%22 stroke-width=%222%22><rect x=%223%22 y=%224%22 width=%2218%22 height=%2218%22 rx=%222%22/><line x1=%2216%22 y1=%222%22 x2=%2216%22 y2=%226%22/><line x1=%228%22 y1=%222%22 x2=%228%22 y2=%226%22/><line x1=%223%22 y1=%2210%22 x2=%2221%22 y2=%2210%22/></svg>') no-repeat right 12px center;
+    background-size:16px;padding-right:38px;
+  }
   .datepicker-popup{
     position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:var(--paper);
-    border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
-    padding:12px;width:240px;
+    border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+    padding:12px;width:min(300px, calc(100vw - 52px));
   }
   .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .cal-title{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;}
+  .cal-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;}
   .cal-nav{
-    width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--ivory);
-    cursor:pointer;font-size:13px;color:var(--ink-soft);
+    width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--ivory);
+    cursor:pointer;font-size:14px;color:var(--ink-soft);
   }
-  .cal-nav:hover{border-color:var(--rose);color:var(--rose-deep);}
   .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:4px;}
-  .cal-weekdays span{font-size:10px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+  .cal-weekdays span{font-size:10.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
   .cal-day{
-    aspect-ratio:1;border:none;background:none;border-radius:8px;font-size:12px;cursor:pointer;
+    min-height:38px;border:none;background:none;border-radius:9px;font-size:13.5px;cursor:pointer;
     color:var(--ink);font-family:'Inter',sans-serif;
   }
-  .cal-day:hover{background:var(--ivory);}
-  .cal-day.today{border:1px solid var(--rose);}
+  .cal-day:active{background:var(--ivory);}
+  .cal-day.today{box-shadow:inset 0 0 0 1px var(--rose);}
   .cal-day.selected{background:var(--rose-deep);color:#fff;}
   .cal-day.empty{cursor:default;}
   .cal-footer{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
   .cal-footer button{
-    background:none;border:none;font-size:11px;color:var(--ink-soft);cursor:pointer;
-    font-family:'Inter',sans-serif;padding:4px 6px;
+    background:none;border:none;font-size:13px;color:var(--ink-soft);cursor:pointer;
+    font-family:'Inter',sans-serif;padding:8px 10px;
   }
-  .cal-footer button:hover{color:var(--rose-deep);}
 
-  /* ---------- Items table ---------- */
-  table.items{width:100%;border-collapse:collapse;margin-bottom:10px;}
-  table.items th{
-    font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.4px;
-    text-align:left;padding:0 6px 8px;font-weight:600;
+  /* ---------- Items ---------- */
+  .item-card{
+    border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--ivory);
   }
-  table.items td{padding:4px 6px;vertical-align:top;}
-  table.items input{padding:7px 8px;font-size:13px;}
-  .col-desc{width:46%;} .col-qty{width:14%;} .col-price{width:20%;}
-  .col-sum{width:16%;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px;padding-top:10px;}
-  .col-del{width:20px;}
+  .item-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .item-top .idx{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);flex:none;
+    width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .item-top input{flex:1;background:var(--paper);}
+  .item-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;}
+  .mini-field{display:flex;flex-direction:column;gap:4px;min-width:0;}
+  .mini-field label{font-size:10.5px;color:var(--ink-soft);}
+  .mini-field input{background:var(--paper);text-align:right;font-family:'IBM Plex Mono',monospace;}
+  .item-sum{
+    font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:right;
+    grid-column:1 / -1;padding-top:8px;border-top:1px dashed var(--line);
+  }
+  @media (min-width:430px){
+    .item-bottom{grid-template-columns:1fr 1fr 1.05fr;}
+    .item-sum{grid-column:auto;border-top:none;padding-top:0;padding-bottom:11px;}
+  }
   .del-btn{
-    background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:15px;
-    line-height:1;padding:6px;border-radius:6px;
+    background:none;border:none;color:var(--ink-mute);cursor:pointer;font-size:16px;
+    width:40px;height:40px;border-radius:10px;flex:none;
   }
-  .del-btn:hover{color:var(--loss);background:var(--ivory);}
+  .del-btn:active{color:var(--loss);background:var(--paper);}
   .add-item{
-    background:none;border:1px dashed var(--line);color:var(--ink-soft);font-size:13px;
-    padding:8px 12px;border-radius:8px;cursor:pointer;width:100%;font-family:'Inter',sans-serif;margin-top:2px;
+    background:none;border:1px dashed var(--line);color:var(--ink-soft);font-size:14px;
+    min-height:var(--tap);border-radius:10px;cursor:pointer;width:100%;font-family:'Inter',sans-serif;
   }
-  .add-item:hover{border-color:var(--rose);color:var(--rose-deep);}
+  .add-item:active{border-color:var(--rose);color:var(--rose-deep);}
 
-  .totals-mini{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:13px;}
-  .totals-mini .row{display:flex;justify-content:space-between;padding:3px 0;color:var(--ink-soft);}
-  .totals-mini .row.total{color:var(--ink);font-size:16px;font-weight:600;padding-top:6px;}
+  .totals-mini{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:13.5px;}
+  .totals-mini .row{display:flex;justify-content:space-between;padding:4px 0;color:var(--ink-soft);}
+  .totals-mini .row.total{color:var(--ink);font-size:17px;font-weight:600;padding-top:8px;}
   .totals-mini .row.profit{font-size:15px;font-weight:700;padding-top:8px;border-top:1px dashed var(--line);margin-top:6px;}
   .totals-mini .row.profit.pos span:last-child{color:var(--green);}
   .totals-mini .row.profit.neg span:last-child{color:var(--loss);}
 
-  .btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
-  button.primary, button.secondary, button.ghost{
-    font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:11px 18px;
-    border-radius:9px;cursor:pointer;border:none;
+  /* ---------- Buttons ---------- */
+  button.primary, button.secondary, button.ghost, button.danger{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;padding:0 18px;
+    min-height:var(--tap);border-radius:11px;cursor:pointer;border:none;
   }
   button.primary{background:var(--rose-deep);color:#fff;}
-  button.primary:hover{background:var(--rose);}
   button.secondary{background:var(--ink);color:#fff;}
-  button.secondary:hover{background:#141210;}
-  button.ghost{background:none;border:1px solid var(--line);color:var(--ink-soft);}
-  button.ghost:hover{border-color:var(--rose);color:var(--rose-deep);}
+  button.ghost{background:var(--paper);border:1px solid var(--line);color:var(--ink-soft);}
+  button.danger{background:none;border:1px solid var(--line);color:var(--loss);}
+  button:active{opacity:0.86;}
+  .btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .btn-row button{flex:1;min-width:120px;}
 
-  /* ---------- Generator layout ---------- */
-  .gen-layout{display:grid;grid-template-columns:1.05fr 0.95fr;gap:28px;align-items:start;margin-top:20px;}
-  @media (max-width:900px){.gen-layout{grid-template-columns:1fr;}}
-  .receipt-wrap{position:sticky;top:82px;}
-  .receipt-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;}
-  .receipt{background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);padding:30px 28px 20px;position:relative;}
-  .receipt::before, .receipt::after{
-    content:"";position:absolute;left:0;right:0;height:14px;
-    background-image: radial-gradient(circle, var(--ivory) 6px, transparent 6.5px);
-    background-size: 20px 20px;background-position: -4px 0;
+  /* sticky action bar in editor */
+  .action-bar{
+    display:none;
+    position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;gap:10px;
+    padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(to bottom, rgba(250,247,242,0.4), var(--ivory) 38%);
+    border-top:1px solid var(--line);
   }
-  .receipt::before{top:-7px;} .receipt::after{bottom:-7px;transform:rotate(180deg);}
-  .r-head{text-align:center;margin-bottom:14px;}
-  .r-head .biz{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;}
-  .r-head .biz-sub{font-size:11px;color:var(--ink-soft);margin-top:2px;letter-spacing:0.3px;}
-  .r-head .contact{font-size:11px;color:var(--ink-soft);margin-top:6px;font-family:'IBM Plex Mono',monospace;}
-  .r-divider{border:none;border-top:1px dashed var(--line);margin:14px 0;}
-  .r-meta{display:flex;justify-content:space-between;font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);margin-bottom:4px;}
-  .r-meta b{color:var(--ink);font-weight:600;}
-  .r-client{margin:12px 0 4px;font-size:13px;}
-  .r-client .l{color:var(--ink-soft);font-size:11px;text-transform:uppercase;letter-spacing:0.4px;}
-  .r-items{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:12.5px;}
-  .r-items th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:5px;font-weight:600;}
-  .r-items td{padding:6px 0;border-bottom:1px solid #F0EAE1;}
-  .r-items td.num, .r-items th.num{text-align:right;font-family:'IBM Plex Mono',monospace;}
-  .r-totals{margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:13px;}
-  .r-totals .row{display:flex;justify-content:space-between;padding:3px 0;}
-  .r-totals .row.grand{font-size:17px;font-weight:700;color:var(--rose-deep);border-top:1px solid var(--ink);margin-top:6px;padding-top:8px;}
-  .r-pay{margin-top:16px;padding:12px 14px;background:var(--ivory);border:1px solid var(--line);border-radius:8px;font-size:12px;}
-  .r-pay .l{font-size:10.5px;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin-bottom:6px;}
-  .r-pay .row{display:flex;justify-content:space-between;padding:2px 0;}
-  .r-pay .row span:first-child{color:var(--ink-soft);}
-  .r-pay .row span:last-child{font-family:'IBM Plex Mono',monospace;font-weight:600;}
-  .r-note{margin-top:14px;font-size:11.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;}
-  .r-footer{text-align:center;margin-top:18px;font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;}
+  .action-bar.visible{display:flex;}
+  .action-bar button{flex:1;}
+  .action-bar .bar-inner{display:flex;gap:10px;width:100%;max-width:1200px;margin:0 auto;}
+  @media (min-width:900px){ .action-bar, .action-bar.visible{display:none;} }
+  @media (max-width:899px){ .btn-row.desktop-only{display:none;} }
+
+  /* ---------- Editor layout ---------- */
+  .editor-layout{display:grid;grid-template-columns:1.02fr 0.98fr;gap:26px;align-items:start;}
+  @media (max-width:899px){.editor-layout{grid-template-columns:1fr;gap:0;}}
+  .preview-col{position:sticky;top:76px;}
+  @media (max-width:899px){.preview-col{position:static;margin-top:18px;}}
+  .preview-label{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);
+    margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  }
+
+  /* ---------- Shared document styles ---------- */
+  .doc{background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;}
+  .doc .d-items{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .doc .d-items th{
+    text-align:left;font-size:10.5px;color:var(--ink-soft);border-bottom:1px solid var(--line);
+    padding-bottom:6px;font-weight:600;
+  }
+  .doc .d-items td{padding:7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  .doc .d-items td.num,.doc .d-items th.num{text-align:right;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+  .doc .d-items td.desc{padding-right:10px;}
+  .d-totals{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .d-totals .row{display:flex;justify-content:space-between;padding:3px 0;}
+  .d-totals .row span:first-child{color:var(--ink-soft);}
+  .d-totals .row.grand{
+    font-size:17px;font-weight:700;color:var(--rose-deep);border-top:1px solid var(--ink);
+    margin-top:8px;padding-top:9px;
+  }
+  .d-totals .row.grand span:first-child{color:var(--ink);font-size:12.5px;align-self:flex-end;font-weight:600;}
+  .d-pay{
+    margin-top:16px;padding:12px 14px;background:var(--ivory);border:1px solid var(--line);
+    border-radius:8px;font-size:12px;
+  }
+  .d-pay .l{font-size:10.5px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
+  .d-pay .row{display:flex;justify-content:space-between;gap:12px;padding:2px 0;}
+  .d-pay .row span:first-child{color:var(--ink-soft);}
+  .d-pay .row span:last-child{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:right;}
+  .d-note{margin-top:14px;font-size:11.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;}
+
+  /* ---------- Invoice look: formal sheet ---------- */
+  .doc-invoice{border-radius:3px;padding:30px 26px 24px;}
+  .doc-invoice .inv-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;}
+  .doc-invoice .biz{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;line-height:1.15;}
+  .doc-invoice .biz-sub{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .doc-invoice .contact{font-size:11px;color:var(--ink-soft);margin-top:5px;font-family:'IBM Plex Mono',monospace;line-height:1.5;}
+  .doc-invoice .wordmark{
+    font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:700;color:var(--rose-deep);
+    letter-spacing:1px;text-align:right;line-height:1;
+  }
+  .doc-invoice .inv-no{font-family:'IBM Plex Mono',monospace;font-size:12.5px;text-align:right;margin-top:5px;font-weight:600;}
+  .doc-invoice .rule{border:none;border-top:2px solid var(--ink);margin:16px 0 0;}
+  .inv-meta{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;padding:14px 0 4px;}
+  .inv-meta .cell span{display:block;font-size:10px;color:var(--ink-soft);margin-bottom:3px;}
+  .inv-meta .cell b{font-size:13px;font-weight:600;display:block;line-height:1.35;}
+  .inv-meta .cell small{font-size:11px;color:var(--ink-soft);display:block;margin-top:2px;}
+  .inv-meta .stack{display:flex;flex-direction:column;gap:10px;}
+  .badge{
+    display:inline-block;font-size:10.5px;font-weight:700;padding:5px 11px;border-radius:20px;
+    letter-spacing:0.4px;margin-top:10px;
+  }
+  .badge.unpaid{background:#FBF1E4;color:var(--amber);border:1px solid #EBD9BC;}
+  .badge.partial{background:#F6EEF1;color:var(--rose-deep);border:1px solid #E7D3DA;}
+  .badge.paid{background:#EDF2ED;color:var(--green);border:1px solid #D3E0D4;}
+  .badge.overdue{background:#F9EBEA;color:var(--loss);border:1px solid #EFD3D0;}
+  .doc-invoice .d-terms{
+    margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);
+    font-size:11px;color:var(--ink-soft);line-height:1.6;
+  }
+  .doc-invoice .d-foot{
+    margin-top:18px;text-align:center;font-size:10.5px;color:var(--ink-mute);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  /* ---------- Receipt look: perforated slip ---------- */
+  .doc-receipt{border-radius:4px;padding:28px 24px 20px;}
+  .doc-receipt::before,.doc-receipt::after{
+    content:"";position:absolute;left:0;right:0;height:14px;
+    background-image:radial-gradient(circle, var(--ivory) 6px, transparent 6.5px);
+    background-size:20px 20px;background-position:-4px 0;
+  }
+  .doc-receipt::before{top:-7px;}
+  .doc-receipt::after{bottom:-7px;transform:rotate(180deg);}
+  .doc-receipt .r-head{text-align:center;}
+  .doc-receipt .biz{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600;}
+  .doc-receipt .biz-sub{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .doc-receipt .contact{font-size:11px;color:var(--ink-soft);margin-top:5px;font-family:'IBM Plex Mono',monospace;}
+  .doc-receipt .wordmark{
+    font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;letter-spacing:3px;
+    margin-top:14px;color:var(--ink);
+  }
+  .r-divider{border:none;border-top:1px dashed var(--line);margin:12px 0;}
+  .r-meta{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);padding:2px 0;}
+  .r-meta b{color:var(--ink);font-weight:600;text-align:right;}
+  .r-client{margin:12px 0 2px;font-size:13px;}
+  .r-client .l{color:var(--ink-soft);font-size:10.5px;}
   .stamp{
-    position:absolute;top:22px;right:26px;width:70px;height:70px;border:2px solid var(--green);
+    position:absolute;top:18px;right:20px;width:74px;height:74px;border:2px solid var(--green);
     border-radius:50%;color:var(--green);display:flex;align-items:center;justify-content:center;
     font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;transform:rotate(-14deg);
-    opacity:0.85;letter-spacing:1px;text-align:center;
+    opacity:0.85;letter-spacing:1px;text-align:center;line-height:1.15;
+  }
+  .doc-receipt .d-foot{
+    margin-top:16px;text-align:center;font-size:11px;color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .doc-receipt .sign{
+    margin-top:22px;display:flex;justify-content:flex-end;
+  }
+  .doc-receipt .sign div{
+    border-top:1px solid var(--line);padding-top:5px;font-size:10.5px;color:var(--ink-soft);
+    min-width:150px;text-align:center;
   }
 
-  /* ---------- Filters (records/income) ---------- */
-  .filter-panel{margin-top:20px;}
-  .filter-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;}
-  @media (max-width:900px){.filter-row{grid-template-columns:1fr 1fr;} .filter-row .field:nth-child(5){grid-column:span 2;}}
-
-  .preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  /* ---------- Filters / lists ---------- */
+  .preset-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch;}
+  .preset-row::-webkit-scrollbar{display:none;}
   .preset-btn{
-    font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:7px 14px;
-    border-radius:20px;border:1px solid var(--line);background:var(--ivory);color:var(--ink-soft);
-    cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:9px 15px;flex:none;
+    border-radius:20px;border:1px solid var(--line);background:var(--ivory);color:var(--ink-soft);cursor:pointer;
   }
-  .preset-btn:hover{border-color:var(--rose);color:var(--rose-deep);}
   .preset-btn.active{background:var(--rose-deep);color:#fff;border-color:var(--rose-deep);}
 
-  .chip-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
-  .chip{
-    display:flex;align-items:center;gap:6px;background:var(--ivory);border:1px solid var(--line);
-    border-radius:20px;padding:6px 8px 6px 12px;font-size:12.5px;color:var(--ink);
-  }
-  .chip button{
-    background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:13px;
-    width:18px;height:18px;border-radius:50%;line-height:1;padding:0;
-  }
-  .chip button:hover{color:var(--loss);background:#fff;}
+  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
+  @media (max-width:600px){.stats-bar{grid-template-columns:1fr 1fr;} .stats-bar .stat-box:last-child{grid-column:span 2;}}
+  .stat-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);}
+  .stat-box .sl{font-size:11px;color:var(--ink-soft);margin-bottom:5px;}
+  .stat-box .sv{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;}
+  .stat-box .sv.pos{color:var(--green);}
+  .stat-box .sv.neg{color:var(--loss);}
+  .stat-box .sv.due{color:var(--amber);}
 
-  /* ---------- Stats bar ---------- */
-  .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;}
-  @media (max-width:700px){.stats-bar{grid-template-columns:1fr;}}
-  .stat-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);}
-  .stat-box .sl{font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
-  .stat-box .sv{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;}
-  .stat-box.profit .sv.pos{color:var(--green);}
-  .stat-box.profit .sv.neg{color:var(--loss);}
-
-  /* ---------- Records table ---------- */
-  .records-table{width:100%;border-collapse:collapse;font-size:13px;}
-  .records-table th{
-    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);
-    padding:0 8px 10px;font-weight:600;border-bottom:1px solid var(--line);
+  .doc-row{
+    display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;
+    padding:14px 4px;border-bottom:1px solid var(--line-soft);background:none;border-left:none;
+    border-right:none;border-top:none;cursor:pointer;font-family:'Inter',sans-serif;
   }
-  .records-table td{padding:11px 8px;border-bottom:1px solid #F0EAE1;vertical-align:middle;}
-  .records-table tr.rec-row{cursor:pointer;}
-  .records-table tr.rec-row:hover{background:var(--ivory);}
-  .records-table td.num{text-align:right;font-family:'IBM Plex Mono',monospace;}
-  .records-table td.profit.pos{color:var(--green);font-weight:600;}
-  .records-table td.profit.neg{color:var(--loss);font-weight:600;}
-  .cat-pill{
+  .doc-row:active{background:var(--ivory);}
+  .dr-type{
+    width:38px;height:38px;border-radius:10px;flex:none;display:flex;align-items:center;
+    justify-content:center;font-size:16px;background:var(--ivory);border:1px solid var(--line);
+  }
+  .dr-main{flex:1;min-width:0;}
+  .dr-line1{display:flex;gap:8px;align-items:baseline;justify-content:space-between;}
+  .dr-no{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;}
+  .dr-amt{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;white-space:nowrap;}
+  .dr-client{font-size:14px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .dr-line3{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;}
+  .dr-meta{font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+  .pill{
     display:inline-block;font-size:10.5px;padding:3px 9px;border-radius:20px;
     background:var(--ivory);border:1px solid var(--line);color:var(--ink-soft);
   }
-  .empty-hint{font-size:12.5px;color:var(--ink-soft);padding:20px 4px;text-align:center;}
+  .pill.unpaid{background:#FBF1E4;color:var(--amber);border-color:#EBD9BC;}
+  .pill.partial{background:#F6EEF1;color:var(--rose-deep);border-color:#E7D3DA;}
+  .pill.paid{background:#EDF2ED;color:var(--green);border-color:#D3E0D4;}
+  .pill.overdue{background:#F9EBEA;color:var(--loss);border-color:#EFD3D0;}
+  .empty-hint{font-size:13px;color:var(--ink-soft);padding:28px 4px;text-align:center;line-height:1.6;}
 
-  /* ---------- Income breakdown ---------- */
-  .cat-row{padding:14px 0;border-bottom:1px solid #F0EAE1;}
+  /* ---------- Income ---------- */
+  .cat-row{padding:14px 0;border-bottom:1px solid var(--line-soft);}
   .cat-row:last-child{border-bottom:none;}
-  .cat-row-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+  .cat-row-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px;}
   .cat-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;}
-  .cat-figures{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
+  .cat-figures{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;}
   .cat-figures b{color:var(--ink);}
   .cat-bar-track{height:8px;border-radius:8px;background:var(--ivory);overflow:hidden;}
   .cat-bar-fill{height:100%;background:linear-gradient(90deg,var(--rose-deep),var(--rose));border-radius:8px;}
-  .cat-sub{font-size:11px;color:var(--ink-soft);margin-top:6px;}
-  .cat-sub .profit-pos{color:var(--green);font-weight:600;}
-  .cat-sub .profit-neg{color:var(--loss);font-weight:600;}
-
-  .insight-item{
-    display:flex;gap:10px;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13px;line-height:1.55;
-  }
+  .cat-sub{font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
+  .cat-sub .pos{color:var(--green);font-weight:600;}
+  .cat-sub .neg{color:var(--loss);font-weight:600;}
+  .insight-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px dashed var(--line);font-size:13.5px;line-height:1.55;}
   .insight-item:last-child{border-bottom:none;}
   .insight-emoji{font-size:16px;flex:none;}
-  .insight-note{font-size:11px;color:var(--ink-soft);margin-top:4px;font-style:italic;}
 
-  select#serviceType, select#payMethod, select#recCategory{cursor:pointer;}
+  /* ---------- Settings ---------- */
+  .prof-row{
+    display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line-soft);
+  }
+  .prof-row:last-of-type{border-bottom:none;}
+  .prof-name{flex:1;font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .add-row{display:flex;gap:8px;margin-top:12px;}
+  .add-row input{flex:1;}
+  .add-row button{flex:none;}
 
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:13.5px;
+    z-index:300;max-width:min(420px, calc(100vw - 40px));text-align:center;box-shadow:var(--shadow);
+    opacity:0;pointer-events:none;transition:opacity .18s ease;
+  }
+  .toast.show{opacity:1;}
+  @media (prefers-reduced-motion:reduce){.toast{transition:none;}}
+
+  /* ---------- Print ---------- */
+  #printRoot{display:none;}
   @media print{
-    body *{visibility:hidden;}
-    .receipt, .receipt *{visibility:visible;}
-    .receipt{position:absolute;top:0;left:0;width:100%;box-shadow:none;border:none;}
-    .receipt-wrap{position:static;}
+    @page{margin:12mm;}
+    body{background:#fff;}
+    body.printing > *{display:none !important;}
+    body.printing > #printRoot{display:block !important;}
+    #printRoot .doc{box-shadow:none;border:none;border-radius:0;padding:0;width:100%;}
+    #printRoot .doc-receipt::before,#printRoot .doc-receipt::after{display:none;}
+    .badge, .stamp{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <header class="topbar">
+  <header class="topbar" id="topbar">
     <div class="topbar-left">
       <button class="icon-btn" id="btnBack" style="display:none;" aria-label="Back">←</button>
-      <div class="topbar-title" id="topbarTitle">Jesse L Backstage Record System</div>
+      <div class="topbar-title" id="topbarTitle">Jesse L Backstage</div>
     </div>
-    <button class="lang-toggle" id="langToggle">EN</button>
+    <div class="topbar-right">
+      <button class="icon-btn" id="btnSettings" aria-label="Settings">⚙</button>
+      <button class="lang-toggle" id="langToggle">EN</button>
+    </div>
   </header>
 
   <!-- ============ HOME ============ -->
   <section id="view-home" class="view active">
     <div class="home-hero">
       <img src="icon-192.png" class="home-icon" alt="">
-      <h1>Jesse L Backstage Record System</h1>
-      <p id="homeSubtitle">私人后台记录系统 · 本地保存</p>
+      <h1>Jesse L Backstage</h1>
+      <p data-t="homeSubtitle">私人单据与收入记录系统</p>
     </div>
+
+    <div class="home-summary">
+      <div class="hs-cell">
+        <div class="hs-val" id="hsReceived">RM 0</div>
+        <div class="hs-lab" data-t="hsReceived">本月已收</div>
+      </div>
+      <div class="hs-cell">
+        <div class="hs-val due" id="hsDue">RM 0</div>
+        <div class="hs-lab" data-t="hsDue">未收款</div>
+      </div>
+      <div class="hs-cell">
+        <div class="hs-val" id="hsCount">0</div>
+        <div class="hs-lab" data-t="hsCount">单据总数</div>
+      </div>
+    </div>
+
     <div class="home-grid">
-      <button class="home-card" data-nav="generator">
-        <div class="hc-icon">🧾</div>
-        <div class="hc-title" id="cardGenTitle">生成收据</div>
-        <div class="hc-desc" id="cardGenDesc">开立新的英文收据，含项目明细与银行收款资料</div>
+      <button class="home-card" data-new="invoice">
+        <div class="hc-icon">📄</div>
+        <div>
+          <div class="hc-title" data-t="cardInvTitle">开立发票</div>
+          <div class="hc-desc" data-t="cardInvDesc">先向客户收费，可设定到期日与付款状态</div>
+        </div>
       </button>
-      <button class="home-card" data-nav="records">
+      <button class="home-card" data-new="receipt">
+        <div class="hc-icon">🧾</div>
+        <div>
+          <div class="hc-title" data-t="cardRcpTitle">开立收据</div>
+          <div class="hc-desc" data-t="cardRcpDesc">已收到钱之后，开一张付款证明给客户</div>
+        </div>
+      </button>
+      <button class="home-card" data-nav="docs">
         <div class="hc-icon">📋</div>
-        <div class="hc-title" id="cardRecTitle">查看账单明细</div>
-        <div class="hc-desc" id="cardRecDesc">浏览所有开过的收据，按日期与类别筛选</div>
+        <div>
+          <div class="hc-title" data-t="cardDocsTitle">单据记录</div>
+          <div class="hc-desc" data-t="cardDocsDesc">发票与收据分开管理，可筛选日期与类别</div>
+        </div>
       </button>
       <button class="home-card" data-nav="income">
         <div class="hc-icon">📊</div>
-        <div class="hc-title" id="cardIncTitle">收入列表</div>
-        <div class="hc-desc" id="cardIncDesc">按领域拆解收入与利润，附智能分析建议</div>
+        <div>
+          <div class="hc-title" data-t="cardIncTitle">收入分析</div>
+          <div class="hc-desc" data-t="cardIncDesc">按职业领域拆解收入、成本与利润</div>
+        </div>
       </button>
     </div>
   </section>
 
-  <!-- ============ GENERATOR ============ -->
-  <section id="view-generator" class="view">
-    <div class="gen-layout">
-      <div class="left">
+  <!-- ============ EDITOR ============ -->
+  <section id="view-editor" class="view">
+    <div class="editor-layout">
+      <div class="form-col">
 
         <div class="panel">
-          <h2><span class="num">01</span> <span id="h_panel1">我的资料</span></h2>
+          <div class="seg" id="docTypeSeg">
+            <button type="button" data-type="invoice">📄 <span data-t="segInvoice">发票</span></button>
+            <button type="button" data-type="receipt">🧾 <span data-t="segReceipt">收据</span></button>
+          </div>
+          <p class="hint" id="docTypeHint" style="margin-top:12px;"></p>
+
           <div class="field-row">
             <div class="field">
-              <label id="l_bizName">姓名 / 工作室名称</label>
-              <input type="text" id="bizName" placeholder="例如：Jesse Leong">
+              <label data-t="l_docNo">单据编号</label>
+              <input type="text" id="docNo" readonly>
             </div>
             <div class="field">
-              <label id="l_bizSub">身份 / 副标题</label>
-              <input type="text" id="bizSub" placeholder="模特 · 博主 · 化妆师">
+              <label id="l_dateEl">开立日期</label>
+              <input type="text" id="dDate" class="date-picker-input" readonly>
             </div>
-          </div>
-          <div class="field">
-            <label id="l_bizContact">联络方式（电话 / IG / Email）</label>
-            <input type="text" id="bizContact" placeholder="IG @jesse.leong · jesse@email.com">
           </div>
 
-          <div class="sub-divider" id="h_bankSection">银行收款资料（会显示在收据上）</div>
-          <div class="field-row">
+          <div class="field-row" id="invoiceOnlyFields">
             <div class="field">
-              <label id="l_bankName">银行名称</label>
-              <input type="text" id="bankName" value="CIMB Bank">
+              <label data-t="l_dueDate">付款到期日</label>
+              <input type="text" id="dDueDate" class="date-picker-input" readonly>
             </div>
             <div class="field">
-              <label id="l_bankHolder">账户持有人姓名</label>
-              <input type="text" id="bankHolder" value="Leong Yuan Yi">
+              <label data-t="l_status">付款状态</label>
+              <button type="button" class="picker" id="pkStatus">
+                <span class="pk-val"></span><span class="pk-arrow">▼</span>
+              </button>
             </div>
-          </div>
-          <div class="field">
-            <label id="l_bankAccount">银行账号</label>
-            <input type="text" id="bankAccount" value="7642093373">
           </div>
 
-          <div class="field-row" style="margin-top:4px;">
-            <div class="field">
-              <label id="l_numPrefix">收据编号前缀</label>
-              <input type="text" id="numPrefix" placeholder="JL" value="JL">
-            </div>
-            <div class="field">
-              <label id="l_numCounter">下一个流水号</label>
-              <input type="number" id="numCounter" value="1" min="1">
-            </div>
-          </div>
-          <button class="ghost" id="saveBiz">保存我的资料</button>
-
-          <div class="sub-divider" id="h_professionSection">职业分类管理</div>
-          <div class="hint" id="professionHint">职业名称建议使用英文，因为会显示在收据上</div>
-          <div class="chip-list" id="professionChips"></div>
-          <div class="field-row" style="margin-top:2px;grid-template-columns:1fr auto;align-items:end;">
-            <div class="field" style="margin-bottom:0;">
-              <input type="text" id="newProfession" placeholder="例如：Wedding Makeup">
-            </div>
-            <button class="ghost" id="addProfession">+ 添加职业</button>
+          <div class="field" id="receiptOnlyFields">
+            <label data-t="l_refInvoice">对应发票编号（选填）</label>
+            <input type="text" id="dRefInvoice" data-tp="refInvoicePh" placeholder="例如：JL-INV-0007">
           </div>
         </div>
 
         <div class="panel">
-          <h2><span class="num">02</span> <span id="h_panel2">客户与项目</span></h2>
-          <div class="field-row">
-            <div class="field">
-              <label id="l_clientName">客户 / 品牌名称</label>
-              <input type="text" id="clientName" placeholder="例如：ABC 化妆品品牌">
-            </div>
-            <div class="field">
-              <label id="l_serviceType">服务类型</label>
-              <select id="serviceType"></select>
-            </div>
+          <h2 data-t="h_client">客户与服务</h2>
+          <div class="field">
+            <label data-t="l_client">客户 / 品牌名称</label>
+            <input type="text" id="dClient" data-tp="clientPh" placeholder="例如：ABC Cosmetics">
+          </div>
+          <div class="field">
+            <label data-t="l_clientContact">客户联络方式（选填）</label>
+            <input type="text" id="dClientContact" data-tp="clientContactPh" placeholder="Email / 电话 / 地址">
           </div>
           <div class="field-row">
             <div class="field">
-              <label id="l_rDate">日期</label>
-              <input type="text" id="rDate" class="date-picker-input" readonly>
+              <label data-t="l_service">职业类别</label>
+              <button type="button" class="picker" id="pkService">
+                <span class="pk-val"></span><span class="pk-arrow">▼</span>
+              </button>
             </div>
             <div class="field">
-              <label id="l_payMethod">付款方式</label>
-              <select id="payMethod">
-                <option value="Bank Transfer" data-zh="银行转账" data-en="Bank Transfer">银行转账</option>
-                <option value="Cash" data-zh="现金" data-en="Cash">现金</option>
-                <option value="PayPal" data-zh="PayPal" data-en="PayPal">PayPal</option>
-                <option value="E-wallet" data-zh="Touch 'n Go / 电子钱包" data-en="E-wallet">Touch 'n Go / 电子钱包</option>
-                <option value="Other" data-zh="其他" data-en="Other">其他</option>
-              </select>
+              <label data-t="l_payMethod">付款方式</label>
+              <button type="button" class="picker" id="pkPayMethod">
+                <span class="pk-val"></span><span class="pk-arrow">▼</span>
+              </button>
             </div>
           </div>
         </div>
 
         <div class="panel">
-          <h2><span class="num">03</span> <span id="h_panel3">项目明细</span></h2>
-          <table class="items">
-            <thead>
-              <tr>
-                <th class="col-desc" id="th_desc">项目描述</th>
-                <th class="col-qty" id="th_qty">数量</th>
-                <th class="col-price" id="th_price">单价 (RM)</th>
-                <th class="col-sum" id="th_sum">小计</th>
-                <th class="col-del"></th>
-              </tr>
-            </thead>
-            <tbody id="itemsBody"></tbody>
-          </table>
-          <button class="add-item" id="addItem">+ 添加项目</button>
+          <h2 data-t="h_items">项目明细</h2>
+          <p class="hint" data-t="itemsHint">项目描述会原样显示在单据上，建议用英文填写</p>
+          <div id="itemsList"></div>
+          <button class="add-item" id="addItem" data-t="addItem">+ 添加项目</button>
 
-          <div class="field-row" style="margin-top:14px;">
+          <div class="field-row" style="margin-top:16px;">
             <div class="field">
-              <label id="l_discount">折扣 (RM)</label>
-              <input type="number" id="discount" value="0" min="0" step="0.01">
+              <label data-t="l_discount">折扣 (RM)</label>
+              <input type="text" inputmode="decimal" id="dDiscount" value="0">
             </div>
             <div class="field">
-              <label id="l_deposit">已付订金 (RM)</label>
-              <input type="number" id="deposit" value="0" min="0" step="0.01">
+              <label id="l_depositEl" data-t="l_deposit">已付订金 (RM)</label>
+              <input type="text" inputmode="decimal" id="dDeposit" value="0">
             </div>
           </div>
 
           <div class="field">
-            <label id="l_notes">备注</label>
-            <textarea id="notes" placeholder="例如：拍摄地点、使用条款、感谢语等"></textarea>
+            <label data-t="l_notes">备注</label>
+            <textarea id="dNotes" data-tp="notesPh" placeholder="例如：拍摄地点、使用条款、感谢语"></textarea>
           </div>
 
-          <div class="sub-divider" id="h_costSection">内部记录（不会显示在收据上）</div>
-          <div class="hint" id="costHint">用来记录这笔收入实际花了多少成本，方便计算净利润</div>
+          <div class="sub-divider" data-t="h_internal">内部记录（不会印在单据上）</div>
           <div class="field-row">
             <div class="field">
-              <label id="l_costAmount">支出 / 车费 (RM)</label>
-              <input type="number" id="costAmount" value="0" min="0" step="0.01">
+              <label data-t="l_cost">支出 / 车费 (RM)</label>
+              <input type="text" inputmode="decimal" id="dCost" value="0">
             </div>
             <div class="field">
-              <label id="l_costNote">支出说明</label>
-              <input type="text" id="costNote" placeholder="例如：Grab 车费、化妆品材料">
+              <label data-t="l_costNote">支出说明</label>
+              <input type="text" id="dCostNote" data-tp="costNotePh" placeholder="例如：Grab 车费、化妆品材料">
             </div>
           </div>
 
           <div class="totals-mini">
-            <div class="row"><span id="l_miniSubtotal">小计</span><span id="miniSubtotal">RM 0.00</span></div>
-            <div class="row"><span id="l_miniDiscount">折扣</span><span id="miniDiscount">- RM 0.00</span></div>
-            <div class="row total"><span id="l_miniTotal">应付总额</span><span id="miniTotal">RM 0.00</span></div>
-            <div class="row profit pos" id="miniProfitRow"><span id="l_miniProfit">净利润</span><span id="miniProfit">RM 0.00</span></div>
+            <div class="row"><span data-t="l_subtotal">小计</span><span id="mSubtotal">RM 0.00</span></div>
+            <div class="row"><span data-t="l_discountShort">折扣</span><span id="mDiscount">- RM 0.00</span></div>
+            <div class="row" id="mDepositRow"><span id="l_depositShort" data-t="l_depositShort">订金</span><span id="mDeposit">- RM 0.00</span></div>
+            <div class="row total"><span id="mTotalLabel">应付总额</span><span id="mTotal">RM 0.00</span></div>
+            <div class="row profit pos" id="mProfitRow"><span data-t="l_profit">净利润</span><span id="mProfit">RM 0.00</span></div>
           </div>
 
-          <div class="btn-row">
-            <button class="primary" id="saveReceipt">保存收据</button>
-            <button class="secondary" id="printReceipt">打印 / 存为 PDF</button>
-            <button class="ghost" id="newReceipt">开新收据</button>
+          <div class="btn-row desktop-only">
+            <button class="primary" id="btnSave" data-t="btnSave">保存单据</button>
+            <button class="secondary" id="btnPrint" data-t="btnPrint">存为 PDF</button>
+            <button class="ghost" id="btnNew" data-t="btnNew">开新单据</button>
+          </div>
+          <div class="btn-row" id="convertRow" style="display:none;">
+            <button class="ghost" id="btnConvert" data-t="btnConvert">标记已收款并开收据</button>
+            <button class="danger" id="btnDelete" data-t="btnDelete">删除这张单据</button>
           </div>
         </div>
 
       </div>
 
-      <!-- Receipt preview — always English -->
-      <div class="receipt-wrap">
-        <div class="receipt-label" id="receiptLabel">Receipt preview (always in English)</div>
-        <div class="receipt" id="receiptPreview">
-          <div class="stamp" id="stampEl" style="display:none;">PAID</div>
-          <div class="r-head">
-            <div class="biz" id="pBizName">Your Name</div>
-            <div class="biz-sub" id="pBizSub">Model · Content Creator · Makeup Artist</div>
-            <div class="contact" id="pBizContact"></div>
-          </div>
-          <hr class="r-divider">
-          <div class="r-meta"><span>Receipt No.</span><b id="pReceiptNo">JL-0001</b></div>
-          <div class="r-meta"><span>Date</span><b id="pDate">-</b></div>
-          <div class="r-meta"><span>Service</span><b id="pService">-</b></div>
-          <div class="r-client">
-            <div class="l">Client / Brand</div>
-            <div id="pClient">-</div>
-          </div>
-          <table class="r-items">
-            <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Subtotal</th></tr></thead>
-            <tbody id="pItemsBody"></tbody>
-          </table>
-          <div class="r-totals">
-            <div class="row"><span>Subtotal</span><span id="pSubtotal">RM 0.00</span></div>
-            <div class="row"><span>Discount</span><span id="pDiscount">- RM 0.00</span></div>
-            <div class="row"><span>Deposit Paid</span><span id="pDeposit">- RM 0.00</span></div>
-            <div class="row grand"><span>Balance Due</span><span id="pTotal">RM 0.00</span></div>
-          </div>
-          <div class="r-pay">
-            <div class="l">Pay to</div>
-            <div class="row"><span>Bank</span><span id="pBankName">-</span></div>
-            <div class="row"><span>Account Name</span><span id="pBankHolder">-</span></div>
-            <div class="row"><span>Account No.</span><span id="pBankAccount">-</span></div>
-          </div>
-          <div class="r-note" id="pNotes"></div>
-          <div class="r-footer">Payment Method: <span id="pPayMethod">-</span></div>
+      <div class="preview-col">
+        <div class="preview-label">
+          <span data-t="previewLabel">单据预览（永远英文）</span>
+          <span id="previewNo" style="font-weight:600;"></span>
         </div>
+        <div id="docPreview"></div>
       </div>
     </div>
   </section>
 
-  <!-- ============ RECORDS ============ -->
-  <section id="view-records" class="view">
-    <div class="panel filter-panel">
-      <div class="preset-row" id="recPresets">
-        <button type="button" class="preset-btn" data-preset="today" id="pr_today">今天</button>
-        <button type="button" class="preset-btn" data-preset="week" id="pr_week">本周</button>
-        <button type="button" class="preset-btn" data-preset="month" id="pr_month">本月</button>
-        <button type="button" class="preset-btn" data-preset="lastMonth" id="pr_lastMonth">上月</button>
-        <button type="button" class="preset-btn" data-preset="year" id="pr_year">今年</button>
-        <button type="button" class="preset-btn" data-preset="all" id="pr_all">全部</button>
+  <!-- ============ DOCS ============ -->
+  <section id="view-docs" class="view">
+    <div class="panel">
+      <div class="seg" id="docFilterSeg" style="margin-bottom:14px;">
+        <button type="button" data-filter="all" class="on" data-t="tabAll">全部</button>
+        <button type="button" data-filter="invoice" data-t="tabInvoices">发票</button>
+        <button type="button" data-filter="receipt" data-t="tabReceipts">收据</button>
       </div>
-      <div class="filter-row">
-        <div class="field">
-          <label id="l_recStart">开始日期</label>
-          <input type="text" id="recStartDate" class="date-picker-input" readonly>
-        </div>
-        <div class="field">
-          <label id="l_recEnd">结束日期</label>
-          <input type="text" id="recEndDate" class="date-picker-input" readonly>
-        </div>
-        <div class="field">
-          <label id="l_recCategory">职业类别</label>
-          <select id="recCategory"></select>
-        </div>
-        <div class="field">
-          <label id="l_recSearch">搜索客户</label>
-          <input type="text" id="recSearch" placeholder="客户 / 品牌名称">
-        </div>
-        <button class="ghost" id="recClear">清除筛选</button>
+      <div class="preset-row" id="docPresets">
+        <button type="button" class="preset-btn" data-preset="today" data-t="pr_today">今天</button>
+        <button type="button" class="preset-btn" data-preset="week" data-t="pr_week">本周</button>
+        <button type="button" class="preset-btn" data-preset="month" data-t="pr_month">本月</button>
+        <button type="button" class="preset-btn" data-preset="lastMonth" data-t="pr_lastMonth">上月</button>
+        <button type="button" class="preset-btn" data-preset="year" data-t="pr_year">今年</button>
+        <button type="button" class="preset-btn" data-preset="all" data-t="pr_all">全部</button>
       </div>
+      <div class="field-row">
+        <div class="field">
+          <label data-t="l_startDate">开始日期</label>
+          <input type="text" id="fStart" class="date-picker-input" readonly>
+        </div>
+        <div class="field">
+          <label data-t="l_endDate">结束日期</label>
+          <input type="text" id="fEnd" class="date-picker-input" readonly>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label data-t="l_category">职业类别</label>
+          <button type="button" class="picker" id="pkCategory">
+            <span class="pk-val"></span><span class="pk-arrow">▼</span>
+          </button>
+        </div>
+        <div class="field">
+          <label data-t="l_search">搜索客户</label>
+          <input type="text" id="fSearch" data-tp="searchPh" placeholder="客户 / 品牌名称">
+        </div>
+      </div>
+      <button class="ghost" id="fClear" style="width:100%;" data-t="clearFilters">清除筛选</button>
     </div>
 
     <div class="stats-bar">
       <div class="stat-box">
-        <div class="sl" id="l_statCount">收据数量</div>
+        <div class="sl" data-t="l_statCount">单据数量</div>
         <div class="sv" id="statCount">0</div>
       </div>
       <div class="stat-box">
-        <div class="sl" id="l_statRevenue">总收入</div>
-        <div class="sv" id="statRevenue">RM 0.00</div>
+        <div class="sl" data-t="l_statReceived">已收金额</div>
+        <div class="sv" id="statReceived">RM 0.00</div>
       </div>
-      <div class="stat-box profit">
-        <div class="sl" id="l_statProfit2">总利润</div>
-        <div class="sv" id="statProfit">RM 0.00</div>
+      <div class="stat-box">
+        <div class="sl" data-t="l_statDue">未收金额</div>
+        <div class="sv due" id="statDue">RM 0.00</div>
       </div>
     </div>
 
-    <div class="panel" style="margin-top:20px;overflow-x:auto;">
-      <table class="records-table">
-        <thead>
-          <tr>
-            <th id="th_no">编号</th>
-            <th id="th_date">日期</th>
-            <th id="th_client">客户</th>
-            <th id="th_cat">类别</th>
-            <th class="num" id="th_income">收入</th>
-            <th class="num" id="th_cost">支出</th>
-            <th class="num" id="th_profit">利润</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="recordsBody"></tbody>
-      </table>
-      <div class="empty-hint" id="recordsEmpty" style="display:none;">还没有保存的收据。</div>
+    <div class="panel">
+      <div id="docsList"></div>
+      <div class="empty-hint" id="docsEmpty" style="display:none;"></div>
     </div>
   </section>
 
   <!-- ============ INCOME ============ -->
   <section id="view-income" class="view">
-    <div class="panel filter-panel">
+    <div class="panel">
       <div class="preset-row" id="incPresets">
-        <button type="button" class="preset-btn" data-preset="today" id="pi_today">今天</button>
-        <button type="button" class="preset-btn" data-preset="week" id="pi_week">本周</button>
-        <button type="button" class="preset-btn" data-preset="month" id="pi_month">本月</button>
-        <button type="button" class="preset-btn" data-preset="lastMonth" id="pi_lastMonth">上月</button>
-        <button type="button" class="preset-btn" data-preset="year" id="pi_year">今年</button>
-        <button type="button" class="preset-btn" data-preset="all" id="pi_all">全部</button>
+        <button type="button" class="preset-btn" data-preset="today" data-t="pr_today2">今天</button>
+        <button type="button" class="preset-btn" data-preset="week" data-t="pr_week2">本周</button>
+        <button type="button" class="preset-btn" data-preset="month" data-t="pr_month2">本月</button>
+        <button type="button" class="preset-btn" data-preset="lastMonth" data-t="pr_lastMonth2">上月</button>
+        <button type="button" class="preset-btn" data-preset="year" data-t="pr_year2">今年</button>
+        <button type="button" class="preset-btn" data-preset="all" data-t="pr_all2">全部</button>
       </div>
-      <div class="filter-row" style="grid-template-columns:1fr 1fr auto;">
+      <div class="field-row">
         <div class="field">
-          <label id="l_incStart">开始日期</label>
-          <input type="text" id="incStartDate" class="date-picker-input" readonly>
+          <label data-t="l_startDate2">开始日期</label>
+          <input type="text" id="iStart" class="date-picker-input" readonly>
         </div>
         <div class="field">
-          <label id="l_incEnd">结束日期</label>
-          <input type="text" id="incEndDate" class="date-picker-input" readonly>
+          <label data-t="l_endDate2">结束日期</label>
+          <input type="text" id="iEnd" class="date-picker-input" readonly>
         </div>
-        <button class="ghost" id="incClear">清除筛选</button>
       </div>
+      <button class="ghost" id="iClear" style="width:100%;" data-t="clearFilters2">清除筛选</button>
     </div>
 
     <div class="stats-bar">
       <div class="stat-box">
-        <div class="sl" id="l_statRevenue2">总收入</div>
-        <div class="sv" id="incStatRevenue">RM 0.00</div>
-      </div>
-      <div class="stat-box profit">
-        <div class="sl" id="l_statProfit3">总利润</div>
-        <div class="sv" id="incStatProfit">RM 0.00</div>
+        <div class="sl" data-t="l_incReceived">实收收入</div>
+        <div class="sv" id="incReceived">RM 0.00</div>
       </div>
       <div class="stat-box">
-        <div class="sl" id="l_statCount2">收据数量</div>
-        <div class="sv" id="incStatCount">0</div>
+        <div class="sl" data-t="l_incProfit">净利润</div>
+        <div class="sv" id="incProfit">RM 0.00</div>
       </div>
-    </div>
-
-    <div class="panel" style="margin-top:20px;">
-      <h2><span id="h_catBreakdown">收入分类拆解</span></h2>
-      <div id="categoryBreakdown"></div>
-      <div class="empty-hint" id="incomeEmpty" style="display:none;">还没有足够的数据。</div>
+      <div class="stat-box">
+        <div class="sl" data-t="l_incDue">尚未收到</div>
+        <div class="sv due" id="incDue">RM 0.00</div>
+      </div>
     </div>
 
     <div class="panel">
-      <h2><span id="h_insights">智能分析建议</span></h2>
-      <div class="hint" id="insightsHint">以下建议根据你保存的收据自动运算得出</div>
+      <h2 data-t="h_breakdown">收入分类拆解</h2>
+      <p class="hint" data-t="breakdownHint">只计算已经收到的钱（收据 + 已付清的发票）</p>
+      <div id="catBreakdown"></div>
+      <div class="empty-hint" id="incomeEmpty" style="display:none;"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_insights">智能分析建议</h2>
       <div id="insightsBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="view-settings" class="view">
+    <div class="panel">
+      <h2 data-t="h_myInfo">我的资料</h2>
+      <p class="hint" data-t="myInfoHint">这些资料会印在每一张发票与收据的抬头上</p>
+      <div class="field">
+        <label data-t="l_bizName">姓名 / 工作室名称</label>
+        <input type="text" id="bizName" data-tp="bizNamePh" placeholder="例如：Jesse Leong">
+      </div>
+      <div class="field">
+        <label data-t="l_bizSub">身份 / 副标题</label>
+        <input type="text" id="bizSub" data-tp="bizSubPh" placeholder="Model · Content Creator · Makeup Artist">
+      </div>
+      <div class="field">
+        <label data-t="l_bizContact">联络方式</label>
+        <input type="text" id="bizContact" data-tp="bizContactPh" placeholder="IG @jesse.leong · jesse@email.com">
+      </div>
+
+      <div class="sub-divider" data-t="h_bank">银行收款资料</div>
+      <div class="field-row">
+        <div class="field">
+          <label data-t="l_bankName">银行名称</label>
+          <input type="text" id="bankName">
+        </div>
+        <div class="field">
+          <label data-t="l_bankHolder">账户持有人</label>
+          <input type="text" id="bankHolder">
+        </div>
+      </div>
+      <div class="field">
+        <label data-t="l_bankAccount">银行账号</label>
+        <input type="text" id="bankAccount" inputmode="numeric">
+      </div>
+
+      <div class="sub-divider" data-t="h_numbering">单据编号</div>
+      <p class="hint" data-t="numberingHint">PDF 文件名就是这个编号，例如 JL-0003.pdf</p>
+      <div class="field-row">
+        <div class="field">
+          <label data-t="l_invPrefix">发票前缀</label>
+          <input type="text" id="invoicePrefix">
+        </div>
+        <div class="field">
+          <label data-t="l_invCounter">发票下一个号码</label>
+          <input type="text" inputmode="numeric" id="invoiceCounter">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label data-t="l_rcpPrefix">收据前缀</label>
+          <input type="text" id="receiptPrefix">
+        </div>
+        <div class="field">
+          <label data-t="l_rcpCounter">收据下一个号码</label>
+          <input type="text" inputmode="numeric" id="receiptCounter">
+        </div>
+      </div>
+
+      <div class="sub-divider" data-t="h_wording">单据文字</div>
+      <div class="field">
+        <label data-t="l_terms">发票付款条款</label>
+        <textarea id="bizTerms" data-tp="termsPh" placeholder="Payment due within 14 days of the invoice date."></textarea>
+      </div>
+      <div class="field">
+        <label data-t="l_thanks">收据结尾语</label>
+        <input type="text" id="bizThanks" data-tp="thanksPh" placeholder="Thank you for your business.">
+      </div>
+
+      <button class="primary" id="btnSaveBiz" style="width:100%;" data-t="btnSaveBiz">保存资料</button>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_professions">职业分类</h2>
+      <p class="hint" data-t="professionsHint">建议用英文命名，因为会印在单据上，也是收入分析的分类依据</p>
+      <div id="profList"></div>
+      <div class="add-row">
+        <input type="text" id="newProfession" data-tp="newProfessionPh" placeholder="例如：Wedding Makeup">
+        <button class="ghost" id="addProfession" data-t="btnAddProfession">添加</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_data">数据管理</h2>
+      <p class="hint" data-t="dataHint">所有资料只存在这台设备里。建议偶尔导出备份一份。</p>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="ghost" id="btnExport" data-t="btnExport">导出备份</button>
+        <button class="ghost" id="btnImport" data-t="btnImport">导入备份</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none;">
     </div>
   </section>
 
 </div>
 
+<!-- sticky editor actions (mobile) -->
+<div class="action-bar" id="actionBar">
+  <div class="bar-inner">
+    <button class="ghost" id="btnNewM" data-t="btnNewShort">新单</button>
+    <button class="primary" id="btnSaveM" data-t="btnSave">保存单据</button>
+    <button class="secondary" id="btnPrintM" data-t="btnPrint">存为 PDF</button>
+  </div>
+</div>
+
+<div class="sheet-wrap" id="sheetWrap" hidden>
+  <div class="sheet-backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-head">
+      <span id="sheetTitle"></span>
+      <button class="icon-btn" id="sheetClose" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printRoot"></div>
+
 <script>
 (function(){
+  'use strict';
   const $ = id => document.getElementById(id);
-  const fmt = n => 'RM ' + (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
-  const todayStr = () => new Date().toISOString().slice(0,10);
+  const money = new Intl.NumberFormat('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmt = n => 'RM ' + money.format(Math.round((Number(n)||0)*100)/100);
+  const fmtShort = n => 'RM ' + Math.round(Number(n)||0).toLocaleString('en-MY');
+  const num = v => { const n = parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n) ? 0 : n; };
+  const pad2 = n => String(n).padStart(2,'0');
+  const toStr = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const todayStr = () => toStr(new Date());
+  const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36);
 
-  let currentEditId = null;
-  let lang = localStorage.getItem('receiptUiLang') || 'zh';
-  let currentView = 'home';
-
-  function catLabel(v){ return v || (lang==='zh' ? '未分类' : 'Uncategorized'); }
-
-  // ================= i18n =================
+  // ============================================================
+  // i18n
+  // ============================================================
   const I18N = {
-    zh: {
-      topbar_home:'Jesse L Backstage Record System', topbar_generator:'生成收据', topbar_records:'查看账单明细', topbar_income:'收入列表',
-      homeSubtitle:'私人后台记录系统 · 本地保存', toggleLabel:'EN',
-      cardGenTitle:'生成收据', cardGenDesc:'开立新的英文收据，含项目明细与银行收款资料',
-      cardRecTitle:'查看账单明细', cardRecDesc:'浏览所有开过的收据，按日期与类别筛选',
-      cardIncTitle:'收入列表', cardIncDesc:'按领域拆解收入与利润，附智能分析建议',
-      h_panel1:'我的资料', l_bizName:'姓名 / 工作室名称', l_bizSub:'身份 / 副标题',
-      l_bizContact:'联络方式（电话 / IG / Email）', h_bankSection:'银行收款资料（会显示在收据上）',
-      l_bankName:'银行名称', l_bankHolder:'账户持有人姓名', l_bankAccount:'银行账号',
-      l_numPrefix:'收据编号前缀', l_numCounter:'下一个流水号', saveBiz:'保存我的资料',
-      h_professionSection:'职业分类管理', professionHint:'职业名称建议使用英文，因为会显示在收据上',
-      addProfession:'+ 添加职业', confirmDeleteProfession:'删除这个职业分类？已保存的收据不会受影响。',
-      alertProfessionDup:'这个职业已经存在了', newProfessionPh:'例如：Wedding Makeup',
+    zh:{
+      toggleLabel:'EN',
+      title_home:'Jesse L Backstage', title_editor:'', title_docs:'单据记录', title_income:'收入分析', title_settings:'设置',
+      title_invoice:'开立发票', title_receipt:'开立收据',
+      homeSubtitle:'私人单据与收入记录系统',
+      hsReceived:'本月已收', hsDue:'未收款', hsCount:'单据总数',
+      cardInvTitle:'开立发票', cardInvDesc:'先向客户收费，可设定到期日与付款状态',
+      cardRcpTitle:'开立收据', cardRcpDesc:'已收到钱之后，开一张付款证明给客户',
+      cardDocsTitle:'单据记录', cardDocsDesc:'发票与收据分开管理，可筛选日期与类别',
+      cardIncTitle:'收入分析', cardIncDesc:'按职业领域拆解收入、成本与利润',
+      segInvoice:'发票', segReceipt:'收据',
+      hintInvoice:'发票 = 向客户请款。金额显示为「应付余额」，可设付款到期日。',
+      hintReceipt:'收据 = 已收到钱的证明。金额显示为「已收金额」，会盖上 PAID 印章。',
+      l_docNo:'单据编号', l_dateInvoice:'开立日期', l_dateReceipt:'收款日期',
+      l_dueDate:'付款到期日', l_status:'付款状态',
+      l_refInvoice:'对应发票编号（选填）', refInvoicePh:'例如：JL-INV-0007',
+      h_client:'客户与服务', l_client:'客户 / 品牌名称', clientPh:'例如：ABC Cosmetics',
+      l_clientContact:'客户联络方式（选填）', clientContactPh:'Email / 电话 / 地址',
+      l_service:'职业类别', l_payMethod:'付款方式',
+      h_items:'项目明细', itemsHint:'项目描述会原样显示在单据上，建议用英文填写',
+      itemDescPh:'例如：Outdoor shoot, 3 hours', l_qty:'数量', l_price:'单价 (RM)',
+      addItem:'+ 添加项目', l_discount:'折扣 (RM)', l_deposit:'已付订金 (RM)', l_depositReceipt:'之前已付订金 (RM)',
+      l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语',
+      h_internal:'内部记录（不会印在单据上）', l_cost:'支出 / 车费 (RM)', l_costNote:'支出说明',
+      costNotePh:'例如：Grab 车费、化妆品材料',
+      l_subtotal:'小计', l_discountShort:'折扣', l_depositShort:'订金',
+      l_totalInvoice:'应付余额', l_totalReceipt:'已收金额', l_profit:'净利润',
+      btnSave:'保存单据', btnPrint:'存为 PDF', btnNew:'开新单据', btnNewShort:'新单',
+      btnConvert:'标记已收款并开收据', btnDelete:'删除这张单据',
+      previewLabel:'单据预览（永远英文）',
+      tabAll:'全部', tabInvoices:'发票', tabReceipts:'收据',
       pr_today:'今天', pr_week:'本周', pr_month:'本月', pr_lastMonth:'上月', pr_year:'今年', pr_all:'全部',
-      pi_today:'今天', pi_week:'本周', pi_month:'本月', pi_lastMonth:'上月', pi_year:'今年', pi_all:'全部',
-      h_panel2:'客户与项目', l_clientName:'客户 / 品牌名称', l_serviceType:'服务类型',
-      l_rDate:'日期', l_payMethod:'付款方式',
-      h_panel3:'项目明细', th_desc:'项目描述', th_qty:'数量', th_price:'单价 (RM)', th_sum:'小计',
-      addItem:'+ 添加项目', l_discount:'折扣 (RM)', l_deposit:'已付订金 (RM)',
-      l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语等',
-      h_costSection:'内部记录（不会显示在收据上）', costHint:'用来记录这笔收入实际花了多少成本，方便计算净利润',
-      l_costAmount:'支出 / 车费 (RM)', l_costNote:'支出说明', costNotePh:'例如：Grab 车费、化妆品材料',
-      l_miniSubtotal:'小计', l_miniDiscount:'折扣', l_miniTotal:'应付总额', l_miniProfit:'净利润',
-      saveReceipt:'保存收据', printReceipt:'打印 / 存为 PDF', newReceipt:'开新收据',
-      receiptLabel:'收据预览（永远显示英文）',
-      alertSaved:'已保存我的资料', alertNeedClient:'请填写客户 / 品牌名称',
-      alertReceiptSaved:'收据已保存：', confirmNew:'开始新的收据？未保存的内容会遗失。',
-      l_recStart:'开始日期', l_recEnd:'结束日期', l_recCategory:'职业类别', l_recSearch:'搜索客户',
-      recSearchPh:'客户 / 品牌名称', recClear:'清除筛选',
-      l_statCount:'收据数量', l_statRevenue:'总收入', l_statProfit2:'总利润',
-      th_no:'编号', th_date:'日期', th_client:'客户', th_cat:'类别', th_income:'收入', th_cost:'支出', th_profit:'利润',
-      recordsEmpty:'还没有保存的收据。', confirmDelete:'确定要删除这张收据吗？此操作无法复原。',
-      l_incStart:'开始日期', l_incEnd:'结束日期', incClear:'清除筛选',
-      l_statRevenue2:'总收入', l_statProfit3:'总利润', l_statCount2:'收据数量',
-      h_catBreakdown:'收入分类拆解', incomeEmpty:'还没有足够的数据。',
-      h_insights:'智能分析建议', insightsHint:'以下建议根据你保存的收据自动运算得出',
-      insightsEmpty:'保存几张收据后，这里会自动分析哪个领域最赚钱。',
-      catJobsSuffix:'单', calToday:'今天', calClear:'清除'
+      pr_today2:'今天', pr_week2:'本周', pr_month2:'本月', pr_lastMonth2:'上月', pr_year2:'今年', pr_all2:'全部',
+      l_startDate:'开始日期', l_endDate:'结束日期', l_startDate2:'开始日期', l_endDate2:'结束日期',
+      l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
+      clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
+      l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
+      l_incReceived:'实收收入', l_incProfit:'净利润', l_incDue:'尚未收到',
+      h_breakdown:'收入分类拆解', breakdownHint:'只计算已经收到的钱（收据 + 已付清的发票）',
+      h_insights:'智能分析建议',
+      docsEmpty:'这里还没有单据。回到首页开一张发票或收据吧。',
+      incomeEmpty:'还没有已收到的款项。',
+      insightsEmpty:'保存几张单据后，这里会自动分析哪个领域最赚钱。',
+      h_myInfo:'我的资料', myInfoHint:'这些资料会印在每一张发票与收据的抬头上',
+      l_bizName:'姓名 / 工作室名称', bizNamePh:'例如：Jesse Leong',
+      l_bizSub:'身份 / 副标题', bizSubPh:'Model · Content Creator · Makeup Artist',
+      l_bizContact:'联络方式', bizContactPh:'IG @jesse.leong · jesse@email.com',
+      h_bank:'银行收款资料', l_bankName:'银行名称', l_bankHolder:'账户持有人', l_bankAccount:'银行账号',
+      h_numbering:'单据编号', numberingHint:'PDF 文件名就是这个编号，例如 JL-0003.pdf',
+      l_invPrefix:'发票前缀', l_invCounter:'发票下一个号码', l_rcpPrefix:'收据前缀', l_rcpCounter:'收据下一个号码',
+      h_wording:'单据文字', l_terms:'发票付款条款', termsPh:'Payment due within 14 days of the invoice date.',
+      l_thanks:'收据结尾语', thanksPh:'Thank you for your business.',
+      btnSaveBiz:'保存资料',
+      h_professions:'职业分类', professionsHint:'建议用英文命名，因为会印在单据上，也是收入分析的分类依据',
+      newProfessionPh:'例如：Wedding Makeup', btnAddProfession:'添加',
+      h_data:'数据管理', dataHint:'所有资料只存在这台设备里。建议偶尔导出备份一份。',
+      btnExport:'导出备份', btnImport:'导入备份',
+      st_unpaid:'未付款', st_partial:'部分付款', st_paid:'已付清', st_overdue:'已逾期',
+      pickService:'选择职业类别', pickPayMethod:'选择付款方式', pickStatus:'选择付款状态', pickCategory:'筛选职业类别',
+      calToday:'今天', calClear:'清除',
+      needClient:'请先填写客户 / 品牌名称',
+      savedBiz:'资料已保存',
+      savedDoc:'已保存 ',
+      profDup:'这个职业分类已经存在了',
+      confirmDelete:'确定要删除这张单据吗？此操作无法复原。',
+      confirmNew:'开一张新的空白单据？还没保存的内容会不见。',
+      deleted:'单据已删除',
+      convertDone:'已开好收据 ',
+      convertNeedSave:'请先保存这张发票',
+      printedNew:' 已存档 · 已为你开好新的空白单据',
+      exported:'备份已导出',
+      imported:'备份已导入',
+      importFail:'这个文件读不到，请确认是本 App 导出的备份',
+      jobs:'单', profitWord:'利润'
     },
-    en: {
-      topbar_home:'Jesse L Backstage Record System', topbar_generator:'Generate Receipt', topbar_records:'Invoice Records', topbar_income:'Income Breakdown',
-      homeSubtitle:'Private backstage record system · Saved locally', toggleLabel:'中文',
-      cardGenTitle:'Generate Receipt', cardGenDesc:'Create a new English receipt with itemized details and bank info',
-      cardRecTitle:'Invoice Records', cardRecDesc:'Browse every receipt you have issued, filter by date and category',
-      cardIncTitle:'Income Breakdown', cardIncDesc:'See income and profit by category, with smart insights',
-      h_panel1:'My Info', l_bizName:'Name / Studio Name', l_bizSub:'Role / Subtitle',
-      l_bizContact:'Contact (Phone / IG / Email)', h_bankSection:'Bank Details (shown on the receipt)',
-      l_bankName:'Bank Name', l_bankHolder:'Account Holder Name', l_bankAccount:'Bank Account Number',
-      l_numPrefix:'Receipt Number Prefix', l_numCounter:'Next Sequence Number', saveBiz:'Save My Info',
-      h_professionSection:'Profession Categories', professionHint:'Enter profession names in English — they appear on the printed receipt',
-      addProfession:'+ Add Profession', confirmDeleteProfession:'Remove this profession category? Saved receipts are not affected.',
-      alertProfessionDup:'This profession already exists', newProfessionPh:'e.g. Wedding Makeup',
-      pr_today:'Today', pr_week:'This Week', pr_month:'This Month', pr_lastMonth:'Last Month', pr_year:'This Year', pr_all:'All Time',
-      pi_today:'Today', pi_week:'This Week', pi_month:'This Month', pi_lastMonth:'Last Month', pi_year:'This Year', pi_all:'All Time',
-      h_panel2:'Client & Project', l_clientName:'Client / Brand Name', l_serviceType:'Service Type',
-      l_rDate:'Date', l_payMethod:'Payment Method',
-      h_panel3:'Item Details', th_desc:'Description', th_qty:'Qty', th_price:'Unit Price (RM)', th_sum:'Subtotal',
-      addItem:'+ Add Item', l_discount:'Discount (RM)', l_deposit:'Deposit Paid (RM)',
+    en:{
+      toggleLabel:'中文',
+      title_home:'Jesse L Backstage', title_editor:'', title_docs:'Documents', title_income:'Income', title_settings:'Settings',
+      title_invoice:'New Invoice', title_receipt:'New Receipt',
+      homeSubtitle:'Private billing and income records',
+      hsReceived:'Received this month', hsDue:'Outstanding', hsCount:'Documents',
+      cardInvTitle:'New Invoice', cardInvDesc:'Bill a client, with a due date and payment status',
+      cardRcpTitle:'New Receipt', cardRcpDesc:'Confirm money you have already received',
+      cardDocsTitle:'Documents', cardDocsDesc:'Invoices and receipts, filtered by date and category',
+      cardIncTitle:'Income', cardIncDesc:'Income, cost and profit broken down by category',
+      segInvoice:'Invoice', segReceipt:'Receipt',
+      hintInvoice:'An invoice asks the client to pay. The total shows as Balance Due, with a payment deadline.',
+      hintReceipt:'A receipt proves money was received. The total shows as Amount Paid, with a PAID stamp.',
+      l_docNo:'Document No.', l_dateInvoice:'Issue Date', l_dateReceipt:'Date Received',
+      l_dueDate:'Due Date', l_status:'Payment Status',
+      l_refInvoice:'Against Invoice No. (optional)', refInvoicePh:'e.g. JL-INV-0007',
+      h_client:'Client & Service', l_client:'Client / Brand Name', clientPh:'e.g. ABC Cosmetics',
+      l_clientContact:'Client Contact (optional)', clientContactPh:'Email / phone / address',
+      l_service:'Category', l_payMethod:'Payment Method',
+      h_items:'Item Details', itemsHint:'Descriptions appear exactly as typed on the document',
+      itemDescPh:'e.g. Outdoor shoot, 3 hours', l_qty:'Qty', l_price:'Unit Price (RM)',
+      addItem:'+ Add Item', l_discount:'Discount (RM)', l_deposit:'Deposit Paid (RM)', l_depositReceipt:'Deposit Received Earlier (RM)',
       l_notes:'Notes', notesPh:'e.g. shoot location, terms of use, thank-you note',
-      h_costSection:'Internal Notes (not shown on receipt)', costHint:'Track what this job actually cost you, so net profit can be calculated',
-      l_costAmount:'Cost / Transport (RM)', l_costNote:'Expense Note', costNotePh:'e.g. Grab fare, makeup supplies',
-      l_miniSubtotal:'Subtotal', l_miniDiscount:'Discount', l_miniTotal:'Total Due', l_miniProfit:'Net Profit',
-      saveReceipt:'Save Receipt', printReceipt:'Print / Save as PDF', newReceipt:'New Receipt',
-      receiptLabel:'Receipt preview (always in English)',
-      alertSaved:'Your info has been saved', alertNeedClient:'Please enter the client / brand name',
-      alertReceiptSaved:'Receipt saved: ', confirmNew:'Start a new receipt? Unsaved changes will be lost.',
-      l_recStart:'Start Date', l_recEnd:'End Date', l_recCategory:'Profession', l_recSearch:'Search Client',
-      recSearchPh:'Client / brand name', recClear:'Clear Filters',
-      l_statCount:'Receipts', l_statRevenue:'Total Revenue', l_statProfit2:'Total Profit',
-      th_no:'No.', th_date:'Date', th_client:'Client', th_cat:'Category', th_income:'Income', th_cost:'Cost', th_profit:'Profit',
-      recordsEmpty:'No saved receipts yet.', confirmDelete:'Delete this receipt? This cannot be undone.',
-      l_incStart:'Start Date', l_incEnd:'End Date', incClear:'Clear Filters',
-      l_statRevenue2:'Total Revenue', l_statProfit3:'Total Profit', l_statCount2:'Receipts',
-      h_catBreakdown:'Income by Category', incomeEmpty:'Not enough data yet.',
-      h_insights:'Smart Insights', insightsHint:'These suggestions are calculated automatically from your saved receipts',
-      insightsEmpty:'Save a few receipts and this section will automatically surface your most profitable category.',
-      catJobsSuffix:'jobs', calToday:'Today', calClear:'Clear'
+      h_internal:'Internal Notes (not printed)', l_cost:'Cost / Transport (RM)', l_costNote:'Expense Note',
+      costNotePh:'e.g. Grab fare, makeup supplies',
+      l_subtotal:'Subtotal', l_discountShort:'Discount', l_depositShort:'Deposit',
+      l_totalInvoice:'Balance Due', l_totalReceipt:'Amount Paid', l_profit:'Net Profit',
+      btnSave:'Save Document', btnPrint:'Save as PDF', btnNew:'New Document', btnNewShort:'New',
+      btnConvert:'Mark paid & issue receipt', btnDelete:'Delete this document',
+      previewLabel:'Preview (always in English)',
+      tabAll:'All', tabInvoices:'Invoices', tabReceipts:'Receipts',
+      pr_today:'Today', pr_week:'This Week', pr_month:'This Month', pr_lastMonth:'Last Month', pr_year:'This Year', pr_all:'All',
+      pr_today2:'Today', pr_week2:'This Week', pr_month2:'This Month', pr_lastMonth2:'Last Month', pr_year2:'This Year', pr_all2:'All',
+      l_startDate:'Start Date', l_endDate:'End Date', l_startDate2:'Start Date', l_endDate2:'End Date',
+      l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
+      clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
+      l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
+      l_incReceived:'Income Received', l_incProfit:'Net Profit', l_incDue:'Still Outstanding',
+      h_breakdown:'Income by Category', breakdownHint:'Counts money actually received (receipts + paid invoices)',
+      h_insights:'Smart Insights',
+      docsEmpty:'No documents yet. Start an invoice or a receipt from the home screen.',
+      incomeEmpty:'No money received in this period yet.',
+      insightsEmpty:'Save a few documents and this section will show your most profitable work.',
+      h_myInfo:'My Info', myInfoHint:'Printed at the top of every invoice and receipt',
+      l_bizName:'Name / Studio Name', bizNamePh:'e.g. Jesse Leong',
+      l_bizSub:'Role / Subtitle', bizSubPh:'Model · Content Creator · Makeup Artist',
+      l_bizContact:'Contact', bizContactPh:'IG @jesse.leong · jesse@email.com',
+      h_bank:'Bank Details', l_bankName:'Bank Name', l_bankHolder:'Account Holder', l_bankAccount:'Account Number',
+      h_numbering:'Document Numbering', numberingHint:'The PDF filename is this number, e.g. JL-0003.pdf',
+      l_invPrefix:'Invoice Prefix', l_invCounter:'Next Invoice No.', l_rcpPrefix:'Receipt Prefix', l_rcpCounter:'Next Receipt No.',
+      h_wording:'Document Wording', l_terms:'Invoice Payment Terms', termsPh:'Payment due within 14 days of the invoice date.',
+      l_thanks:'Receipt Closing Line', thanksPh:'Thank you for your business.',
+      btnSaveBiz:'Save Info',
+      h_professions:'Categories', professionsHint:'Use English names — they print on documents and drive the income breakdown',
+      newProfessionPh:'e.g. Wedding Makeup', btnAddProfession:'Add',
+      h_data:'Your Data', dataHint:'Everything is stored on this device only. Export a backup now and then.',
+      btnExport:'Export Backup', btnImport:'Import Backup',
+      st_unpaid:'Unpaid', st_partial:'Partially Paid', st_paid:'Paid', st_overdue:'Overdue',
+      pickService:'Choose a category', pickPayMethod:'Choose a payment method', pickStatus:'Choose payment status', pickCategory:'Filter by category',
+      calToday:'Today', calClear:'Clear',
+      needClient:'Enter the client / brand name first',
+      savedBiz:'Your info has been saved',
+      savedDoc:'Saved ',
+      profDup:'That category already exists',
+      confirmDelete:'Delete this document? This cannot be undone.',
+      confirmNew:'Start a blank document? Unsaved changes will be lost.',
+      deleted:'Document deleted',
+      convertDone:'Receipt created: ',
+      convertNeedSave:'Save this invoice first',
+      printedNew:' filed · a blank document is ready for you',
+      exported:'Backup exported',
+      imported:'Backup imported',
+      importFail:'Could not read that file — use a backup exported from this app',
+      jobs:'jobs', profitWord:'Profit'
     }
   };
+  let lang = localStorage.getItem('jl.lang') || localStorage.getItem('receiptUiLang') || 'zh';
+  const T = () => I18N[lang];
 
-  function applyLang(){
-    const t = I18N[lang];
-    document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
-    $('langToggle').textContent = t.toggleLabel;
-    Object.keys(t).forEach(key => {
-      const el = $(key);
-      if(el && !/Ph$|^alert|^confirm|^topbar_|^catJobsSuffix|^calToday|^calClear/.test(key)){
-        el.textContent = t[key];
-      }
-    });
-    $('notes').placeholder = t.notesPh;
-    $('costNote').placeholder = t.costNotePh;
-    $('recSearch').placeholder = t.recSearchPh;
-    $('newProfession').placeholder = t.newProfessionPh;
-    document.querySelectorAll('select option[data-zh]').forEach(opt => {
-      opt.textContent = opt.dataset[lang];
-    });
-    renderProfessionSelects();
-    localStorage.setItem('receiptUiLang', lang);
-    setTopbarTitle();
-    closeAllPopups();
-    if(currentView === 'records') renderRecords();
-    if(currentView === 'income') renderIncome();
-    render();
+  const PAY_METHODS = [
+    {value:'Bank Transfer', zh:'银行转账'},
+    {value:'Cash', zh:'现金'},
+    {value:'DuitNow', zh:'DuitNow'},
+    {value:'E-wallet (TnG)', zh:"Touch 'n Go / 电子钱包"},
+    {value:'PayPal', zh:'PayPal'},
+    {value:'Other', zh:'其他'}
+  ];
+  const STATUSES = ['unpaid','partial','paid'];
+
+  // ============================================================
+  // storage + migration
+  // ============================================================
+  function readJSON(key, fallback){
+    try{ const v = JSON.parse(localStorage.getItem(key)); return v==null ? fallback : v; }
+    catch(e){ return fallback; }
   }
-
-  $('langToggle').addEventListener('click', () => {
-    lang = lang === 'zh' ? 'en' : 'zh';
-    applyLang();
-  });
-
-  // ================= view routing =================
-  function setTopbarTitle(){
-    $('topbarTitle').textContent = I18N[lang]['topbar_' + currentView];
-  }
-  function showView(name){
-    currentView = name;
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    $('view-' + name).classList.add('active');
-    $('btnBack').style.display = name === 'home' ? 'none' : 'flex';
-    setTopbarTitle();
-    closeAllPopups();
-    if(name === 'records') renderRecords();
-    if(name === 'income') renderIncome();
-    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
-  }
-  document.querySelectorAll('[data-nav]').forEach(el => {
-    el.addEventListener('click', () => showView(el.dataset.nav));
-  });
-  $('btnBack').addEventListener('click', () => showView('home'));
-
-  // ================= storage helpers =================
-  function loadBiz(){ try{ return JSON.parse(localStorage.getItem('receiptBiz')) || {}; }catch(e){ return {}; } }
-  function saveBizFn(obj){ localStorage.setItem('receiptBiz', JSON.stringify(obj)); }
-  function loadReceipts(){ try{ return JSON.parse(localStorage.getItem('receipts')) || []; }catch(e){ return []; } }
-  function saveReceipts(arr){ localStorage.setItem('receipts', JSON.stringify(arr)); }
-
-  // ================= professions (custom job categories) =================
   const DEFAULT_PROFESSIONS = ['Photoshoot Service','Modeling Job','Makeup & Styling','Influencer Collaboration','Other'];
-  function loadProfessions(){
-    try{
-      const p = JSON.parse(localStorage.getItem('professions'));
-      return (Array.isArray(p) && p.length) ? p : DEFAULT_PROFESSIONS.slice();
-    }catch(e){ return DEFAULT_PROFESSIONS.slice(); }
+
+  let biz = readJSON('jl.biz', null);
+  if(!biz){
+    const old = readJSON('receiptBiz', {});
+    biz = {
+      name: old.name || '',
+      sub: old.sub || 'Model · Content Creator · Makeup Artist',
+      contact: old.contact || '',
+      bankName: old.bankName || 'CIMB Bank',
+      bankHolder: old.bankHolder || 'Leong Yuan Yi',
+      bankAccount: old.bankAccount || '7642093373',
+      receiptPrefix: old.prefix || 'JL',
+      receiptCounter: Number(old.counter) || 1,
+      invoicePrefix: (old.prefix || 'JL') + '-INV',
+      invoiceCounter: 1,
+      terms: 'Payment due within 14 days of the invoice date. Kindly send the transfer slip once payment is made.',
+      thanks: 'Thank you for your business.'
+    };
   }
-  function saveProfessions(arr){ localStorage.setItem('professions', JSON.stringify(arr)); }
-  let professions = loadProfessions();
+  function saveBiz(){ localStorage.setItem('jl.biz', JSON.stringify(biz)); }
 
-  function renderProfessionChips(){
-    const box = $('professionChips');
-    box.innerHTML = '';
-    professions.forEach(p => {
-      const chip = document.createElement('div');
-      chip.className = 'chip';
-      chip.innerHTML = `<span>${escapeHtml(p)}</span><button type="button" data-name="${escapeAttr(p)}">✕</button>`;
-      chip.querySelector('button').addEventListener('click', () => {
-        if(confirm(I18N[lang].confirmDeleteProfession)){
-          professions = professions.filter(x => x !== p);
-          saveProfessions(professions);
-          renderProfessionChips();
-          renderProfessionSelects();
-        }
-      });
-      box.appendChild(chip);
-    });
+  let docs = readJSON('jl.docs', null);
+  if(!docs){
+    docs = (readJSON('receipts', []) || []).map(r => ({
+      id: r.id || uid(),
+      docType: 'receipt',
+      no: r.no || '',
+      client: r.client || '',
+      clientContact: '',
+      service: r.service || '',
+      date: r.date || todayStr(),
+      dueDate: '',
+      payMethod: r.payMethod || 'Bank Transfer',
+      status: 'paid',
+      refInvoiceNo: '',
+      items: (r.items||[]).map(it => ({id:uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)})),
+      discount: num(r.discount), deposit: num(r.deposit),
+      subtotal: num(r.subtotal), total: num(r.total),
+      cost: num(r.cost), costNote: r.costNote || '', notes: r.notes || '',
+      bizSnapshot: r.bizSnapshot || null,
+      createdAt: Date.now()
+    }));
+  }
+  function saveDocs(){ localStorage.setItem('jl.docs', JSON.stringify(docs)); }
+
+  let professions = readJSON('jl.professions', null) || readJSON('professions', null) || DEFAULT_PROFESSIONS.slice();
+  if(!Array.isArray(professions) || !professions.length) professions = DEFAULT_PROFESSIONS.slice();
+  function saveProfessions(){ localStorage.setItem('jl.professions', JSON.stringify(professions)); }
+
+  // persist migrations right away
+  saveBiz(); saveDocs(); saveProfessions();
+
+  // ============================================================
+  // toast
+  // ============================================================
+  let toastTimer = null;
+  function toast(msg){
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
   }
 
-  function renderProfessionSelects(){
-    const genVal = $('serviceType').value;
-    const recVal = $('recCategory') ? $('recCategory').value : '';
-
-    $('serviceType').innerHTML = professions.map(p =>
-      `<option value="${escapeAttr(p)}">${escapeHtml(p)}</option>`
-    ).join('');
-    if(professions.includes(genVal)) $('serviceType').value = genVal;
-
-    const allLabel = lang === 'zh' ? '全部类别' : 'All Categories';
-    $('recCategory').innerHTML = `<option value="">${allLabel}</option>` + professions.map(p =>
-      `<option value="${escapeAttr(p)}">${escapeHtml(p)}</option>`
-    ).join('');
-    if(professions.includes(recVal)) $('recCategory').value = recVal;
+  // ============================================================
+  // bottom sheet picker
+  // ============================================================
+  let sheetHandler = null;
+  function openSheet(title, options, currentValue, onPick){
+    $('sheetTitle').textContent = title;
+    $('sheetBody').innerHTML = options.map(o =>
+      `<button type="button" class="sheet-opt${o.value===currentValue?' sel':''}" data-value="${esc(o.value)}">
+         <span>${esc(o.label)}${o.sub?`<small>${esc(o.sub)}</small>`:''}</span>
+         ${o.value===currentValue?'<span class="tick">✓</span>':''}
+       </button>`).join('');
+    sheetHandler = onPick;
+    $('sheetWrap').hidden = false;
   }
-
-  $('addProfession').addEventListener('click', () => {
-    const v = $('newProfession').value.trim();
-    if(!v) return;
-    if(professions.includes(v)){
-      alert(I18N[lang].alertProfessionDup);
-      return;
-    }
-    professions.push(v);
-    saveProfessions(professions);
-    $('newProfession').value = '';
-    renderProfessionChips();
-    renderProfessionSelects();
+  function closeSheet(){ $('sheetWrap').hidden = true; sheetHandler = null; }
+  $('sheetBody').addEventListener('click', e => {
+    const btn = e.target.closest('.sheet-opt');
+    if(!btn) return;
+    const v = btn.dataset.value;
+    const h = sheetHandler;
+    closeSheet();
+    if(h) h(v);
   });
-  $('newProfession').addEventListener('keydown', e => {
-    if(e.key === 'Enter'){ e.preventDefault(); $('addProfession').click(); }
-  });
+  $('sheetBackdrop').addEventListener('click', closeSheet);
+  $('sheetClose').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeSheet(); });
 
-  function escapeAttr(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-  function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function setPicker(id, label, isPlaceholder){
+    const el = $(id).querySelector('.pk-val');
+    el.textContent = label;
+    el.classList.toggle('placeholder', !!isPlaceholder);
+  }
 
-  // ================= calendar / date picker =================
+  // ============================================================
+  // date picker
+  // ============================================================
   const openPopups = [];
   function closeAllPopups(){ openPopups.forEach(p => p.style.display = 'none'); }
+  document.addEventListener('click', closeAllPopups);
 
   function initDatePicker(input){
     const wrap = document.createElement('div');
     wrap.className = 'datepicker-wrap';
     input.parentNode.insertBefore(wrap, input);
     wrap.appendChild(input);
-
     const popup = document.createElement('div');
     popup.className = 'datepicker-popup';
     popup.style.display = 'none';
     wrap.appendChild(popup);
     openPopups.push(popup);
+    let viewDate = new Date();
 
-    let viewDate = input.value ? new Date(input.value + 'T00:00:00') : new Date();
-
+    function commit(v){
+      input.value = v;
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      popup.style.display = 'none';
+    }
     function draw(){
       const y = viewDate.getFullYear(), m = viewDate.getMonth();
-      const first = new Date(y, m, 1);
-      const startWeekday = first.getDay();
-      const daysInMonth = new Date(y, m+1, 0).getDate();
-      const monthNamesZh = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-      const monthNamesEn = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      const monthNames = lang === 'zh' ? monthNamesZh : monthNamesEn;
-      const weekdays = lang === 'zh' ? ['日','一','二','三','四','五','六'] : ['Su','Mo','Tu','We','Th','Fr','Sa'];
-      const t = I18N[lang];
-
+      const startWeekday = new Date(y,m,1).getDay();
+      const daysInMonth = new Date(y,m+1,0).getDate();
+      const monthNames = lang==='zh'
+        ? ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+        : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const weekdays = lang==='zh' ? ['日','一','二','三','四','五','六'] : ['Su','Mo','Tu','We','Th','Fr','Sa'];
       let html = `<div class="cal-header">
-        <button type="button" class="cal-nav" data-dir="-1">‹</button>
-        <span class="cal-title">${monthNames[m]} ${y}</span>
-        <button type="button" class="cal-nav" data-dir="1">›</button>
-      </div>
-      <div class="cal-weekdays">${weekdays.map(w => `<span>${w}</span>`).join('')}</div>
-      <div class="cal-grid">`;
-      for(let i=0; i<startWeekday; i++) html += `<span class="cal-day empty"></span>`;
+          <button type="button" class="cal-nav" data-dir="-1">‹</button>
+          <span class="cal-title">${monthNames[m]} ${y}</span>
+          <button type="button" class="cal-nav" data-dir="1">›</button>
+        </div>
+        <div class="cal-weekdays">${weekdays.map(w=>`<span>${w}</span>`).join('')}</div>
+        <div class="cal-grid">`;
+      for(let i=0;i<startWeekday;i++) html += `<span class="cal-day empty"></span>`;
       const ts = todayStr();
-      for(let d=1; d<=daysInMonth; d++){
-        const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      for(let d=1;d<=daysInMonth;d++){
+        const ds = `${y}-${pad2(m+1)}-${pad2(d)}`;
         const cls = ['cal-day'];
-        if(dateStr === input.value) cls.push('selected');
-        if(dateStr === ts) cls.push('today');
-        html += `<button type="button" class="${cls.join(' ')}" data-date="${dateStr}">${d}</button>`;
+        if(ds === input.value) cls.push('selected');
+        if(ds === ts) cls.push('today');
+        html += `<button type="button" class="${cls.join(' ')}" data-date="${ds}">${d}</button>`;
       }
-      html += `</div>
-      <div class="cal-footer">
-        <button type="button" class="cal-today">${t.calToday}</button>
-        <button type="button" class="cal-clear">${t.calClear}</button>
-      </div>`;
+      html += `</div><div class="cal-footer">
+          <button type="button" class="cal-today">${T().calToday}</button>
+          <button type="button" class="cal-clear">${T().calClear}</button>
+        </div>`;
       popup.innerHTML = html;
-
-      popup.querySelectorAll('.cal-nav').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          viewDate = new Date(y, m + Number(btn.dataset.dir), 1);
-          draw();
-        });
-      });
-      popup.querySelectorAll('.cal-day:not(.empty)').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          input.value = btn.dataset.date;
-          input.dispatchEvent(new Event('input', {bubbles:true}));
-          popup.style.display = 'none';
-        });
-      });
-      popup.querySelector('.cal-today').addEventListener('click', e => {
-        e.stopPropagation();
-        const nowStr = todayStr();
-        input.value = nowStr;
-        viewDate = new Date();
-        input.dispatchEvent(new Event('input', {bubbles:true}));
-        popup.style.display = 'none';
-      });
-      popup.querySelector('.cal-clear').addEventListener('click', e => {
-        e.stopPropagation();
-        input.value = '';
-        input.dispatchEvent(new Event('input', {bubbles:true}));
-        popup.style.display = 'none';
-      });
     }
-
+    popup.addEventListener('click', e => {
+      e.stopPropagation();
+      const nav = e.target.closest('.cal-nav');
+      if(nav){ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + Number(nav.dataset.dir), 1); draw(); return; }
+      const day = e.target.closest('.cal-day:not(.empty)');
+      if(day && day.dataset.date){ commit(day.dataset.date); return; }
+      if(e.target.closest('.cal-today')){ viewDate = new Date(); commit(todayStr()); return; }
+      if(e.target.closest('.cal-clear')){ commit(''); }
+    });
     input.addEventListener('click', e => {
       e.stopPropagation();
       viewDate = input.value ? new Date(input.value + 'T00:00:00') : new Date();
-      draw();
       closeAllPopups();
+      draw();
       popup.style.display = 'block';
     });
-    popup.addEventListener('click', e => e.stopPropagation());
   }
+  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd'].forEach(id => initDatePicker($(id)));
 
-  document.addEventListener('click', closeAllPopups);
+  // ============================================================
+  // editor state
+  // ============================================================
+  const S = {
+    docType:'receipt',
+    editingId:null,
+    no:'',
+    status:'unpaid',
+    service: professions[0] || 'Other',
+    payMethod:'Bank Transfer',
+    items:[]
+  };
 
-  ['rDate','recStartDate','recEndDate','incStartDate','incEndDate'].forEach(id => initDatePicker($(id)));
-
-  // ================= biz info =================
-  const biz = loadBiz();
-  $('bizName').value = biz.name || '';
-  $('bizSub').value = biz.sub || 'Model · Content Creator · Makeup Artist';
-  $('bizContact').value = biz.contact || '';
-  $('bankName').value = biz.bankName || 'CIMB Bank';
-  $('bankHolder').value = biz.bankHolder || 'Leong Yuan Yi';
-  $('bankAccount').value = biz.bankAccount || '7642093373';
-  $('numPrefix').value = biz.prefix || 'JL';
-  $('numCounter').value = biz.counter || 1;
-
-  $('saveBiz').addEventListener('click', () => {
-    saveBizFn({
-      name: $('bizName').value, sub: $('bizSub').value, contact: $('bizContact').value,
-      bankName: $('bankName').value, bankHolder: $('bankHolder').value, bankAccount: $('bankAccount').value,
-      prefix: $('numPrefix').value, counter: Number($('numCounter').value) || 1
-    });
-    render();
-    alert(I18N[lang].alertSaved);
-  });
-
-  // ================= items =================
-  let items = [];
-  function addItemRow(desc='', qty=1, price=0){
-    items.push({desc, qty, price});
-    renderItemsTable();
+  function numberFor(type){
+    return type === 'invoice'
+      ? `${biz.invoicePrefix||'INV'}-${String(biz.invoiceCounter||1).padStart(4,'0')}`
+      : `${biz.receiptPrefix||'JL'}-${String(biz.receiptCounter||1).padStart(4,'0')}`;
   }
-  function renderItemsTable(){
-    const body = $('itemsBody');
-    body.innerHTML = '';
-    items.forEach((it, idx) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="col-desc"><input type="text" data-idx="${idx}" data-field="desc" value="${escapeAttr(it.desc)}" placeholder="${lang==='zh' ? '例如：外拍 3 小时' : 'e.g. Outdoor shoot, 3 hours'}"></td>
-        <td class="col-qty"><input type="number" min="0" step="1" data-idx="${idx}" data-field="qty" value="${it.qty}"></td>
-        <td class="col-price"><input type="number" min="0" step="0.01" data-idx="${idx}" data-field="price" value="${it.price}"></td>
-        <td class="col-sum">${fmt(it.qty * it.price)}</td>
-        <td class="col-del"><button class="del-btn" data-idx="${idx}" title="Remove">✕</button></td>
-      `;
-      body.appendChild(tr);
-    });
-    body.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('input', e => {
-        const idx = Number(e.target.dataset.idx);
-        const field = e.target.dataset.field;
-        items[idx][field] = field === 'desc' ? e.target.value : Number(e.target.value) || 0;
-        renderItemsTable();
-        render();
-      });
-    });
-    body.querySelectorAll('.del-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        items.splice(Number(e.target.dataset.idx), 1);
-        renderItemsTable();
-        render();
-      });
-    });
-  }
-  $('addItem').addEventListener('click', () => addItemRow());
+  function currentNo(){ return S.editingId ? S.no : numberFor(S.docType); }
 
-  // ================= totals =================
-  function computeTotals(){
-    const subtotal = items.reduce((s,it) => s + (it.qty * it.price), 0);
-    const discount = Number($('discount').value) || 0;
-    const deposit = Number($('deposit').value) || 0;
+  function totals(){
+    const subtotal = S.items.reduce((s,it) => s + it.qty * it.price, 0);
+    const discount = num($('dDiscount').value);
+    const deposit  = num($('dDeposit').value);
     const total = Math.max(0, subtotal - discount - deposit);
-    const cost = Number($('costAmount').value) || 0;
-    const profit = total - cost;
-    return {subtotal, discount, deposit, total, cost, profit};
-  }
-  function currentReceiptNo(){
-    const prefix = $('numPrefix').value || 'JL';
-    const counter = Number($('numCounter').value) || 1;
-    return `${prefix}-${String(counter).padStart(4,'0')}`;
+    const cost = num($('dCost').value);
+    return {subtotal, discount, deposit, total, cost, profit: total - cost};
   }
 
-  // ================= render generator =================
-  function render(){
-    $('pBizName').textContent = $('bizName').value || 'Your Name';
-    $('pBizSub').textContent = $('bizSub').value || '';
-    $('pBizContact').textContent = $('bizContact').value || '';
-    $('pReceiptNo').textContent = currentReceiptNo();
-    $('pDate').textContent = $('rDate').value || '-';
-    $('pService').textContent = $('serviceType').value || '-';
-    $('pClient').textContent = $('clientName').value || '-';
-    $('pPayMethod').textContent = $('payMethod').value || '-';
-    $('pNotes').textContent = $('notes').value || '';
-    $('pBankName').textContent = $('bankName').value || '-';
-    $('pBankHolder').textContent = $('bankHolder').value || '-';
-    $('pBankAccount').textContent = $('bankAccount').value || '-';
-
-    const pBody = $('pItemsBody');
-    pBody.innerHTML = '';
-    items.forEach(it => {
-      if(!it.desc && !it.qty && !it.price) return;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(it.desc)}</td><td class="num">${it.qty}</td><td class="num">${fmt(it.qty*it.price)}</td>`;
-      pBody.appendChild(tr);
+  // ---------- items (no full re-render while typing) ----------
+  function itemRowHTML(it, idx){
+    const t = T();
+    return `<div class="item-card" data-id="${it.id}">
+      <div class="item-top">
+        <span class="idx">${idx+1}</span>
+        <input type="text" data-f="desc" value="${esc(it.desc)}" placeholder="${esc(t.itemDescPh)}">
+        <button type="button" class="del-btn" data-del="1" aria-label="Remove">✕</button>
+      </div>
+      <div class="item-bottom">
+        <div class="mini-field">
+          <label>${esc(t.l_qty)}</label>
+          <input type="text" inputmode="decimal" data-f="qty" value="${it.qty}">
+        </div>
+        <div class="mini-field">
+          <label>${esc(t.l_price)}</label>
+          <input type="text" inputmode="decimal" data-f="price" value="${it.price}">
+        </div>
+        <div class="item-sum" data-sum>${fmt(it.qty*it.price)}</div>
+      </div>
+    </div>`;
+  }
+  function renderItems(){
+    $('itemsList').innerHTML = S.items.map(itemRowHTML).join('');
+  }
+  function reindexItems(){
+    Array.from($('itemsList').children).forEach((card,i) => {
+      const idx = card.querySelector('.idx');
+      if(idx) idx.textContent = i+1;
     });
-
-    const t = computeTotals();
-    $('miniSubtotal').textContent = fmt(t.subtotal);
-    $('miniDiscount').textContent = '- ' + fmt(t.discount);
-    $('miniTotal').textContent = fmt(t.total);
-    $('miniProfit').textContent = fmt(t.profit);
-    const profitRow = $('miniProfitRow');
-    profitRow.classList.toggle('pos', t.profit >= 0);
-    profitRow.classList.toggle('neg', t.profit < 0);
-
-    $('pSubtotal').textContent = fmt(t.subtotal);
-    $('pDiscount').textContent = '- ' + fmt(t.discount);
-    $('pDeposit').textContent = '- ' + fmt(t.deposit);
-    $('pTotal').textContent = fmt(t.total);
-
-    $('stampEl').style.display = t.total <= 0 && t.subtotal > 0 ? 'flex' : 'none';
+  }
+  function addItem(desc, qty, price){
+    const it = {id:uid(), desc:desc||'', qty:(qty==null?1:qty), price:(price==null?0:price)};
+    S.items.push(it);
+    $('itemsList').insertAdjacentHTML('beforeend', itemRowHTML(it, S.items.length-1));
+    renderPreview();
+    return it;
   }
 
-  ['discount','deposit','rDate','serviceType','payMethod','clientName','notes','bizName','bizSub','bizContact',
-   'numPrefix','numCounter','bankName','bankHolder','bankAccount','costAmount','costNote']
-    .forEach(id => $(id).addEventListener('input', render));
+  // Delegated input handler — the DOM row is NEVER rebuilt while typing,
+  // so focus (and the mobile keyboard) stays exactly where it is.
+  $('itemsList').addEventListener('input', e => {
+    const input = e.target.closest('input[data-f]');
+    if(!input) return;
+    const card = input.closest('.item-card');
+    const it = S.items.find(x => x.id === card.dataset.id);
+    if(!it) return;
+    const f = input.dataset.f;
+    it[f] = (f === 'desc') ? input.value : num(input.value);
+    const sumEl = card.querySelector('[data-sum]');
+    if(sumEl) sumEl.textContent = fmt(it.qty * it.price);
+    renderTotals();
+    renderPreview();
+  });
+  $('itemsList').addEventListener('click', e => {
+    const del = e.target.closest('[data-del]');
+    if(!del) return;
+    const card = del.closest('.item-card');
+    S.items = S.items.filter(x => x.id !== card.dataset.id);
+    card.remove();
+    if(!S.items.length) addItem();
+    reindexItems();
+    renderTotals();
+    renderPreview();
+  });
+  $('addItem').addEventListener('click', () => { addItem(); reindexItems(); });
 
-  // ================= save / print / new =================
-  function resetForm(){
-    currentEditId = null;
-    $('clientName').value = '';
-    $('serviceType').selectedIndex = 0;
-    $('payMethod').selectedIndex = 0;
-    $('discount').value = 0;
-    $('deposit').value = 0;
-    $('notes').value = '';
-    $('costAmount').value = 0;
-    $('costNote').value = '';
-    $('rDate').value = todayStr();
-    items = [];
-    addItemRow();
-    render();
+  // ---------- doc type ----------
+  function setDocType(type, keepData){
+    S.docType = type;
+    document.querySelectorAll('#docTypeSeg button').forEach(b => b.classList.toggle('on', b.dataset.type === type));
+    const isInv = type === 'invoice';
+    $('invoiceOnlyFields').style.display = isInv ? '' : 'none';
+    $('receiptOnlyFields').style.display = isInv ? 'none' : '';
+    $('docTypeHint').textContent = isInv ? T().hintInvoice : T().hintReceipt;
+    $('l_dateEl').textContent = isInv ? T().l_dateInvoice : T().l_dateReceipt;
+    $('l_depositEl').textContent = isInv ? T().l_deposit : T().l_depositReceipt;
+    $('mTotalLabel').textContent = isInv ? T().l_totalInvoice : T().l_totalReceipt;
+    $('convertRow').style.display = (isInv && S.editingId) ? 'flex' : (S.editingId ? 'flex' : 'none');
+    $('btnConvert').style.display = (isInv && S.editingId) ? '' : 'none';
+    if(!keepData) $('docNo').value = currentNo();
+    setTopbarTitle();
+    renderTotals();
+    renderPreview();
   }
-
-  $('saveReceipt').addEventListener('click', () => {
-    if(!$('clientName').value.trim()){
-      alert(I18N[lang].alertNeedClient);
-      return;
-    }
-    const t = computeTotals();
-    const record = {
-      id: currentEditId || ('r_' + Date.now()),
-      no: currentReceiptNo(),
-      client: $('clientName').value,
-      service: $('serviceType').value,
-      date: $('rDate').value || todayStr(),
-      payMethod: $('payMethod').value,
-      items: JSON.parse(JSON.stringify(items)),
-      discount: t.discount,
-      deposit: t.deposit,
-      subtotal: t.subtotal,
-      total: t.total,
-      cost: t.cost,
-      costNote: $('costNote').value,
-      notes: $('notes').value,
-      bizSnapshot: {
-        name: $('bizName').value, sub: $('bizSub').value, contact: $('bizContact').value,
-        bankName: $('bankName').value, bankHolder: $('bankHolder').value, bankAccount: $('bankAccount').value
+  document.querySelectorAll('#docTypeSeg button').forEach(b => {
+    b.addEventListener('click', () => {
+      if(S.editingId){
+        // switching type on a saved doc would break its number — start fresh instead
+        newDoc(b.dataset.type);
+        return;
       }
-    };
-    let list = loadReceipts();
-    const existingIdx = list.findIndex(r => r.id === record.id);
-    if(existingIdx >= 0){
-      list[existingIdx] = record;
-    } else {
-      list.unshift(record);
-      const b = loadBiz();
-      b.counter = (Number($('numCounter').value) || 1) + 1;
-      saveBizFn(b);
-      $('numCounter').value = b.counter;
-    }
-    saveReceipts(list);
-    currentEditId = record.id;
-    render();
-    alert(I18N[lang].alertReceiptSaved + record.no);
+      setDocType(b.dataset.type);
+    });
   });
 
-  $('printReceipt').addEventListener('click', () => window.print());
-  $('newReceipt').addEventListener('click', () => {
-    if(confirm(I18N[lang].confirmNew)) resetForm();
+  // ---------- pickers ----------
+  $('pkService').addEventListener('click', () => {
+    openSheet(T().pickService, professions.map(p => ({value:p, label:p})), S.service, v => {
+      S.service = v; setPicker('pkService', v); renderPreview();
+    });
   });
+  $('pkPayMethod').addEventListener('click', () => {
+    openSheet(T().pickPayMethod, PAY_METHODS.map(p => ({value:p.value, label: lang==='zh' ? p.zh : p.value})), S.payMethod, v => {
+      S.payMethod = v; setPicker('pkPayMethod', payLabel(v)); renderPreview();
+    });
+  });
+  $('pkStatus').addEventListener('click', () => {
+    openSheet(T().pickStatus, STATUSES.map(s => ({value:s, label:T()['st_'+s]})), S.status, v => {
+      S.status = v; setPicker('pkStatus', T()['st_'+v]); renderPreview();
+    });
+  });
+  function payLabel(v){ const p = PAY_METHODS.find(x => x.value === v); return p ? (lang==='zh'?p.zh:p.value) : v; }
 
-  function loadRecord(r){
-    currentEditId = r.id;
-    $('clientName').value = r.client;
-    $('serviceType').value = r.service;
-    $('rDate').value = r.date;
-    $('payMethod').value = r.payMethod;
-    $('discount').value = r.discount;
-    $('deposit').value = r.deposit;
-    $('notes').value = r.notes;
-    $('costAmount').value = r.cost || 0;
-    $('costNote').value = r.costNote || '';
-    items = JSON.parse(JSON.stringify(r.items || []));
-    if(items.length === 0) addItemRow();
-    renderItemsTable();
-    render();
-    showView('generator');
+  // ---------- totals ----------
+  function renderTotals(){
+    const t = totals();
+    $('mSubtotal').textContent = fmt(t.subtotal);
+    $('mDiscount').textContent = '- ' + fmt(t.discount);
+    $('mDeposit').textContent = '- ' + fmt(t.deposit);
+    $('mTotal').textContent = fmt(t.total);
+    $('mProfit').textContent = fmt(t.profit);
+    $('mProfitRow').classList.toggle('pos', t.profit >= 0);
+    $('mProfitRow').classList.toggle('neg', t.profit < 0);
   }
 
-  // ================= date range helper =================
-  function inRange(dateStr, start, end){
+  // ---------- preview ----------
+  function effStatus(status, dueDate){
+    if(status === 'paid') return 'paid';
+    if(dueDate && dueDate < todayStr()) return 'overdue';
+    return status || 'unpaid';
+  }
+  function itemsRowsHTML(items){
+    const rows = items.filter(it => it.desc || it.qty || it.price);
+    if(!rows.length) return `<tr><td class="desc" colspan="4" style="color:#9C9187;">—</td></tr>`;
+    return rows.map(it => `<tr>
+      <td class="desc">${esc(it.desc)}</td>
+      <td class="num">${it.qty}</td>
+      <td class="num">${fmt(it.price)}</td>
+      <td class="num">${fmt(it.qty*it.price)}</td>
+    </tr>`).join('');
+  }
+  function previewData(){
+    const t = totals();
+    return {
+      docType:S.docType, no:currentNo(), client:$('dClient').value, clientContact:$('dClientContact').value,
+      service:S.service, date:$('dDate').value, dueDate:$('dDueDate').value, payMethod:S.payMethod,
+      status:S.status, refInvoiceNo:$('dRefInvoice').value, items:S.items,
+      discount:t.discount, deposit:t.deposit, subtotal:t.subtotal, total:t.total,
+      notes:$('dNotes').value, bizSnapshot:null
+    };
+  }
+  function docHTML(d){
+    const b = d.bizSnapshot || biz;
+    const head = {
+      name: esc(b.name || 'Your Name'),
+      sub: esc(b.sub || ''),
+      contact: esc(b.contact || '')
+    };
+    const itemsHead = `<thead><tr>
+        <th>Description</th><th class="num">Qty</th><th class="num">Unit</th><th class="num">Amount</th>
+      </tr></thead>`;
+    const payBox = `<div class="d-pay">
+        <div class="l">${d.docType === 'invoice' ? 'Please pay to' : 'Paid to'}</div>
+        <div class="row"><span>Bank</span><span>${esc(b.bankName||'-')}</span></div>
+        <div class="row"><span>Account Name</span><span>${esc(b.bankHolder||'-')}</span></div>
+        <div class="row"><span>Account No.</span><span>${esc(b.bankAccount||'-')}</span></div>
+        <div class="row"><span>Method</span><span>${esc(d.payMethod||'-')}</span></div>
+      </div>`;
+
+    if(d.docType === 'invoice'){
+      const st = effStatus(d.status, d.dueDate);
+      const stLabel = {unpaid:'Unpaid', partial:'Partially Paid', paid:'Paid', overdue:'Overdue'}[st];
+      return `<div class="doc doc-invoice" id="docNode">
+        <div class="inv-head">
+          <div>
+            <div class="biz">${head.name}</div>
+            ${head.sub ? `<div class="biz-sub">${head.sub}</div>` : ''}
+            ${head.contact ? `<div class="contact">${head.contact}</div>` : ''}
+          </div>
+          <div>
+            <div class="wordmark">Invoice</div>
+            <div class="inv-no">${esc(d.no)}</div>
+            <div style="text-align:right;"><span class="badge ${st}">${stLabel}</span></div>
+          </div>
+        </div>
+        <hr class="rule">
+        <div class="inv-meta">
+          <div class="cell">
+            <span>Bill to</span>
+            <b>${esc(d.client || '—')}</b>
+            ${d.clientContact ? `<small>${esc(d.clientContact)}</small>` : ''}
+          </div>
+          <div class="stack">
+            <div class="cell"><span>Issue date</span><b>${esc(d.date || '—')}</b></div>
+            <div class="cell"><span>Due date</span><b>${esc(d.dueDate || '—')}</b></div>
+            <div class="cell"><span>Service</span><b>${esc(d.service || '—')}</b></div>
+          </div>
+        </div>
+        <table class="d-items">${itemsHead}<tbody>${itemsRowsHTML(d.items)}</tbody></table>
+        <div class="d-totals">
+          <div class="row"><span>Subtotal</span><span>${fmt(d.subtotal)}</span></div>
+          <div class="row"><span>Discount</span><span>- ${fmt(d.discount)}</span></div>
+          <div class="row"><span>Deposit paid</span><span>- ${fmt(d.deposit)}</span></div>
+          <div class="row grand"><span>Balance due</span><span>${fmt(d.total)}</span></div>
+        </div>
+        ${payBox}
+        ${d.notes ? `<div class="d-note">${esc(d.notes)}</div>` : ''}
+        ${b.terms ? `<div class="d-terms">${esc(b.terms)}</div>` : ''}
+        <div class="d-foot">${esc(d.no)} · ${esc(head.name)}</div>
+      </div>`;
+    }
+
+    return `<div class="doc doc-receipt" id="docNode">
+      <div class="stamp">PAID</div>
+      <div class="r-head">
+        <div class="biz">${head.name}</div>
+        ${head.sub ? `<div class="biz-sub">${head.sub}</div>` : ''}
+        ${head.contact ? `<div class="contact">${head.contact}</div>` : ''}
+        <div class="wordmark">RECEIPT</div>
+      </div>
+      <hr class="r-divider">
+      <div class="r-meta"><span>Receipt No.</span><b>${esc(d.no)}</b></div>
+      <div class="r-meta"><span>Date received</span><b>${esc(d.date || '—')}</b></div>
+      <div class="r-meta"><span>Service</span><b>${esc(d.service || '—')}</b></div>
+      ${d.refInvoiceNo ? `<div class="r-meta"><span>Against invoice</span><b>${esc(d.refInvoiceNo)}</b></div>` : ''}
+      <div class="r-client">
+        <div class="l">Received from</div>
+        <div>${esc(d.client || '—')}</div>
+        ${d.clientContact ? `<div class="l">${esc(d.clientContact)}</div>` : ''}
+      </div>
+      <table class="d-items">${itemsHead}<tbody>${itemsRowsHTML(d.items)}</tbody></table>
+      <div class="d-totals">
+        <div class="row"><span>Subtotal</span><span>${fmt(d.subtotal)}</span></div>
+        <div class="row"><span>Discount</span><span>- ${fmt(d.discount)}</span></div>
+        <div class="row"><span>Deposit received earlier</span><span>- ${fmt(d.deposit)}</span></div>
+        <div class="row grand"><span>Amount paid</span><span>${fmt(d.total)}</span></div>
+      </div>
+      ${payBox}
+      ${d.notes ? `<div class="d-note">${esc(d.notes)}</div>` : ''}
+      <div class="sign"><div>Received by ${esc(head.name)}</div></div>
+      <div class="d-foot">${esc(b.thanks || 'Thank you.')}</div>
+    </div>`;
+  }
+  function renderPreview(){
+    $('docPreview').innerHTML = docHTML(previewData());
+    $('previewNo').textContent = currentNo();
+    $('docNo').value = currentNo();
+  }
+
+  // live fields
+  ['dClient','dClientContact','dDate','dDueDate','dRefInvoice','dNotes']
+    .forEach(id => $(id).addEventListener('input', renderPreview));
+  ['dDiscount','dDeposit','dCost'].forEach(id => $(id).addEventListener('input', () => { renderTotals(); renderPreview(); }));
+
+  // ---------- new / load / save ----------
+  function newDoc(type){
+    S.editingId = null;
+    S.no = '';
+    S.docType = type || S.docType;
+    S.status = 'unpaid';
+    S.service = professions.includes(S.service) ? S.service : (professions[0] || 'Other');
+    S.items = [];
+    $('dClient').value = '';
+    $('dClientContact').value = '';
+    $('dRefInvoice').value = '';
+    $('dDiscount').value = '0';
+    $('dDeposit').value = '0';
+    $('dCost').value = '0';
+    $('dCostNote').value = '';
+    $('dNotes').value = '';
+    $('dDate').value = todayStr();
+    $('dDueDate').value = type === 'invoice' ? plusDays(14) : '';
+    setPicker('pkService', S.service);
+    setPicker('pkPayMethod', payLabel(S.payMethod));
+    setPicker('pkStatus', T()['st_'+S.status]);
+    renderItems();
+    addItem();
+    reindexItems();
+    setDocType(S.docType);
+    $('btnDelete').style.display = 'none';
+    $('convertRow').style.display = 'none';
+    window.scrollTo({top:0, behavior:'auto'});
+  }
+  function plusDays(n){ const d = new Date(); d.setDate(d.getDate()+n); return toStr(d); }
+
+  function loadDoc(rec){
+    S.editingId = rec.id;
+    S.no = rec.no;
+    S.docType = rec.docType;
+    S.status = rec.status || 'unpaid';
+    S.service = rec.service || professions[0] || 'Other';
+    S.payMethod = rec.payMethod || 'Bank Transfer';
+    S.items = (rec.items||[]).map(it => ({id:it.id||uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)}));
+    if(!S.items.length) S.items.push({id:uid(),desc:'',qty:1,price:0});
+    $('dClient').value = rec.client || '';
+    $('dClientContact').value = rec.clientContact || '';
+    $('dRefInvoice').value = rec.refInvoiceNo || '';
+    $('dDate').value = rec.date || todayStr();
+    $('dDueDate').value = rec.dueDate || '';
+    $('dDiscount').value = rec.discount || 0;
+    $('dDeposit').value = rec.deposit || 0;
+    $('dCost').value = rec.cost || 0;
+    $('dCostNote').value = rec.costNote || '';
+    $('dNotes').value = rec.notes || '';
+    setPicker('pkService', S.service);
+    setPicker('pkPayMethod', payLabel(S.payMethod));
+    setPicker('pkStatus', T()['st_'+S.status]);
+    renderItems();
+    reindexItems();
+    setDocType(S.docType, true);
+    $('docNo').value = rec.no;
+    $('btnDelete').style.display = '';
+    $('convertRow').style.display = 'flex';
+    $('btnConvert').style.display = (rec.docType === 'invoice' && !rec.convertedToId) ? '' : 'none';
+    showView('editor');
+  }
+
+  function saveDoc(silent){
+    const client = $('dClient').value.trim();
+    if(!client){ toast(T().needClient); return null; }
+    const t = totals();
+    const isNew = !S.editingId;
+    const no = isNew ? numberFor(S.docType) : S.no;
+    const rec = {
+      id: S.editingId || uid(),
+      docType: S.docType,
+      no,
+      client,
+      clientContact: $('dClientContact').value,
+      service: S.service,
+      date: $('dDate').value || todayStr(),
+      dueDate: S.docType === 'invoice' ? $('dDueDate').value : '',
+      payMethod: S.payMethod,
+      status: S.docType === 'invoice' ? S.status : 'paid',
+      refInvoiceNo: S.docType === 'receipt' ? $('dRefInvoice').value : '',
+      items: S.items.map(it => ({id:it.id, desc:it.desc, qty:it.qty, price:it.price})),
+      discount: t.discount, deposit: t.deposit, subtotal: t.subtotal, total: t.total,
+      cost: t.cost, costNote: $('dCostNote').value, notes: $('dNotes').value,
+      bizSnapshot: {
+        name:biz.name, sub:biz.sub, contact:biz.contact,
+        bankName:biz.bankName, bankHolder:biz.bankHolder, bankAccount:biz.bankAccount,
+        terms:biz.terms, thanks:biz.thanks
+      },
+      createdAt: Date.now()
+    };
+    const idx = docs.findIndex(d => d.id === rec.id);
+    if(idx >= 0){
+      rec.createdAt = docs[idx].createdAt || Date.now();
+      rec.convertedToId = docs[idx].convertedToId;
+      rec.convertedToNo = docs[idx].convertedToNo;
+      docs[idx] = rec;
+    } else {
+      docs.unshift(rec);
+      if(S.docType === 'invoice') biz.invoiceCounter = (Number(biz.invoiceCounter)||1) + 1;
+      else biz.receiptCounter = (Number(biz.receiptCounter)||1) + 1;
+      saveBiz();
+    }
+    saveDocs();
+    S.editingId = rec.id;
+    S.no = rec.no;
+    $('docNo').value = rec.no;
+    $('btnDelete').style.display = '';
+    $('convertRow').style.display = 'flex';
+    $('btnConvert').style.display = (rec.docType === 'invoice' && !rec.convertedToId) ? '' : 'none';
+    renderPreview();
+    if(!silent) toast(T().savedDoc + rec.no);
+    return rec;
+  }
+
+  function bindBoth(idA, idB, fn){ $(idA).addEventListener('click', fn); if($(idB)) $(idB).addEventListener('click', fn); }
+  bindBoth('btnSave','btnSaveM', () => saveDoc());
+  bindBoth('btnNew','btnNewM', () => { if(confirm(T().confirmNew)) newDoc(S.docType); });
+  bindBoth('btnPrint','btnPrintM', () => printDoc());
+
+  $('btnDelete').addEventListener('click', () => {
+    if(!S.editingId) return;
+    if(!confirm(T().confirmDelete)) return;
+    docs = docs.filter(d => d.id !== S.editingId);
+    saveDocs();
+    toast(T().deleted);
+    newDoc(S.docType);
+    showView('docs');
+  });
+
+  $('btnConvert').addEventListener('click', () => {
+    const inv = docs.find(d => d.id === S.editingId);
+    if(!inv){ toast(T().convertNeedSave); return; }
+    const receipt = {
+      id: uid(),
+      docType:'receipt',
+      no: numberFor('receipt'),
+      client: inv.client, clientContact: inv.clientContact, service: inv.service,
+      date: todayStr(), dueDate:'', payMethod: inv.payMethod, status:'paid',
+      refInvoiceNo: inv.no,
+      items: (inv.items||[]).map(it => ({id:uid(), desc:it.desc, qty:it.qty, price:it.price})),
+      discount: inv.discount, deposit: inv.deposit, subtotal: inv.subtotal, total: inv.total,
+      cost: inv.cost, costNote: inv.costNote, notes: inv.notes,
+      bizSnapshot: inv.bizSnapshot, createdAt: Date.now()
+    };
+    docs.unshift(receipt);
+    biz.receiptCounter = (Number(biz.receiptCounter)||1) + 1;
+    inv.status = 'paid';
+    inv.convertedToId = receipt.id;
+    inv.convertedToNo = receipt.no;
+    saveBiz(); saveDocs();
+    toast(T().convertDone + receipt.no);
+    loadDoc(receipt);
+  });
+
+  // ============================================================
+  // print → PDF named after the document number, then auto-blank
+  // ============================================================
+  let printing = false, printPlaceholder = null, printNode = null, prevTitle = '', printedNo = '';
+  function printDoc(){
+    const rec = saveDoc(true);
+    if(!rec) return;
+    printedNo = rec.no;
+    printNode = $('docPreview');
+    printPlaceholder = document.createComment('preview');
+    printNode.parentNode.insertBefore(printPlaceholder, printNode);
+    $('printRoot').appendChild(printNode);
+    document.body.classList.add('printing');
+    prevTitle = document.title;
+    // Browsers use document.title as the default PDF filename.
+    document.title = rec.no;
+    printing = true;
+    setTimeout(() => { try{ window.print(); }catch(e){ finishPrint(); } }, 80);
+  }
+  function finishPrint(){
+    if(!printing) return;
+    printing = false;
+    document.title = prevTitle || 'Jesse L Backstage';
+    if(printPlaceholder && printNode){
+      printPlaceholder.parentNode.replaceChild(printNode, printPlaceholder);
+      printPlaceholder = null;
+    }
+    document.body.classList.remove('printing');
+    const no = printedNo;
+    // requirement: after saving the PDF, always hand back a clean blank document
+    newDoc(S.docType);
+    refreshHome();
+    toast(no + T().printedNew);
+  }
+  window.addEventListener('afterprint', finishPrint);
+  if(window.matchMedia){
+    const mq = window.matchMedia('print');
+    const handler = e => { if(!e.matches) setTimeout(finishPrint, 120); };
+    if(mq.addEventListener) mq.addEventListener('change', handler);
+    else if(mq.addListener) mq.addListener(handler);
+  }
+  window.addEventListener('focus', () => { if(printing) setTimeout(finishPrint, 500); });
+  document.addEventListener('visibilitychange', () => { if(!document.hidden && printing) setTimeout(finishPrint, 500); });
+
+  // ============================================================
+  // documents view
+  // ============================================================
+  let docFilter = 'all', catFilter = '';
+  function isOutstanding(d){ return d.docType === 'invoice' && d.status !== 'paid' && !d.convertedToId; }
+  function isIncome(d){ return d.docType === 'receipt' || (d.docType === 'invoice' && d.status === 'paid' && !d.convertedToId); }
+  function inRange(dateStr, s, e){
     if(!dateStr) return false;
-    if(start && dateStr < start) return false;
-    if(end && dateStr > end) return false;
+    if(s && dateStr < s) return false;
+    if(e && dateStr > e) return false;
     return true;
   }
-
-  // ================= time preset picker =================
-  function computePresetRange(key){
-    const now = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    if(key === 'today'){ const s = toStr(now); return [s, s]; }
-    if(key === 'week'){
-      const day = now.getDay() || 7;
-      const monday = new Date(now); monday.setDate(now.getDate() - day + 1);
-      return [toStr(monday), toStr(now)];
-    }
-    if(key === 'month'){
-      const first = new Date(now.getFullYear(), now.getMonth(), 1);
-      const last = new Date(now.getFullYear(), now.getMonth()+1, 0);
-      return [toStr(first), toStr(last)];
-    }
-    if(key === 'lastMonth'){
-      const first = new Date(now.getFullYear(), now.getMonth()-1, 1);
-      const last = new Date(now.getFullYear(), now.getMonth(), 0);
-      return [toStr(first), toStr(last)];
-    }
-    if(key === 'year'){
-      const first = new Date(now.getFullYear(), 0, 1);
-      const last = new Date(now.getFullYear(), 11, 31);
-      return [toStr(first), toStr(last)];
-    }
-    return ['', '']; // 'all'
-  }
-
-  function attachPresets(containerId, startId, endId, renderFn){
-    const container = $(containerId);
-    container.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const [s, e] = computePresetRange(btn.dataset.preset);
-        $(startId).value = s;
-        $(endId).value = e;
-        container.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderFn();
-      });
-    });
-    // manual date edits (via calendar) deselect presets
-    [startId, endId].forEach(id => {
-      $(id).addEventListener('input', () => {
-        container.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-      });
-    });
-  }
-
-  // ================= records view =================
-  function renderRecords(){
-    const start = $('recStartDate').value;
-    const end = $('recEndDate').value;
-    const cat = $('recCategory').value;
-    const q = $('recSearch').value.trim().toLowerCase();
-
-    let list = loadReceipts().filter(r => {
-      if((start || end) && !inRange(r.date, start, end)) return false;
-      if(cat && r.service !== cat) return false;
-      if(q && !(r.client || '').toLowerCase().includes(q)) return false;
+  function filteredDocs(){
+    const s = $('fStart').value, e = $('fEnd').value, q = $('fSearch').value.trim().toLowerCase();
+    return docs.filter(d => {
+      if(docFilter !== 'all' && d.docType !== docFilter) return false;
+      if((s || e) && !inRange(d.date, s, e)) return false;
+      if(catFilter && d.service !== catFilter) return false;
+      if(q && !(d.client||'').toLowerCase().includes(q)) return false;
       return true;
-    });
-
-    const totalIncome = list.reduce((s,r) => s + (r.total || 0), 0);
-    const totalCost = list.reduce((s,r) => s + (r.cost || 0), 0);
-    const totalProfit = totalIncome - totalCost;
-
-    $('statCount').textContent = list.length;
-    $('statRevenue').textContent = fmt(totalIncome);
-    const spEl = $('statProfit');
-    spEl.textContent = fmt(totalProfit);
-    spEl.classList.toggle('pos', totalProfit >= 0);
-    spEl.classList.toggle('neg', totalProfit < 0);
-
-    const body = $('recordsBody');
-    body.innerHTML = '';
-    $('recordsEmpty').style.display = list.length === 0 ? 'block' : 'none';
-
-    list.forEach(r => {
-      const cost = r.cost || 0;
-      const profit = (r.total || 0) - cost;
-      const tr = document.createElement('tr');
-      tr.className = 'rec-row';
-      tr.innerHTML = `
-        <td>${escapeHtml(r.no)}</td>
-        <td>${escapeHtml(r.date || '')}</td>
-        <td>${escapeHtml(r.client)}</td>
-        <td><span class="cat-pill">${escapeHtml(catLabel(r.service))}</span></td>
-        <td class="num">${fmt(r.total || 0)}</td>
-        <td class="num">${fmt(cost)}</td>
-        <td class="num profit ${profit >= 0 ? 'pos' : 'neg'}">${fmt(profit)}</td>
-        <td><button class="del-btn" title="Delete">✕</button></td>
-      `;
-      tr.querySelector('td:not(:last-child)').parentElement.addEventListener('click', (e) => {
-        if(e.target.closest('.del-btn')) return;
-        loadRecord(r);
-      });
-      tr.querySelector('.del-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        if(confirm(I18N[lang].confirmDelete)){
-          const all = loadReceipts().filter(x => x.id !== r.id);
-          saveReceipts(all);
-          renderRecords();
-        }
-      });
-      body.appendChild(tr);
-    });
+    }).sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.createdAt||0) - (a.createdAt||0));
   }
+  function renderDocs(){
+    const list = filteredDocs();
+    $('statCount').textContent = list.length;
+    $('statReceived').textContent = fmt(list.filter(isIncome).reduce((s,d) => s + (d.total||0), 0));
+    $('statDue').textContent = fmt(list.filter(isOutstanding).reduce((s,d) => s + (d.total||0), 0));
 
-  ['recStartDate','recEndDate','recCategory','recSearch'].forEach(id => $(id).addEventListener('input', renderRecords));
-  $('recCategory').addEventListener('change', renderRecords);
-  attachPresets('recPresets', 'recStartDate', 'recEndDate', renderRecords);
-  $('recClear').addEventListener('click', () => {
-    $('recStartDate').value = ''; $('recEndDate').value = '';
-    $('recCategory').value = ''; $('recSearch').value = '';
-    $('recPresets').querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-    renderRecords();
+    const box = $('docsList');
+    $('docsEmpty').textContent = T().docsEmpty;
+    $('docsEmpty').style.display = list.length ? 'none' : 'block';
+    box.innerHTML = list.map(d => {
+      const st = d.docType === 'invoice' ? effStatus(d.status, d.dueDate) : 'paid';
+      const stLabel = d.docType === 'invoice' ? T()['st_'+st] : T().st_paid;
+      return `<button type="button" class="doc-row" data-id="${d.id}">
+        <span class="dr-type">${d.docType === 'invoice' ? '📄' : '🧾'}</span>
+        <span class="dr-main">
+          <span class="dr-line1">
+            <span class="dr-no">${esc(d.no)}</span>
+            <span class="dr-amt">${fmt(d.total||0)}</span>
+          </span>
+          <span class="dr-client">${esc(d.client||'—')}</span>
+          <span class="dr-line3">
+            <span class="dr-meta">${esc(d.date||'')}</span>
+            <span class="pill">${esc(d.service||'—')}</span>
+            <span class="pill ${st}">${esc(stLabel)}</span>
+            ${d.convertedToNo ? `<span class="dr-meta">→ ${esc(d.convertedToNo)}</span>` : ''}
+          </span>
+        </span>
+      </button>`;
+    }).join('');
+  }
+  $('docsList').addEventListener('click', e => {
+    const row = e.target.closest('.doc-row');
+    if(!row) return;
+    const rec = docs.find(d => d.id === row.dataset.id);
+    if(rec) loadDoc(rec);
+  });
+  document.querySelectorAll('#docFilterSeg button').forEach(b => {
+    b.addEventListener('click', () => {
+      docFilter = b.dataset.filter;
+      document.querySelectorAll('#docFilterSeg button').forEach(x => x.classList.toggle('on', x === b));
+      renderDocs();
+    });
+  });
+  $('pkCategory').addEventListener('click', () => {
+    const opts = [{value:'', label:T().allCategories}].concat(professions.map(p => ({value:p, label:p})));
+    openSheet(T().pickCategory, opts, catFilter, v => {
+      catFilter = v;
+      setPicker('pkCategory', v || T().allCategories, !v);
+      renderDocs();
+    });
+  });
+  ['fStart','fEnd','fSearch'].forEach(id => $(id).addEventListener('input', renderDocs));
+  $('fClear').addEventListener('click', () => {
+    $('fStart').value=''; $('fEnd').value=''; $('fSearch').value=''; catFilter='';
+    setPicker('pkCategory', T().allCategories, true);
+    $('docPresets').querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    renderDocs();
   });
 
-  // ================= income view =================
-  function renderIncome(){
-    const start = $('incStartDate').value;
-    const end = $('incEndDate').value;
-    const all = loadReceipts().filter(r => !(start || end) || inRange(r.date, start, end));
-
-    const totalIncome = all.reduce((s,r) => s + (r.total || 0), 0);
-    const totalCost = all.reduce((s,r) => s + (r.cost || 0), 0);
-    const totalProfit = totalIncome - totalCost;
-
-    $('incStatRevenue').textContent = fmt(totalIncome);
-    const ipEl = $('incStatProfit');
-    ipEl.textContent = fmt(totalProfit);
-    ipEl.classList.toggle('pos', totalProfit >= 0);
-    ipEl.classList.toggle('neg', totalProfit < 0);
-    $('incStatCount').textContent = all.length;
-
-    // group by category
-    const groups = {};
-    all.forEach(r => {
-      const key = r.service || 'Other';
-      if(!groups[key]) groups[key] = {income:0, cost:0, count:0};
-      groups[key].income += (r.total || 0);
-      groups[key].cost += (r.cost || 0);
-      groups[key].count += 1;
+  function presetRange(key){
+    const now = new Date();
+    if(key === 'today'){ const s = toStr(now); return [s,s]; }
+    if(key === 'week'){
+      const day = now.getDay() || 7;
+      const mon = new Date(now); mon.setDate(now.getDate() - day + 1);
+      return [toStr(mon), toStr(now)];
+    }
+    if(key === 'month') return [toStr(new Date(now.getFullYear(),now.getMonth(),1)), toStr(new Date(now.getFullYear(),now.getMonth()+1,0))];
+    if(key === 'lastMonth') return [toStr(new Date(now.getFullYear(),now.getMonth()-1,1)), toStr(new Date(now.getFullYear(),now.getMonth(),0))];
+    if(key === 'year') return [toStr(new Date(now.getFullYear(),0,1)), toStr(new Date(now.getFullYear(),11,31))];
+    return ['',''];
+  }
+  function attachPresets(containerId, startId, endId, fn){
+    const c = $(containerId);
+    c.addEventListener('click', e => {
+      const btn = e.target.closest('.preset-btn');
+      if(!btn) return;
+      const [s,en] = presetRange(btn.dataset.preset);
+      $(startId).value = s; $(endId).value = en;
+      c.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b === btn));
+      fn();
     });
-    const rows = Object.keys(groups).map(k => ({
-      key: k, ...groups[k], profit: groups[k].income - groups[k].cost
-    })).sort((a,b) => b.income - a.income);
+  }
+  attachPresets('docPresets','fStart','fEnd', renderDocs);
+  attachPresets('incPresets','iStart','iEnd', renderIncome);
 
-    const maxIncome = rows.length ? rows[0].income : 0;
-    const box = $('categoryBreakdown');
-    box.innerHTML = '';
-    $('incomeEmpty').style.display = rows.length === 0 ? 'block' : 'none';
+  // ============================================================
+  // income view
+  // ============================================================
+  function renderIncome(){
+    const s = $('iStart').value, e = $('iEnd').value;
+    const inWindow = d => !(s||e) || inRange(d.date, s, e);
+    const earned = docs.filter(d => isIncome(d) && inWindow(d));
+    const due = docs.filter(d => isOutstanding(d) && inWindow(d));
 
-    rows.forEach(row => {
-      const pct = maxIncome > 0 ? (row.income / maxIncome * 100) : 0;
-      const share = totalIncome > 0 ? (row.income / totalIncome * 100) : 0;
-      const div = document.createElement('div');
-      div.className = 'cat-row';
-      div.innerHTML = `
+    const income = earned.reduce((a,d) => a + (d.total||0), 0);
+    const cost = earned.reduce((a,d) => a + (d.cost||0), 0);
+    const profit = income - cost;
+
+    $('incReceived').textContent = fmt(income);
+    const p = $('incProfit');
+    p.textContent = fmt(profit);
+    p.classList.toggle('pos', profit >= 0);
+    p.classList.toggle('neg', profit < 0);
+    $('incDue').textContent = fmt(due.reduce((a,d) => a + (d.total||0), 0));
+
+    const groups = {};
+    earned.forEach(d => {
+      const k = d.service || 'Other';
+      if(!groups[k]) groups[k] = {income:0, cost:0, count:0};
+      groups[k].income += d.total||0;
+      groups[k].cost += d.cost||0;
+      groups[k].count++;
+    });
+    const rows = Object.keys(groups).map(k => ({key:k, ...groups[k], profit:groups[k].income-groups[k].cost}))
+      .sort((a,b) => b.income - a.income);
+    const max = rows.length ? rows[0].income : 0;
+
+    const box = $('catBreakdown');
+    $('incomeEmpty').textContent = T().incomeEmpty;
+    $('incomeEmpty').style.display = rows.length ? 'none' : 'block';
+    box.innerHTML = rows.map(r => {
+      const pct = max > 0 ? (r.income/max*100) : 0;
+      const share = income > 0 ? (r.income/income*100) : 0;
+      return `<div class="cat-row">
         <div class="cat-row-top">
-          <div class="cat-name">${escapeHtml(catLabel(row.key))}</div>
-          <div class="cat-figures"><b>${fmt(row.income)}</b> · ${share.toFixed(0)}%</div>
+          <div class="cat-name">${esc(r.key)}</div>
+          <div class="cat-figures"><b>${fmt(r.income)}</b> · ${share.toFixed(0)}%</div>
         </div>
         <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
-        <div class="cat-sub">${row.count} ${I18N[lang].catJobsSuffix} · ${lang==='zh' ? '利润' : 'Profit'}: <span class="${row.profit>=0?'profit-pos':'profit-neg'}">${fmt(row.profit)}</span></div>
-      `;
-      box.appendChild(div);
-    });
+        <div class="cat-sub">${r.count} ${T().jobs} · ${T().profitWord}: <span class="${r.profit>=0?'pos':'neg'}">${fmt(r.profit)}</span></div>
+      </div>`;
+    }).join('');
 
-    renderInsights(all, rows, totalIncome);
+    renderInsights(earned, rows, income, due);
   }
 
-  function renderInsights(records, rows, totalIncome){
+  function renderInsights(earned, rows, income, due){
     const box = $('insightsBox');
-    box.innerHTML = '';
-    if(records.length < 2 || rows.length === 0){
-      box.innerHTML = `<div class="empty-hint">${I18N[lang].insightsEmpty}</div>`;
+    const out = [];
+    if(earned.length < 2 || !rows.length){
+      box.innerHTML = `<div class="empty-hint">${esc(T().insightsEmpty)}</div>`;
+      if(due.length) box.innerHTML += overdueHTML(due);
       return;
     }
-    const items = [];
+    const top = rows[0];
+    const share = income > 0 ? top.income/income*100 : 0;
+    out.push(['💡', lang==='zh'
+      ? `「${top.key}」是你收入最高的类别，共 ${fmt(top.income)}，占 ${share.toFixed(0)}%。`
+      : `"${top.key}" is your top category — ${fmt(top.income)}, ${share.toFixed(0)}% of income received.`]);
 
-    // top revenue category
-    const topRev = rows[0];
-    const topRevShare = totalIncome > 0 ? (topRev.income/totalIncome*100) : 0;
-    items.push({
-      emoji:'💡',
-      text: lang==='zh'
-        ? `「${catLabel(topRev.key)}」是你收入最高的类别，共赚 ${fmt(topRev.income)}，占总收入的 ${topRevShare.toFixed(0)}%。`
-        : `"${catLabel(topRev.key)}" is your top revenue category — ${fmt(topRev.income)} total, ${topRevShare.toFixed(0)}% of overall income.`
-    });
-
-    // highest profit margin category (income > 0)
-    const withMargin = rows.filter(r => r.income > 0).map(r => ({...r, margin: r.profit / r.income}));
-    if(withMargin.length){
-      const topMargin = withMargin.slice().sort((a,b) => b.margin - a.margin)[0];
-      items.push({
-        emoji:'📈',
-        text: lang==='zh'
-          ? `「${catLabel(topMargin.key)}」的利润率最高，达到 ${(topMargin.margin*100).toFixed(0)}%，是目前最划算的项目。`
-          : `"${catLabel(topMargin.key)}" has the highest profit margin at ${(topMargin.margin*100).toFixed(0)}%, your most efficient work type.`
-      });
+    const margins = rows.filter(r => r.income > 0).map(r => ({...r, m:r.profit/r.income}));
+    if(margins.length){
+      const best = margins.slice().sort((a,b) => b.m - a.m)[0];
+      out.push(['📈', lang==='zh'
+        ? `「${best.key}」利润率最高，达到 ${(best.m*100).toFixed(0)}%。`
+        : `"${best.key}" has the highest margin at ${(best.m*100).toFixed(0)}%.`]);
     }
-
-    // highest average income per job
-    const withAvg = rows.map(r => ({...r, avg: r.count ? r.income / r.count : 0}));
-    const topAvg = withAvg.slice().sort((a,b) => b.avg - a.avg)[0];
-    if(topAvg){
-      items.push({
-        emoji:'⭐',
-        text: lang==='zh'
-          ? `平均每单收入最高的是「${catLabel(topAvg.key)}」，平均 ${fmt(topAvg.avg)} / 单。`
-          : `"${catLabel(topAvg.key)}" has the highest average income per job at ${fmt(topAvg.avg)}.`
-      });
+    const avg = rows.map(r => ({...r, a:r.count ? r.income/r.count : 0})).sort((a,b) => b.a - a.a)[0];
+    if(avg){
+      out.push(['⭐', lang==='zh'
+        ? `平均每单最高的是「${avg.key}」，${fmt(avg.a)} / 单。`
+        : `"${avg.key}" earns the most per job at ${fmt(avg.a)}.`]);
     }
-
-    // 30-day trend vs previous 30 days (based on all-time data, not the date filter)
-    const allRecords = loadReceipts();
     const now = new Date();
     const d30 = new Date(now); d30.setDate(d30.getDate()-30);
     const d60 = new Date(now); d60.setDate(d60.getDate()-60);
-    const recentSum = allRecords.filter(r => r.date && r.date >= d30.toISOString().slice(0,10)).reduce((s,r)=>s+(r.total||0),0);
-    const prevSum = allRecords.filter(r => r.date && r.date >= d60.toISOString().slice(0,10) && r.date < d30.toISOString().slice(0,10)).reduce((s,r)=>s+(r.total||0),0);
-    if(prevSum > 0){
-      const change = ((recentSum - prevSum) / prevSum) * 100;
-      const up = change >= 0;
-      items.push({
-        emoji: up ? '📊' : '📉',
-        text: lang==='zh'
-          ? `最近 30 天收入比之前 30 天${up ? '增加' : '减少'}了 ${Math.abs(change).toFixed(0)}%。`
-          : `Income over the last 30 days is ${up ? 'up' : 'down'} ${Math.abs(change).toFixed(0)}% compared to the previous 30 days.`
-      });
+    const all = docs.filter(isIncome);
+    const recent = all.filter(d => d.date >= toStr(d30)).reduce((a,d) => a+(d.total||0),0);
+    const prev = all.filter(d => d.date >= toStr(d60) && d.date < toStr(d30)).reduce((a,d) => a+(d.total||0),0);
+    if(prev > 0){
+      const ch = (recent-prev)/prev*100, up = ch >= 0;
+      out.push([up?'📊':'📉', lang==='zh'
+        ? `最近 30 天收入比之前 30 天${up?'增加':'减少'}了 ${Math.abs(ch).toFixed(0)}%。`
+        : `Income in the last 30 days is ${up?'up':'down'} ${Math.abs(ch).toFixed(0)}% versus the 30 days before.`]);
     }
-
-    items.forEach(it => {
-      const div = document.createElement('div');
-      div.className = 'insight-item';
-      div.innerHTML = `<span class="insight-emoji">${it.emoji}</span><span>${it.text}</span>`;
-      box.appendChild(div);
-    });
+    box.innerHTML = out.map(([e,t]) => `<div class="insight-item"><span class="insight-emoji">${e}</span><span>${esc(t)}</span></div>`).join('');
+    if(due.length) box.innerHTML += overdueHTML(due);
   }
-
-  ['incStartDate','incEndDate'].forEach(id => $(id).addEventListener('input', renderIncome));
-  attachPresets('incPresets', 'incStartDate', 'incEndDate', renderIncome);
-  $('incClear').addEventListener('click', () => {
-    $('incStartDate').value = ''; $('incEndDate').value = '';
+  function overdueHTML(due){
+    const overdue = due.filter(d => d.dueDate && d.dueDate < todayStr());
+    const total = due.reduce((a,d) => a+(d.total||0),0);
+    const txt = lang==='zh'
+      ? `还有 ${due.length} 张发票尚未收款，合计 ${fmt(total)}${overdue.length ? `，其中 ${overdue.length} 张已经过了到期日。` : '。'}`
+      : `${due.length} invoice(s) still unpaid, ${fmt(total)} in total${overdue.length ? `, ${overdue.length} past the due date.` : '.'}`;
+    return `<div class="insight-item"><span class="insight-emoji">${overdue.length?'⏰':'📬'}</span><span>${esc(txt)}</span></div>`;
+  }
+  ['iStart','iEnd'].forEach(id => $(id).addEventListener('input', renderIncome));
+  $('iClear').addEventListener('click', () => {
+    $('iStart').value=''; $('iEnd').value='';
     $('incPresets').querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
     renderIncome();
   });
 
-  // ================= boot =================
-  renderProfessionChips();
+  // ============================================================
+  // settings
+  // ============================================================
+  const BIZ_FIELDS = [
+    ['bizName','name'],['bizSub','sub'],['bizContact','contact'],
+    ['bankName','bankName'],['bankHolder','bankHolder'],['bankAccount','bankAccount'],
+    ['invoicePrefix','invoicePrefix'],['receiptPrefix','receiptPrefix'],
+    ['bizTerms','terms'],['bizThanks','thanks']
+  ];
+  function fillSettings(){
+    BIZ_FIELDS.forEach(([id,key]) => { $(id).value = biz[key] || ''; });
+    $('invoiceCounter').value = biz.invoiceCounter || 1;
+    $('receiptCounter').value = biz.receiptCounter || 1;
+  }
+  $('btnSaveBiz').addEventListener('click', () => {
+    BIZ_FIELDS.forEach(([id,key]) => { biz[key] = $(id).value.trim(); });
+    biz.invoiceCounter = Math.max(1, Math.round(num($('invoiceCounter').value)) || 1);
+    biz.receiptCounter = Math.max(1, Math.round(num($('receiptCounter').value)) || 1);
+    if(!biz.invoicePrefix) biz.invoicePrefix = 'INV';
+    if(!biz.receiptPrefix) biz.receiptPrefix = 'JL';
+    saveBiz();
+    fillSettings();
+    if(!S.editingId) renderPreview();
+    refreshHome();
+    toast(T().savedBiz);
+  });
+
+  function renderProfessions(){
+    $('profList').innerHTML = professions.map(p =>
+      `<div class="prof-row">
+         <span class="prof-name">${esc(p)}</span>
+         <button type="button" class="del-btn" data-p="${esc(p)}" aria-label="Remove">✕</button>
+       </div>`).join('');
+  }
+  $('profList').addEventListener('click', e => {
+    const btn = e.target.closest('[data-p]');
+    if(!btn) return;
+    const name = btn.dataset.p;
+    if(professions.length <= 1) return;
+    professions = professions.filter(x => x !== name);
+    saveProfessions();
+    renderProfessions();
+    if(S.service === name){ S.service = professions[0]; setPicker('pkService', S.service); renderPreview(); }
+  });
+  function addProfession(){
+    const v = $('newProfession').value.trim();
+    if(!v) return;
+    if(professions.includes(v)){ toast(T().profDup); return; }
+    professions.push(v);
+    saveProfessions();
+    $('newProfession').value = '';
+    renderProfessions();
+  }
+  $('addProfession').addEventListener('click', addProfession);
+  $('newProfession').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); addProfession(); } });
+
+  $('btnExport').addEventListener('click', () => {
+    const data = {app:'jl-backstage', version:3, exportedAt:new Date().toISOString(), biz, docs, professions};
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `jl-backstage-backup-${todayStr()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast(T().exported);
+  });
+  $('btnImport').addEventListener('click', () => $('importFile').click());
+  $('importFile').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      try{
+        const data = JSON.parse(fr.result);
+        if(!data || !Array.isArray(data.docs)) throw new Error('bad');
+        biz = Object.assign(biz, data.biz || {});
+        docs = data.docs;
+        if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
+        saveBiz(); saveDocs(); saveProfessions();
+        fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome();
+        toast(T().imported);
+      }catch(err){ toast(T().importFail); }
+      $('importFile').value = '';
+    };
+    fr.readAsText(file);
+  });
+
+  // ============================================================
+  // home summary
+  // ============================================================
+  function refreshHome(){
+    const now = new Date();
+    const mStart = toStr(new Date(now.getFullYear(), now.getMonth(), 1));
+    const mEnd = toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
+    const received = docs.filter(d => isIncome(d) && inRange(d.date, mStart, mEnd)).reduce((a,d)=>a+(d.total||0),0);
+    const due = docs.filter(isOutstanding).reduce((a,d)=>a+(d.total||0),0);
+    $('hsReceived').textContent = fmtShort(received);
+    $('hsDue').textContent = fmtShort(due);
+    $('hsCount').textContent = docs.length;
+  }
+
+  // ============================================================
+  // routing
+  // ============================================================
+  let currentView = 'home';
+  function setTopbarTitle(){
+    let title = T()['title_' + currentView];
+    if(currentView === 'editor') title = S.docType === 'invoice' ? T().title_invoice : T().title_receipt;
+    $('topbarTitle').textContent = title;
+  }
+  function showView(name){
+    currentView = name;
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $('view-' + name).classList.add('active');
+    $('btnBack').style.display = name === 'home' ? 'none' : 'flex';
+    $('btnSettings').style.display = name === 'settings' ? 'none' : 'flex';
+    $('actionBar').classList.toggle('visible', name === 'editor');
+    setTopbarTitle();
+    closeAllPopups();
+    if(name === 'home') refreshHome();
+    if(name === 'docs') renderDocs();
+    if(name === 'income') renderIncome();
+    if(name === 'settings') { fillSettings(); renderProfessions(); }
+    window.scrollTo({top:0, behavior:'auto'});
+  }
+  document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', () => showView(el.dataset.nav)));
+  document.querySelectorAll('[data-new]').forEach(el => el.addEventListener('click', () => {
+    newDoc(el.dataset.new);
+    showView('editor');
+  }));
+  $('btnBack').addEventListener('click', () => showView(currentView === 'editor' ? 'home' : 'home'));
+  $('btnSettings').addEventListener('click', () => showView('settings'));
+  window.addEventListener('scroll', () => {
+    $('topbar').classList.toggle('scrolled', window.scrollY > 4);
+  }, {passive:true});
+
+  // ============================================================
+  // language
+  // ============================================================
+  function applyLang(){
+    document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+    $('langToggle').textContent = T().toggleLabel;
+    document.querySelectorAll('[data-t]').forEach(el => {
+      const v = T()[el.dataset.t];
+      if(v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-tp]').forEach(el => {
+      const v = T()[el.dataset.tp];
+      if(v != null) el.placeholder = v;
+    });
+    setPicker('pkService', S.service);
+    setPicker('pkPayMethod', payLabel(S.payMethod));
+    setPicker('pkStatus', T()['st_'+S.status]);
+    setPicker('pkCategory', catFilter || T().allCategories, !catFilter);
+    localStorage.setItem('jl.lang', lang);
+    setDocType(S.docType, true);
+    renderItems();
+    reindexItems();
+    setTopbarTitle();
+    if(currentView === 'docs') renderDocs();
+    if(currentView === 'income') renderIncome();
+    refreshHome();
+  }
+  $('langToggle').addEventListener('click', () => { lang = lang === 'zh' ? 'en' : 'zh'; applyLang(); });
+
+  // ============================================================
+  // boot
+  // ============================================================
+  fillSettings();
+  renderProfessions();
+  newDoc('receipt');
   applyLang();
-  addItemRow();
-  $('rDate').value = todayStr();
-  render();
+  refreshHome();
   showView('home');
 })();
 
-if ('serviceWorker' in navigator) {
+if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});
   });
