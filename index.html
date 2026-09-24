@@ -540,6 +540,63 @@
   }
   .toast.show{opacity:1;}
 
+  /* ---------- Wes part time ---------- */
+  .home-card.wide{grid-column:1 / -1;}
+  .hc-icon.wes-ic{padding:0;overflow:hidden;background:none;border:none;}
+  .hc-icon.wes-ic img{width:100%;height:100%;display:block;border-radius:12px;}
+  .wes-head{display:flex;align-items:center;gap:12px;margin:6px 0 14px;}
+  .wes-head img{width:46px;height:46px;border-radius:50%;flex:none;}
+  .wes-head b{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;display:block;line-height:1.1;}
+  .wes-head small{font-size:11.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+  input[type=time]{
+    font-family:'IBM Plex Mono',monospace;font-size:16px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:10px;background:var(--ivory);color:var(--ink);outline:none;width:100%;
+    min-height:var(--tap);-webkit-appearance:none;appearance:none;flex:1;min-width:0;
+  }
+  input[type=time]:focus{border-color:var(--rose);background:#fff;}
+  .time-row{display:flex;gap:8px;align-items:stretch;}
+  .now-btn{
+    flex:none;border:1px solid var(--line);background:var(--paper);color:var(--rose-deep);
+    border-radius:10px;padding:0 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .now-btn:active{background:var(--ivory);}
+  .wes-calc{
+    background:var(--ivory);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;
+    font-size:13px;color:var(--ink-soft);line-height:1.6;font-family:'IBM Plex Mono',monospace;
+  }
+  .wes-calc b{color:var(--ink);}
+  .wes-calc .pay{color:var(--green);}
+  .month-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .month-nav .cal-nav{width:42px;height:42px;font-size:17px;}
+  .month-nav .mn-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;}
+  .wes-row{display:flex;gap:12px;align-items:flex-start;padding:13px 2px;border-bottom:1px solid var(--line-soft);}
+  .wes-row:last-child{border-bottom:none;}
+  .wes-row .wr-main{flex:1;min-width:0;}
+  .wes-row .wr-date{font-weight:600;font-size:14px;}
+  .wes-row .wr-meta{font-size:11.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;margin-top:3px;line-height:1.55;}
+  .wes-row .wr-amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);text-align:right;white-space:nowrap;}
+  .row-btns{display:flex;gap:6px;justify-content:flex-end;margin-top:6px;}
+  .row-btns button{
+    border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:5px 10px;
+    font-size:12px;cursor:pointer;color:var(--ink);font-family:'Inter',sans-serif;
+  }
+  .row-btns button.del{color:var(--loss);}
+  .ledger-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .ledger{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;}
+  .ledger th{text-align:left;font-size:10.5px;color:var(--ink-soft);font-weight:600;padding:8px 5px;border-bottom:1px solid var(--ink);}
+  .ledger td{padding:11px 5px;border-bottom:1px solid var(--line-soft);vertical-align:top;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .ledger .num{text-align:right;}
+  .ledger .sub-line{font-size:10.5px;color:var(--ink-mute);margin-top:2px;}
+  .ledger .ops{text-align:right;}
+  .ledger .ops button{display:block;width:100%;margin:0 0 4px;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:4px 8px;font-size:11.5px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);}
+  .ledger .ops button.del{color:var(--loss);}
+  .ledger tfoot td{border-bottom:none;border-top:2px solid var(--ink);font-weight:700;padding-top:12px;}
+  .ledger tfoot .foot-label{color:var(--ink-soft);font-weight:500;font-family:'Inter',sans-serif;}
+  .ledger tfoot .total{color:var(--green);}
+  .grand-total{display:flex;flex-direction:column;align-items:flex-end;margin-top:18px;}
+  .grand-total small{font-size:11.5px;color:var(--ink-soft);}
+  .grand-total span{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--green);}
+
   /* ---------- Print ---------- */
   #printRoot{display:none;}
   @media print{
@@ -608,6 +665,13 @@
         <div>
           <div class="hc-title" data-t="cardIncTitle">收入分析</div>
           <div class="hc-desc" data-t="cardIncDesc">按职业领域拆解收入、成本与利润</div>
+        </div>
+      </button>
+      <button class="home-card wide" data-nav="wes">
+        <div class="hc-icon wes-ic"><img src="wes-logo.png" alt=""></div>
+        <div>
+          <div class="hc-title" data-t="cardWesTitle">Wes 兼职工时</div>
+          <div class="hc-desc" data-t="cardWesDesc">Wardrobe Assistant 打卡上下班，自动按 RM10/小时计算工资</div>
         </div>
       </button>
     </div>
@@ -830,6 +894,103 @@
     <div class="panel">
       <h2 data-t="h_insights">智能分析建议</h2>
       <div id="insightsBox"></div>
+    </div>
+  </section>
+
+  <!-- ============ WES PART TIME ============ -->
+  <section id="view-wes" class="view">
+    <div class="wes-head">
+      <img src="wes-logo.png" alt="wes">
+      <div><b>Wes Part Time Income</b><small data-t="wesSub">Wardrobe Assistant · RM10 / 小时 · 休息不计薪</small></div>
+    </div>
+    <div class="seg" id="wesTabSeg">
+      <button type="button" data-wtab="clock" class="on" data-t="wesTabClock">打卡</button>
+      <button type="button" data-wtab="ledger" data-t="wesTabLedger">总记录</button>
+    </div>
+
+    <div id="wesPageClock">
+      <div class="panel">
+        <h2 id="wesFormTitle">新增记录</h2>
+        <div class="field">
+          <label data-t="wes_l_date">日期</label>
+          <input type="text" id="wDate" class="date-picker-input" readonly>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label data-t="wes_l_in">上班 Clock In</label>
+            <div class="time-row"><input type="time" id="wIn"><button type="button" class="now-btn" data-now="wIn" data-t="wesNow">现在</button></div>
+          </div>
+          <div class="field">
+            <label data-t="wes_l_out">下班 Clock Out</label>
+            <div class="time-row"><input type="time" id="wOut"><button type="button" class="now-btn" data-now="wOut" data-t="wesNow">现在</button></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label data-t="wes_l_bin">休息开始 Break In</label>
+            <div class="time-row"><input type="time" id="wBin"><button type="button" class="now-btn" data-now="wBin" data-t="wesNow">现在</button></div>
+          </div>
+          <div class="field">
+            <label data-t="wes_l_bout">休息结束 Break Out</label>
+            <div class="time-row"><input type="time" id="wBout"><button type="button" class="now-btn" data-now="wBout" data-t="wesNow">现在</button></div>
+          </div>
+        </div>
+        <div class="wes-calc" id="wCalc"></div>
+        <div class="btn-row">
+          <button class="primary" id="wSave" data-t="wesSave">保存记录</button>
+          <button class="ghost" id="wCancel" style="display:none;" data-t="wesCancel">取消编辑</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="month-nav">
+          <button type="button" class="cal-nav" id="wPrevM">‹</button>
+          <span class="mn-title" id="wMonthTitle"></span>
+          <button type="button" class="cal-nav" id="wNextM">›</button>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-box"><div class="sl" data-t="wes_days">上班天数</div><div class="sv" id="wDays">0</div></div>
+        <div class="stat-box"><div class="sl" data-t="wes_hours">总工时</div><div class="sv" id="wHours">0h</div></div>
+        <div class="stat-box"><div class="sl" data-t="wes_pay">本月工资</div><div class="sv pos" id="wPay">RM 0.00</div></div>
+      </div>
+      <div class="panel">
+        <div id="wMonthList"></div>
+      </div>
+    </div>
+
+    <div id="wesPageLedger" style="display:none;">
+      <div class="panel">
+        <h2 data-t="wesLedgerTitle">总记录</h2>
+        <p class="hint" data-t="wesLedgerHint">全部打卡记录，最新的在最上面</p>
+        <div class="ledger-wrap">
+          <table class="ledger">
+            <thead><tr>
+              <th data-t="wes_th_date">日期</th>
+              <th data-t="wes_th_time">时间</th>
+              <th class="num" data-t="wes_th_hours">工时</th>
+              <th class="num" data-t="wes_th_amt">金额</th>
+              <th class="ops" data-t="wes_th_ops">操作</th>
+            </tr></thead>
+            <tbody id="wLedgerBody"></tbody>
+            <tfoot><tr>
+              <td colspan="2" class="foot-label" id="wLedgerCount"></td>
+              <td class="num" id="wLedgerHours">0h</td>
+              <td class="num total" id="wLedgerTotal">0.00</td>
+              <td></td>
+            </tr></tfoot>
+          </table>
+        </div>
+        <div class="grand-total">
+          <small data-t="wesGrand">总数目</small>
+          <span id="wGrand">RM 0.00</span>
+        </div>
+        <div class="btn-row">
+          <button class="ghost" id="wCsv" data-t="wesCsv">导出 Wes 记录 CSV</button>
+          <button class="ghost" id="wImportOld" data-t="wesImportOld">导入旧 Wes 备份</button>
+        </div>
+        <input type="file" id="wImportFile" accept="application/json,.json" style="display:none;">
+      </div>
     </div>
   </section>
 
@@ -1108,7 +1269,30 @@
       needNetForPdf:'导入 PDF 需要网络连接（首次使用会加载 PDF 解析器）',
       pdfParseFail:'读不出这张 PDF 的内容，可能是扫描 / 图片型 PDF',
       pdfImported:'已从 PDF 恢复为可编辑单据，请检查后点保存',
-      jobs:'单', profitWord:'利润'
+      jobs:'单', profitWord:'利润',
+      title_wes:'Wes 兼职工时',
+      cardWesTitle:'Wes 兼职工时', cardWesDesc:'Wardrobe Assistant 打卡上下班，自动按 RM10/小时计算工资',
+      wesSub:'Wardrobe Assistant · RM10 / 小时 · 休息不计薪',
+      wesTabClock:'打卡', wesTabLedger:'总记录',
+      wesNew:'新增记录', wesEdit:'编辑记录',
+      wes_l_date:'日期', wes_l_in:'上班 Clock In', wes_l_out:'下班 Clock Out',
+      wes_l_bin:'休息开始 Break In', wes_l_bout:'休息结束 Break Out', wesNow:'现在',
+      wesSave:'保存记录', wesUpdate:'更新记录', wesCancel:'取消编辑',
+      wes_days:'上班天数', wes_hours:'总工时', wes_pay:'本月工资',
+      wesLedgerTitle:'总记录', wesLedgerHint:'全部打卡记录，最新的在最上面',
+      wes_th_date:'日期', wes_th_time:'时间', wes_th_hours:'工时', wes_th_amt:'金额', wes_th_ops:'操作',
+      wesGrand:'总数目', wesCsv:'导出 Wes 记录 CSV', wesImportOld:'导入旧 Wes 备份',
+      wesEdit_btn:'修改', wesDel_btn:'删除', wesBreak:'休息',
+      wesCalcEmpty:'填好上班和下班时间后会自动计算',
+      wesCalc:'在场 {t} − 休息 {b} = 计薪 <b>{w}</b> → <b class="pay">{p}</b>',
+      wesMonthEmpty:'这个月还没有打卡记录', wesLedgerEmpty:'还没有任何打卡记录',
+      wesCount:'共 {n} 条记录',
+      wesNeedDate:'请选择日期', wesNeedTimes:'请填写上班和下班时间',
+      wesNeedBoth:'休息时间要同时填开始和结束，或都留空', wesBreakTooLong:'休息时间比上班时间还长，请检查',
+      wesSaved:'打卡记录已保存', wesUpdated:'记录已更新', wesDeleted:'记录已删除',
+      wesConfirmDel:'确定删除 {d} 这条打卡记录吗？',
+      wesImported:'已导入 Wes 记录：', wesNoRecords:'没有可以导出的记录',
+      weekdays:['日','一','二','三','四','五','六'], hr:'小时', min:'分'
     },
     en:{
       toggleLabel:'中文',
@@ -1214,7 +1398,30 @@
       needNetForPdf:'Importing PDF needs an internet connection (loads the PDF parser on first use)',
       pdfParseFail:'Could not read this PDF — it may be a scanned / image PDF',
       pdfImported:'Restored from PDF as an editable document — check it, then tap Save',
-      jobs:'jobs', profitWord:'Profit'
+      jobs:'jobs', profitWord:'Profit',
+      title_wes:'Wes Part Time',
+      cardWesTitle:'Wes Part Time', cardWesDesc:'Wardrobe assistant clock in / out, paid automatically at RM10 per hour',
+      wesSub:'Wardrobe Assistant · RM10 / hour · breaks unpaid',
+      wesTabClock:'Clock', wesTabLedger:'Ledger',
+      wesNew:'New Entry', wesEdit:'Edit Entry',
+      wes_l_date:'Date', wes_l_in:'Clock In', wes_l_out:'Clock Out',
+      wes_l_bin:'Break In', wes_l_bout:'Break Out', wesNow:'Now',
+      wesSave:'Save Entry', wesUpdate:'Update Entry', wesCancel:'Cancel Edit',
+      wes_days:'Days Worked', wes_hours:'Total Hours', wes_pay:'This Month',
+      wesLedgerTitle:'Ledger', wesLedgerHint:'Every entry, newest first',
+      wes_th_date:'Date', wes_th_time:'Time', wes_th_hours:'Hours', wes_th_amt:'Amount', wes_th_ops:'',
+      wesGrand:'Grand Total', wesCsv:'Export Wes CSV', wesImportOld:'Import old Wes backup',
+      wesEdit_btn:'Edit', wesDel_btn:'Delete', wesBreak:'Break',
+      wesCalcEmpty:'Fill in clock in and clock out to see the pay',
+      wesCalc:'On site {t} − break {b} = paid <b>{w}</b> → <b class="pay">{p}</b>',
+      wesMonthEmpty:'No entries this month', wesLedgerEmpty:'No entries yet',
+      wesCount:'Entries: {n}',
+      wesNeedDate:'Choose a date', wesNeedTimes:'Fill in clock in and clock out',
+      wesNeedBoth:'Fill in both break times, or leave both empty', wesBreakTooLong:'The break is longer than the shift — please check',
+      wesSaved:'Entry saved', wesUpdated:'Entry updated', wesDeleted:'Entry deleted',
+      wesConfirmDel:'Delete the entry for {d}?',
+      wesImported:'Imported Wes entries: ', wesNoRecords:'Nothing to export',
+      weekdays:['Su','Mo','Tu','We','Th','Fr','Sa'], hr:'h', min:'m'
     }
   };
   const COMPLIANCE = {
@@ -1313,7 +1520,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -1346,7 +1553,18 @@
   docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
   function saveDocs(){ localStorage.setItem('jl.docs', JSON.stringify(docs)); saveBackup(); }
 
-  saveBiz(); saveDocs(); saveProfessions();
+  // Wes part-time entries. Same key as the old standalone Wes page, so records
+  // already made there (on the same site) show up here automatically.
+  const WES_KEY = 'wes-pt-income-v1';
+  let wesEntries = readJSON(WES_KEY, null);
+  if(!Array.isArray(wesEntries)){
+    const bak0 = readJSON(BAK_KEY, []);
+    const hit = bak0.find(x => x && Array.isArray(x.wes) && x.wes.length);
+    wesEntries = hit ? hit.wes : [];
+  }
+  function saveWes(){ localStorage.setItem(WES_KEY, JSON.stringify(wesEntries)); saveBackup(); }
+
+  saveBiz(); saveDocs(); saveProfessions(); saveWes();
 
   // ============================================================
   // toast + sheet
@@ -1454,7 +1672,7 @@
       popup.style.display = 'block';
     });
   }
-  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd'].forEach(id => initDatePicker($(id)));
+  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate'].forEach(id => initDatePicker($(id)));
 
   // ============================================================
   // editor state
@@ -2408,7 +2626,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:4, exportedAt:new Date().toISOString(), biz, docs, professions}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:5, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -2437,6 +2655,7 @@
         docs = data.docs;
         docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
         if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
+        if(Array.isArray(data.wes)){ wesEntries = data.wes; saveWes(); }
         saveBiz(); saveDocs(); saveProfessions();
         fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
         toast(T().imported);
@@ -2453,6 +2672,7 @@
     docs = latest.docs;
     if(latest.biz) biz = Object.assign({}, DEFAULTS, biz, latest.biz);
     if(Array.isArray(latest.professions) && latest.professions.length) professions = latest.professions;
+    if(Array.isArray(latest.wes) && latest.wes.length){ wesEntries = latest.wes; saveWes(); }
     saveBiz(); saveDocs(); saveProfessions();
     fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
     toast(T().restored);
@@ -2734,6 +2954,185 @@
   });
 
   // ============================================================
+  // Wes part time — RM10/hour, breaks unpaid
+  // ============================================================
+  const WES_RATE = 10;
+  const W = { editId:null, month: todayStr().slice(0,7), tab:'clock' };
+  const toMin = t => { if(!t) return null; const [h,m] = t.split(':').map(Number); return h*60+m; };
+  function wesCalc(e){
+    const s = toMin(e.clockIn); let end = toMin(e.clockOut);
+    if(s === null || end === null) return null;
+    if(end <= s) end += 1440;                       // past midnight
+    let brk = 0;
+    if(e.breakIn && e.breakOut){
+      let bs = toMin(e.breakIn), be = toMin(e.breakOut);
+      if(bs < s) bs += 1440;
+      if(be < bs) be += 1440;
+      brk = be - bs;
+    }
+    const total = end - s, work = Math.max(0, total - brk);
+    return { total, brk, work, pay: Math.round(work/60*WES_RATE*100)/100 };
+  }
+  const wDur = m => { const h = Math.floor(m/60), r = m%60; return r ? `${h}${T().hr}${r}${T().min}` : `${h}${T().hr}`; };
+  const wHrs = m => (m/60).toFixed(2) + 'h';
+  const nowHM = () => { const d = new Date(); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+  function wForm(){ return { date:$('wDate').value, clockIn:$('wIn').value, clockOut:$('wOut').value, breakIn:$('wBin').value, breakOut:$('wBout').value }; }
+  function wUpdateCalc(){
+    const r = wesCalc(wForm());
+    $('wCalc').innerHTML = r ? T().wesCalc.replace('{t}', wDur(r.total)).replace('{b}', wDur(r.brk)).replace('{w}', wDur(r.work)).replace('{p}', fmt(r.pay)) : esc(T().wesCalcEmpty);
+  }
+  function wReset(){
+    W.editId = null;
+    $('wDate').value = todayStr();
+    ['wIn','wOut','wBin','wBout'].forEach(id => $(id).value = '');
+    $('wesFormTitle').textContent = T().wesNew;
+    $('wSave').textContent = T().wesSave;
+    $('wCancel').style.display = 'none';
+    wUpdateCalc();
+  }
+  function wValidate(e){
+    if(!e.date) return T().wesNeedDate;
+    if(!e.clockIn || !e.clockOut) return T().wesNeedTimes;
+    if(!!e.breakIn !== !!e.breakOut) return T().wesNeedBoth;
+    const r = wesCalc(e);
+    if(r.brk > r.total) return T().wesBreakTooLong;
+    return '';
+  }
+  $('wSave').addEventListener('click', () => {
+    const e = wForm(), err = wValidate(e);
+    if(err){ toast(err); return; }
+    if(W.editId){
+      wesEntries = wesEntries.map(x => x.id === W.editId ? Object.assign({}, e, {id:W.editId}) : x);
+      toast(T().wesUpdated);
+    } else {
+      wesEntries.push(Object.assign({}, e, {id: uid()}));
+      toast(T().wesSaved);
+    }
+    saveWes();
+    W.month = e.date.slice(0,7);
+    wReset(); renderWes();
+  });
+  $('wCancel').addEventListener('click', wReset);
+  document.querySelectorAll('[data-now]').forEach(b => b.addEventListener('click', () => {
+    $(b.dataset.now).value = nowHM();
+    if(!$('wDate').value) $('wDate').value = todayStr();
+    wUpdateCalc();
+  }));
+  ['wDate','wIn','wOut','wBin','wBout'].forEach(id => { $(id).addEventListener('input', wUpdateCalc); $(id).addEventListener('change', wUpdateCalc); });
+  function wShift(n){
+    const [y,m] = W.month.split('-').map(Number);
+    const d = new Date(y, m-1+n, 1);
+    W.month = `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
+    renderWes();
+  }
+  $('wPrevM').addEventListener('click', () => wShift(-1));
+  $('wNextM').addEventListener('click', () => wShift(1));
+  function wSetTab(tab){
+    W.tab = tab;
+    document.querySelectorAll('#wesTabSeg button').forEach(b => b.classList.toggle('on', b.dataset.wtab === tab));
+    $('wesPageClock').style.display = tab === 'clock' ? '' : 'none';
+    $('wesPageLedger').style.display = tab === 'ledger' ? '' : 'none';
+  }
+  document.querySelectorAll('#wesTabSeg button').forEach(b => b.addEventListener('click', () => wSetTab(b.dataset.wtab)));
+  const wSortAsc = (a,b) => (a.date + a.clockIn).localeCompare(b.date + b.clockIn);
+  function wRowBtns(id){
+    return `<button type="button" data-wedit="${esc(id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-wdel="${esc(id)}">${esc(T().wesDel_btn)}</button>`;
+  }
+  function renderWes(){
+    // month view
+    const [y,m] = W.month.split('-').map(Number);
+    $('wMonthTitle').textContent = lang === 'zh' ? `${y} 年 ${m} 月` : new Date(y, m-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+    const list = wesEntries.filter(e => (e.date||'').startsWith(W.month)).sort(wSortAsc);
+    let mins = 0, pay = 0; const days = new Set();
+    $('wMonthList').innerHTML = list.length ? list.map(e => {
+      const r = wesCalc(e); mins += r.work; pay += r.pay; days.add(e.date);
+      const wd = T().weekdays[new Date(e.date + 'T00:00:00').getDay()];
+      const brk = e.breakIn ? ` · ${T().wesBreak} ${e.breakIn}–${e.breakOut}` : '';
+      return `<div class="wes-row">
+        <div class="wr-main">
+          <div class="wr-date">${esc(e.date.slice(5))} (${wd})</div>
+          <div class="wr-meta">${esc(e.clockIn)}–${esc(e.clockOut)}${esc(brk)}<br>${wDur(r.work)}</div>
+        </div>
+        <div><div class="wr-amt">${fmt(r.pay)}</div><div class="row-btns">${wRowBtns(e.id)}</div></div>
+      </div>`;
+    }).join('') : `<div class="empty-hint">${esc(T().wesMonthEmpty)}</div>`;
+    $('wDays').textContent = days.size;
+    $('wHours').textContent = wHrs(mins);
+    $('wPay').textContent = fmt(pay);
+
+    // ledger: everything, newest first
+    const all = wesEntries.slice().sort(wSortAsc).reverse();
+    let tm = 0, tp = 0;
+    $('wLedgerBody').innerHTML = all.length ? all.map(e => {
+      const r = wesCalc(e); tm += r.work; tp += r.pay;
+      const brk = e.breakIn ? `<div class="sub-line">${esc(T().wesBreak)} ${esc(e.breakIn)}–${esc(e.breakOut)}</div>` : '';
+      return `<tr>
+        <td>${esc(e.date.slice(5))}<div class="sub-line">${esc(e.date.slice(0,4))}</div></td>
+        <td>${esc(e.clockIn)}–${esc(e.clockOut)}${brk}</td>
+        <td class="num">${wHrs(r.work)}</td>
+        <td class="num">${r.pay.toFixed(2)}</td>
+        <td class="ops">${wRowBtns(e.id)}</td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="5"><div class="empty-hint">${esc(T().wesLedgerEmpty)}</div></td></tr>`;
+    $('wLedgerCount').textContent = T().wesCount.replace('{n}', all.length);
+    $('wLedgerHours').textContent = wHrs(tm);
+    $('wLedgerTotal').textContent = (Math.round(tp*100)/100).toFixed(2);
+    $('wGrand').textContent = fmt(tp);
+  }
+  $('view-wes').addEventListener('click', ev => {
+    const ed = ev.target.closest('[data-wedit]'), dl = ev.target.closest('[data-wdel]');
+    if(ed){
+      const e = wesEntries.find(x => x.id === ed.dataset.wedit); if(!e) return;
+      W.editId = e.id;
+      $('wDate').value = e.date; $('wIn').value = e.clockIn || ''; $('wOut').value = e.clockOut || '';
+      $('wBin').value = e.breakIn || ''; $('wBout').value = e.breakOut || '';
+      $('wesFormTitle').textContent = T().wesEdit;
+      $('wSave').textContent = T().wesUpdate;
+      $('wCancel').style.display = '';
+      wUpdateCalc(); wSetTab('clock');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    if(dl){
+      const e = wesEntries.find(x => x.id === dl.dataset.wdel); if(!e) return;
+      if(!confirm(T().wesConfirmDel.replace('{d}', e.date))) return;
+      wesEntries = wesEntries.filter(x => x.id !== e.id);
+      if(W.editId === e.id) wReset();
+      saveWes(); renderWes(); toast(T().wesDeleted);
+    }
+  });
+  $('wCsv').addEventListener('click', () => {
+    if(!wesEntries.length){ toast(T().wesNoRecords); return; }
+    const q = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
+    let total = 0;
+    const rows = wesEntries.slice().sort(wSortAsc).map(e => {
+      const r = wesCalc(e); total += r.pay;
+      return [e.date, e.clockIn, e.clockOut, e.breakIn||'', e.breakOut||'', (r.work/60).toFixed(2), r.pay.toFixed(2)].map(q).join(',');
+    });
+    const head = ['Date','Clock In','Clock Out','Break In','Break Out','Paid Hours','Amount (RM)'].map(q).join(',');
+    const foot = ['Total','','','','','',total.toFixed(2)].map(q).join(',');
+    download(`wes-part-time-${todayStr()}.csv`, '﻿' + [head, ...rows, foot].join('\r\n'), 'text/csv');
+    toast(T().csvExported);
+  });
+  // backups made by the old standalone Wes page (a plain array of entries)
+  $('wImportOld').addEventListener('click', () => $('wImportFile').click());
+  $('wImportFile').addEventListener('change', ev => {
+    const f = ev.target.files && ev.target.files[0]; if(!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      try{
+        let data = JSON.parse(fr.result);
+        if(data && Array.isArray(data.wes)) data = data.wes;
+        if(!Array.isArray(data)) throw new Error('bad');
+        const ids = new Set(wesEntries.map(e => e.id)); let n = 0;
+        data.forEach(e => { if(e && e.id && e.date && e.clockIn && !ids.has(e.id)){ wesEntries.push({id:e.id, date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakIn:e.breakIn||'', breakOut:e.breakOut||''}); n++; } });
+        saveWes(); renderWes(); toast(T().wesImported + n);
+      }catch(err){ toast(T().importFail); }
+      $('wImportFile').value = '';
+    };
+    fr.readAsText(f);
+  });
+
+  // ============================================================
   // home + routing
   // ============================================================
   function refreshHome(){
@@ -2764,6 +3163,7 @@
     if(name === 'home') refreshHome();
     if(name === 'docs') renderDocs();
     if(name === 'income') renderIncome();
+    if(name === 'wes') renderWes();
     if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
   }
@@ -2798,6 +3198,9 @@
     setTopbarTitle(); renderCompliance();
     if(currentView === 'docs') renderDocs();
     if(currentView === 'income') renderIncome();
+    $('wesFormTitle').textContent = W.editId ? T().wesEdit : T().wesNew;
+    $('wSave').textContent = W.editId ? T().wesUpdate : T().wesSave;
+    wUpdateCalc(); renderWes();
     refreshHome();
   }
   $('langToggle').addEventListener('click', () => { lang = lang === 'zh' ? 'en' : 'zh'; applyLang(); });
@@ -2808,9 +3211,10 @@
   fillSettings();
   renderProfessions();
   newDoc('receipt');
+  wReset();
   applyLang();
   refreshHome();
-  showView('home');
+  showView(location.hash === '#wes' ? 'wes' : 'home');
   if(restoredFromBackup) setTimeout(() => toast(T().restoredMsg + docs.length), 500);
 })();
 
