@@ -989,7 +989,7 @@
           <button class="ghost" id="wCsv" data-t="wesCsv">导出 Wes 记录 CSV</button>
           <button class="ghost" id="wImportOld" data-t="wesImportOld">导入旧 Wes 备份</button>
         </div>
-        <input type="file" id="wImportFile" accept="application/json,.json" style="display:none;">
+        <input type="file" id="wImportFile" accept=".csv,.json,text/csv,text/comma-separated-values,application/json,text/plain" style="display:none;">
       </div>
     </div>
   </section>
@@ -1281,7 +1281,7 @@
       wes_days:'上班天数', wes_hours:'总工时', wes_pay:'本月工资',
       wesLedgerTitle:'总记录', wesLedgerHint:'全部打卡记录，最新的在最上面',
       wes_th_date:'日期', wes_th_time:'时间', wes_th_hours:'工时', wes_th_amt:'金额', wes_th_ops:'操作',
-      wesGrand:'总数目', wesCsv:'导出 Wes 记录 CSV', wesImportOld:'导入旧 Wes 备份',
+      wesGrand:'总数目', wesCsv:'导出 Wes 记录 CSV', wesImportOld:'导入 Wes 记录（CSV / JSON）',
       wesEdit_btn:'修改', wesDel_btn:'删除', wesBreak:'休息',
       wesCalcEmpty:'填好上班和下班时间后会自动计算',
       wesCalc:'在场 {t} − 休息 {b} = 计薪 <b>{w}</b> → <b class="pay">{p}</b>',
@@ -1410,7 +1410,7 @@
       wes_days:'Days Worked', wes_hours:'Total Hours', wes_pay:'This Month',
       wesLedgerTitle:'Ledger', wesLedgerHint:'Every entry, newest first',
       wes_th_date:'Date', wes_th_time:'Time', wes_th_hours:'Hours', wes_th_amt:'Amount', wes_th_ops:'',
-      wesGrand:'Grand Total', wesCsv:'Export Wes CSV', wesImportOld:'Import old Wes backup',
+      wesGrand:'Grand Total', wesCsv:'Export Wes CSV', wesImportOld:'Import Wes records (CSV / JSON)',
       wesEdit_btn:'Edit', wesDel_btn:'Delete', wesBreak:'Break',
       wesCalcEmpty:'Fill in clock in and clock out to see the pay',
       wesCalc:'On site {t} − break {b} = paid <b>{w}</b> → <b class="pay">{p}</b>',
@@ -3113,18 +3113,57 @@
     download(`wes-part-time-${todayStr()}.csv`, '﻿' + [head, ...rows, foot].join('\r\n'), 'text/csv');
     toast(T().csvExported);
   });
-  // backups made by the old standalone Wes page (a plain array of entries)
+  // Import Wes records: JSON backups (old Wes page or Backstage) or CSV exports
+  // (old Wes page: 日期,上班,下班,休息开始,休息结束,… / new: Date,Clock In,…)
+  function wParseCsv(text){
+    const rows = [];
+    text.replace(/^﻿/, '').split(/\r?\n/).forEach(line => {
+      if(!line.trim()) return;
+      const cells = []; let cur = '', q = false;
+      for(let k = 0; k < line.length; k++){
+        const c = line[k];
+        if(q){ if(c === '"'){ if(line[k+1] === '"'){ cur += '"'; k++; } else q = false; } else cur += c; }
+        else if(c === '"') q = true;
+        else if(c === ','){ cells.push(cur); cur = ''; }
+        else cur += c;
+      }
+      cells.push(cur);
+      rows.push(cells.map(s => s.trim()));
+    });
+    const hm = s => { const m = /^(\d{1,2}):(\d{2})/.exec(s||''); return m ? `${pad2(m[1])}:${m[2]}` : ''; };
+    const ymd = s => {
+      let m = /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/.exec(s||''); if(m) return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
+      m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s||''); if(m) return `${m[3]}-${pad2(m[2])}-${pad2(m[1])}`; // DD/MM/YYYY (Excel re-save)
+      return '';
+    };
+    return rows.map(r => ({ date: ymd(r[0]), clockIn: hm(r[1]), clockOut: hm(r[2]), breakIn: hm(r[3]), breakOut: hm(r[4]) }))
+               .filter(e => e.date && e.clockIn && e.clockOut);   // skips header + total rows
+  }
   $('wImportOld').addEventListener('click', () => $('wImportFile').click());
   $('wImportFile').addEventListener('change', ev => {
     const f = ev.target.files && ev.target.files[0]; if(!f) return;
     const fr = new FileReader();
     fr.onload = () => {
       try{
-        let data = JSON.parse(fr.result);
-        if(data && Array.isArray(data.wes)) data = data.wes;
-        if(!Array.isArray(data)) throw new Error('bad');
-        const ids = new Set(wesEntries.map(e => e.id)); let n = 0;
-        data.forEach(e => { if(e && e.id && e.date && e.clockIn && !ids.has(e.id)){ wesEntries.push({id:e.id, date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakIn:e.breakIn||'', breakOut:e.breakOut||''}); n++; } });
+        const text = String(fr.result || '');
+        let data;
+        if(/^\s*[\[{]/.test(text.replace(/^﻿/, ''))){
+          data = JSON.parse(text.replace(/^﻿/, ''));
+          if(data && Array.isArray(data.wes)) data = data.wes;
+        } else {
+          data = wParseCsv(text);
+        }
+        if(!Array.isArray(data) || !data.length) throw new Error('bad');
+        const ids = new Set(wesEntries.map(e => e.id));
+        const sig = e => [e.date, e.clockIn, e.clockOut, e.breakIn||'', e.breakOut||''].join('|');
+        const sigs = new Set(wesEntries.map(sig));
+        let n = 0;
+        data.forEach(e => {
+          if(!e || !e.date || !e.clockIn || !e.clockOut) return;
+          const rec = { id: e.id || uid(), date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakIn:(e.breakIn && e.breakOut) ? e.breakIn : '', breakOut:(e.breakIn && e.breakOut) ? e.breakOut : '' };
+          if(ids.has(rec.id) || sigs.has(sig(rec))) return;   // already here
+          wesEntries.push(rec); ids.add(rec.id); sigs.add(sig(rec)); n++;
+        });
         saveWes(); renderWes(); toast(T().wesImported + n);
       }catch(err){ toast(T().importFail); }
       $('wImportFile').value = '';
