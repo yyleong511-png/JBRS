@@ -597,6 +597,32 @@
   .grand-total small{font-size:11.5px;color:var(--ink-soft);}
   .grand-total span{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--green);}
 
+  /* ---------- Outside part time + all-source totals ---------- */
+  .pt-detect{
+    font-size:12.5px;color:var(--ink-soft);background:var(--ivory);border:1px dashed var(--line);
+    border-radius:10px;padding:10px 12px;margin:-4px 0 6px;line-height:1.5;
+  }
+  .pt-detect b{color:var(--rose-deep);}
+  .pt-row{padding:14px 2px;border-bottom:1px solid var(--line-soft);}
+  .pt-row:last-child{border-bottom:none;}
+  .pt-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+  .pt-date{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;}
+  .pt-amt{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;white-space:nowrap;}
+  .pt-amt.unpaid{color:var(--amber);}
+  .pt-note{font-size:14px;margin-top:4px;line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+  .pt-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px;}
+  .pill.cat{background:#F6EEF1;color:var(--rose-deep);border-color:#E7D3DA;}
+  .src-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .src-table th{text-align:left;font-size:10.5px;color:var(--ink-soft);font-weight:600;padding:6px 4px;border-bottom:1px solid var(--ink);}
+  .src-table td{padding:11px 4px;border-bottom:1px solid var(--line-soft);}
+  .src-table .num{text-align:right;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+  .src-table td.due{color:var(--amber);}
+  .src-table tfoot td{border-bottom:none;border-top:2px solid var(--ink);font-weight:700;}
+  .src-table .src-name small{display:block;font-size:10.5px;color:var(--ink-mute);font-weight:400;}
+  .grand-total .gt-sub{font-size:11.5px;color:var(--ink-soft);margin-top:4px;font-family:'IBM Plex Mono',monospace;}
+  .cat-notes{font-size:11px;color:var(--ink-mute);margin-top:4px;line-height:1.5;}
+  .wes-paid-row{margin-top:10px;border-top:1px solid var(--line-soft);padding-bottom:0;}
+
   /* ---------- Print ---------- */
   #printRoot{display:none;}
   @media print{
@@ -667,11 +693,18 @@
           <div class="hc-desc" data-t="cardIncDesc">按职业领域拆解收入、成本与利润</div>
         </div>
       </button>
-      <button class="home-card wide" data-nav="wes">
+      <button class="home-card" data-nav="wes">
         <div class="hc-icon wes-ic"><img src="wes-logo.png" alt=""></div>
         <div>
           <div class="hc-title" data-t="cardWesTitle">Wes 兼职工时</div>
           <div class="hc-desc" data-t="cardWesDesc">Wardrobe Assistant 打卡上下班，自动按 RM10/小时计算工资</div>
+        </div>
+      </button>
+      <button class="home-card" data-nav="pt">
+        <div class="hc-icon">🎬</div>
+        <div>
+          <div class="hc-title" data-t="cardPtTitle">外接 Part Time</div>
+          <div class="hc-desc" data-t="cardPtDesc">Usher、TVC、演员等外接工作，写备注就会自动分类分析</div>
         </div>
       </button>
     </div>
@@ -878,6 +911,20 @@
       <button class="ghost" id="iClear" style="width:100%;" data-t="clearFilters2">清除筛选</button>
     </div>
 
+    <div class="panel">
+      <h2 data-t="h_allSources">所有来源总收入</h2>
+      <p class="hint" data-t="allSourcesHint">委托单据 + Wes 兼职 + 外接 Part Time，按上面选的日期计算</p>
+      <table class="src-table">
+        <thead><tr><th data-t="src_th">来源</th><th class="num" data-t="src_recv">已收</th><th class="num" data-t="src_due">未收</th></tr></thead>
+        <tbody id="srcBody"></tbody>
+        <tfoot><tr><td data-t="src_total">合计</td><td class="num" id="srcRecv">RM 0.00</td><td class="num due" id="srcDue">RM 0.00</td></tr></tfoot>
+      </table>
+      <div class="grand-total">
+        <small data-t="allGrandLabel">总收入（已收 + 未收）</small>
+        <span id="allGrand">RM 0.00</span>
+      </div>
+    </div>
+
     <div class="stats-bar">
       <div class="stat-box"><div class="sl" data-t="l_incReceived">实收收入</div><div class="sv" id="incReceived">RM 0.00</div></div>
       <div class="stat-box"><div class="sl" data-t="l_incProfit">净利润</div><div class="sv" id="incProfit">RM 0.00</div></div>
@@ -889,6 +936,13 @@
       <p class="hint" data-t="breakdownHint">只计算已经收到的钱（收据 + 已付清的发票）</p>
       <div id="catBreakdown"></div>
       <div class="empty-hint" id="incomeEmpty" style="display:none;"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_ptAnalysis">外接 Part Time 项目分析</h2>
+      <p class="hint" data-t="ptAnalysisHint">根据你写的备注自动分类，算出每类工作赚了多少</p>
+      <div id="ptBreakdown"></div>
+      <div id="ptInsights" style="margin-top:6px;"></div>
     </div>
 
     <div class="panel">
@@ -948,6 +1002,10 @@
           <span class="mn-title" id="wMonthTitle"></span>
           <button type="button" class="cal-nav" id="wNextM">›</button>
         </div>
+        <div class="switch-row wes-paid-row">
+          <div class="lab"><span data-t="wesPaidLabel">这个月的工资已收到</span><small data-t="wesPaidNote">还没发薪就保持关闭，这个月的 Wes 工资会算进「未收款」</small></div>
+          <button type="button" class="switch" id="wPaidSw" aria-label="paid"></button>
+        </div>
       </div>
       <div class="stats-bar">
         <div class="stat-box"><div class="sl" data-t="wes_days">上班天数</div><div class="sv" id="wDays">0</div></div>
@@ -990,6 +1048,57 @@
           <button class="ghost" id="wImportOld" data-t="wesImportOld">导入旧 Wes 备份</button>
         </div>
         <input type="file" id="wImportFile" accept=".csv,.json,text/csv,text/comma-separated-values,application/json,text/plain" style="display:none;">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OUTSIDE PART TIME ============ -->
+  <section id="view-pt" class="view">
+    <div class="panel">
+      <h2 id="ptFormTitle">新增 Part Time</h2>
+      <p class="hint" data-t="ptHint">Usher、TVC、演员、活动等外接工作。备注写清楚是什么工作，收入分析会自动帮你分类。</p>
+      <div class="field-row">
+        <div class="field"><label data-t="pt_l_date">日期</label><input type="text" id="ptDate" class="date-picker-input" readonly></div>
+        <div class="field"><label data-t="pt_l_amt">收入 (RM)</label><input type="text" inputmode="decimal" id="ptAmt" placeholder="0.00"></div>
+      </div>
+      <div class="field">
+        <label data-t="pt_l_note">备注</label>
+        <textarea id="ptNote" data-tp="ptNotePh" placeholder="例如：Usher @ Pavilion 新车发布会 / XX 品牌 TVC 拍摄 / 短片演员"></textarea>
+      </div>
+      <div class="pt-detect" id="ptDetect"></div>
+      <div class="switch-row">
+        <div class="lab"><span data-t="pt_l_paid">已经收到钱</span><small data-t="ptPaidNote">还没收到就关掉，会算进「未收款」</small></div>
+        <button type="button" class="switch on" id="ptPaid" aria-label="paid"></button>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="ptSave" data-t="ptSave">保存记录</button>
+        <button class="ghost" id="ptCancel" style="display:none;" data-t="ptCancel">取消编辑</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="month-nav">
+        <button type="button" class="cal-nav" id="ptPrevM">‹</button>
+        <span class="mn-title" id="ptMonthTitle"></span>
+        <button type="button" class="cal-nav" id="ptNextM">›</button>
+      </div>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-box"><div class="sl" data-t="pt_s_count">工作份数</div><div class="sv" id="ptCount">0</div></div>
+      <div class="stat-box"><div class="sl" data-t="pt_s_recv">已收</div><div class="sv pos" id="ptRecv">RM 0.00</div></div>
+      <div class="stat-box"><div class="sl" data-t="pt_s_due">未收</div><div class="sv due" id="ptDue">RM 0.00</div></div>
+    </div>
+    <div class="panel">
+      <div id="ptList"></div>
+    </div>
+    <div class="panel">
+      <div class="grand-total" style="margin-top:0;">
+        <small data-t="ptGrandLabel">外接 Part Time 全部总数</small>
+        <span id="ptGrand">RM 0.00</span>
+        <div class="gt-sub" id="ptGrandSub"></div>
+      </div>
+      <div class="btn-row">
+        <button class="ghost" id="ptCsv" data-t="ptCsv">导出 Part Time CSV</button>
       </div>
     </div>
   </section>
@@ -1170,7 +1279,7 @@
       title_home:'', title_docs:'单据记录', title_income:'收入分析', title_settings:'设置',
       title_invoice:'开立发票', title_receipt:'开立收据',
       homeSubtitle:'私人单据与收入记录系统',
-      hsReceived:'本月已收', hsDue:'未收款', hsCount:'单据总数',
+      hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', hsCount:'单据总数',
       cardInvTitle:'开立发票', cardInvDesc:'先向客户收费，可设定到期日与付款状态',
       cardRcpTitle:'开立收据', cardRcpDesc:'已收到钱之后，开一张付款证明给客户',
       cardDocsTitle:'单据记录', cardDocsDesc:'发票与收据分开管理，可筛选日期与类别',
@@ -1206,7 +1315,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
-      l_incReceived:'实收收入', l_incProfit:'净利润', l_incDue:'尚未收到',
+      l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
       h_breakdown:'收入分类拆解', breakdownHint:'只计算已经收到的钱（收据 + 已付清的发票），作废的不算',
       h_insights:'智能分析建议',
       docsEmpty:'这里还没有单据。回到首页开一张发票或收据吧。',
@@ -1292,14 +1401,48 @@
       wesSaved:'打卡记录已保存', wesUpdated:'记录已更新', wesDeleted:'记录已删除',
       wesConfirmDel:'确定删除 {d} 这条打卡记录吗？',
       wesImported:'已导入 Wes 记录：', wesNoRecords:'没有可以导出的记录',
-      weekdays:['日','一','二','三','四','五','六'], hr:'小时', min:'分'
+      weekdays:['日','一','二','三','四','五','六'], hr:'小时', min:'分',
+      wesPaidLabel:'这个月的工资已收到', wesPaidNote:'还没发薪就保持关闭，这个月的 Wes 工资会算进「未收款」',
+      title_pt:'外接 Part Time',
+      cardPtTitle:'外接 Part Time', cardPtDesc:'Usher、TVC、演员等外接工作，写备注就会自动分类分析',
+      ptHint:'Usher、TVC、演员、活动等外接工作。备注写清楚是什么工作，收入分析会自动帮你分类。',
+      ptNew:'新增 Part Time', ptEdit:'编辑 Part Time',
+      pt_l_date:'日期', pt_l_amt:'收入 (RM)', pt_l_note:'备注',
+      ptNotePh:'例如：Usher @ Pavilion 新车发布会 / XX 品牌 TVC 拍摄 / 短片演员',
+      pt_l_paid:'已经收到钱', ptPaidNote:'还没收到就关掉，会算进「未收款」',
+      ptSave:'保存记录', ptUpdate:'更新记录', ptCancel:'取消编辑',
+      pt_s_count:'工作份数', pt_s_recv:'已收', pt_s_due:'未收',
+      ptGrandLabel:'外接 Part Time 全部总数', ptGrandSub:'共 {n} 份 · 已收 {r} · 未收 {d}',
+      ptCsv:'导出 Part Time CSV',
+      ptDetectEmpty:'✦ 写下备注后，会在这里显示自动分类',
+      ptDetectHit:'✦ 自动分类：<b>{c}</b>',
+      ptDetectNew:'✦ 没有对上常见类别，会单独归为「<b>{c}</b>」',
+      ptPaidPill:'已收', ptUnpaidPill:'未收', ptMarkPaid:'标记已收',
+      ptMonthEmpty:'这个月还没有外接 part time 记录',
+      ptNeedDate:'请选择日期', ptNeedAmt:'请填写收入金额', ptNeedNote:'请写备注，说明是什么工作',
+      ptSaved:'Part time 记录已保存', ptUpdated:'记录已更新', ptDeleted:'记录已删除', ptMarked:'已标记为已收款',
+      ptConfirmDel:'确定删除 {d} 这条 part time 记录吗？',
+      ptOther:'其他',
+      h_allSources:'所有来源总收入', allSourcesHint:'委托单据 + Wes 兼职 + 外接 Part Time，按上面选的日期计算',
+      src_th:'来源', src_recv:'已收', src_due:'未收', src_total:'合计', allGrandLabel:'总收入（已收 + 未收）',
+      src_docs:'委托单据', src_docs_sub:'发票 / 收据', src_wes:'Wes 兼职', src_wes_sub:'{h} · RM10/小时', src_pt:'外接 Part Time', src_pt_sub:'{n} 份工作',
+      h_ptAnalysis:'外接 Part Time 项目分析', ptAnalysisHint:'根据你写的备注自动分类，算出每类工作赚了多少',
+      ptAnalysisEmpty:'这段期间还没有外接 part time 记录。',
+      ptCatSub:'{n} 份 · 平均 {a} / 份',
+      ptCatDue:' · 未收 {d}',
+      ptIns_total:'这段期间你接了 {n} 份外接 part time，共 {t}。',
+      ptIns_top:'赚最多的是「{c}」：{t}，占 part time 收入的 {p}%。',
+      ptIns_avg:'平均每份最高的是「{c}」，{a} / 份，值得多接。',
+      ptIns_max:'单份最高：「{note}」{t}（{d}）。',
+      ptIns_due:'还有 {n} 份没收到钱，共 {t}：{list}。记得跟进。',
+      ptIns_wes:'对比：Wes 兼职平均每天 {w}；外接 part time 平均每份 {p}。'
     },
     en:{
       toggleLabel:'中文',
       title_home:'', title_docs:'Documents', title_income:'Income', title_settings:'Settings',
       title_invoice:'New Invoice', title_receipt:'New Receipt',
       homeSubtitle:'Private billing and income records',
-      hsReceived:'Received this month', hsDue:'Outstanding', hsCount:'Documents',
+      hsReceived:'This month · all', hsDue:'Outstanding · all', hsCount:'Documents',
       cardInvTitle:'New Invoice', cardInvDesc:'Bill a client, with a due date and payment status',
       cardRcpTitle:'New Receipt', cardRcpDesc:'Confirm money you have already received',
       cardDocsTitle:'Documents', cardDocsDesc:'Invoices and receipts, filtered by date and category',
@@ -1335,7 +1478,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
-      l_incReceived:'Income Received', l_incProfit:'Net Profit', l_incDue:'Still Outstanding',
+      l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
       h_breakdown:'Income by Category', breakdownHint:'Counts money actually received (receipts + paid invoices); voided documents excluded',
       h_insights:'Smart Insights',
       docsEmpty:'No documents yet. Start an invoice or a receipt from the home screen.',
@@ -1421,7 +1564,41 @@
       wesSaved:'Entry saved', wesUpdated:'Entry updated', wesDeleted:'Entry deleted',
       wesConfirmDel:'Delete the entry for {d}?',
       wesImported:'Imported Wes entries: ', wesNoRecords:'Nothing to export',
-      weekdays:['Su','Mo','Tu','We','Th','Fr','Sa'], hr:'h', min:'m'
+      weekdays:['Su','Mo','Tu','We','Th','Fr','Sa'], hr:'h', min:'m',
+      wesPaidLabel:'Salary for this month received', wesPaidNote:'Leave off until you are paid — this month\'s Wes pay counts as outstanding',
+      title_pt:'Outside Part Time',
+      cardPtTitle:'Outside Part Time', cardPtDesc:'Usher, TVC, acting and other gigs — just write a note and it sorts itself',
+      ptHint:'Usher, TVC, acting, events and other outside gigs. Describe the job in the note and Income sorts it for you.',
+      ptNew:'New Part Time', ptEdit:'Edit Part Time',
+      pt_l_date:'Date', pt_l_amt:'Pay (RM)', pt_l_note:'Note',
+      ptNotePh:'e.g. Usher @ Pavilion car launch / XX brand TVC shoot / short film actor',
+      pt_l_paid:'Money received', ptPaidNote:'Switch off if not paid yet — it counts as outstanding',
+      ptSave:'Save Entry', ptUpdate:'Update Entry', ptCancel:'Cancel Edit',
+      pt_s_count:'Gigs', pt_s_recv:'Received', pt_s_due:'Outstanding',
+      ptGrandLabel:'Outside part time — all time', ptGrandSub:'{n} gigs · received {r} · outstanding {d}',
+      ptCsv:'Export Part Time CSV',
+      ptDetectEmpty:'✦ Write a note and the category shows here',
+      ptDetectHit:'✦ Category: <b>{c}</b>',
+      ptDetectNew:'✦ No common category matched — it will be grouped as "<b>{c}</b>"',
+      ptPaidPill:'Paid', ptUnpaidPill:'Unpaid', ptMarkPaid:'Mark paid',
+      ptMonthEmpty:'No outside part time this month',
+      ptNeedDate:'Choose a date', ptNeedAmt:'Enter the pay amount', ptNeedNote:'Write a note describing the job',
+      ptSaved:'Part time saved', ptUpdated:'Entry updated', ptDeleted:'Entry deleted', ptMarked:'Marked as paid',
+      ptConfirmDel:'Delete the part time entry for {d}?',
+      ptOther:'Other',
+      h_allSources:'Total income, all sources', allSourcesHint:'Documents + Wes part time + outside part time, for the dates chosen above',
+      src_th:'Source', src_recv:'Received', src_due:'Outstanding', src_total:'Total', allGrandLabel:'Total income (received + outstanding)',
+      src_docs:'Documents', src_docs_sub:'Invoices / receipts', src_wes:'Wes part time', src_wes_sub:'{h} · RM10/hour', src_pt:'Outside part time', src_pt_sub:'{n} gigs',
+      h_ptAnalysis:'Outside part time by project', ptAnalysisHint:'Sorted automatically from your notes, with what each kind of job earned',
+      ptAnalysisEmpty:'No outside part time in this period yet.',
+      ptCatSub:'{n} gigs · avg {a} / gig',
+      ptCatDue:' · {d} outstanding',
+      ptIns_total:'You did {n} outside part time gigs in this period, {t} in total.',
+      ptIns_top:'Top earner: "{c}" — {t}, {p}% of part time income.',
+      ptIns_avg:'"{c}" pays the most per gig at {a} — worth taking more of.',
+      ptIns_max:'Biggest single gig: "{note}" {t} ({d}).',
+      ptIns_due:'{n} gig(s) still unpaid, {t} in total: {list}. Worth following up.',
+      ptIns_wes:'For comparison: Wes averages {w} per day; outside part time averages {p} per gig.'
     }
   };
   const COMPLIANCE = {
@@ -1520,7 +1697,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -1564,7 +1741,19 @@
   }
   function saveWes(){ localStorage.setItem(WES_KEY, JSON.stringify(wesEntries)); saveBackup(); }
 
-  saveBiz(); saveDocs(); saveProfessions(); saveWes();
+  // months (YYYY-MM) whose Wes salary has been received
+  let wesPaidMonths = readJSON('wes-paid-months', null);
+  // outside part time gigs: {id, date, amount, note, paid}
+  let ptEntries = readJSON('jl.parttime', null);
+  {
+    const bak1 = readJSON(BAK_KEY, []);
+    if(!Array.isArray(wesPaidMonths)){ const hit = bak1.find(x => x && Array.isArray(x.wesPaid)); wesPaidMonths = hit ? hit.wesPaid : []; }
+    if(!Array.isArray(ptEntries)){ const hit = bak1.find(x => x && Array.isArray(x.parttime) && x.parttime.length); ptEntries = hit ? hit.parttime : []; }
+  }
+  function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); saveBackup(); }
+  function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
+
+  saveBiz(); saveDocs(); saveProfessions(); saveWes(); saveWesPaid(); savePt();
 
   // ============================================================
   // toast + sheet
@@ -1672,7 +1861,7 @@
       popup.style.display = 'block';
     });
   }
-  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate'].forEach(id => initDatePicker($(id)));
+  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate'].forEach(id => initDatePicker($(id)));
 
   // ============================================================
   // editor state
@@ -2372,6 +2561,8 @@
       </div>`;
     }).join('');
     renderInsights(earned, rows, income, due);
+    renderAllSources(s, e);
+    renderPtAnalysis(s, e);
   }
   function renderInsights(earned, rows, income, due){
     const box = $('insightsBox');
@@ -2626,7 +2817,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:5, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:6, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -2656,6 +2847,8 @@
         docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
         if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
         if(Array.isArray(data.wes)){ wesEntries = data.wes; saveWes(); }
+        if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; saveWesPaid(); }
+        if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         saveBiz(); saveDocs(); saveProfessions();
         fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
         toast(T().imported);
@@ -2673,6 +2866,8 @@
     if(latest.biz) biz = Object.assign({}, DEFAULTS, biz, latest.biz);
     if(Array.isArray(latest.professions) && latest.professions.length) professions = latest.professions;
     if(Array.isArray(latest.wes) && latest.wes.length){ wesEntries = latest.wes; saveWes(); }
+    if(Array.isArray(latest.wesPaid)){ wesPaidMonths = latest.wesPaid; saveWesPaid(); }
+    if(Array.isArray(latest.parttime) && latest.parttime.length){ ptEntries = latest.parttime; savePt(); }
     saveBiz(); saveDocs(); saveProfessions();
     fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
     toast(T().restored);
@@ -3025,6 +3220,11 @@
     W.month = `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
     renderWes();
   }
+  $('wPaidSw').addEventListener('click', () => {
+    if(wesPaidMonths.includes(W.month)) wesPaidMonths = wesPaidMonths.filter(m => m !== W.month);
+    else wesPaidMonths.push(W.month);
+    saveWesPaid(); renderWes();
+  });
   $('wPrevM').addEventListener('click', () => wShift(-1));
   $('wNextM').addEventListener('click', () => wShift(1));
   function wSetTab(tab){
@@ -3056,6 +3256,7 @@
         <div><div class="wr-amt">${fmt(r.pay)}</div><div class="row-btns">${wRowBtns(e.id)}</div></div>
       </div>`;
     }).join('') : `<div class="empty-hint">${esc(T().wesMonthEmpty)}</div>`;
+    $('wPaidSw').classList.toggle('on', wesPaidMonths.includes(W.month));
     $('wDays').textContent = days.size;
     $('wHours').textContent = wHrs(mins);
     $('wPay').textContent = fmt(pay);
@@ -3172,14 +3373,242 @@
   });
 
   // ============================================================
+  // Outside part time — free-text note, sorted automatically
+  // ============================================================
+  // Built-in smart categoriser: reads the note (English / 中文 / Malay keywords)
+  // and puts each gig in a project type. Runs entirely on the device.
+  const PT_CATS = [
+    {k:'usher',   zh:'Usher / 礼仪接待', en:'Usher / Hostess',     w:['usher','ushers','礼仪','接待','迎宾','礼宾','hostess','brand ambassador','ambassador','sambut tetamu']},
+    {k:'mc',      zh:'主持 / MC',        en:'MC / Host',           w:['mc','emcee','主持','司仪','host','hosting','pengacara']},
+    {k:'extra',   zh:'临演 / 群演',      en:'Extra / Background',  w:['临演','群演','临时演员','背景演员','extra','extras','background talent','background actor']},
+    {k:'tvc',     zh:'TVC / 广告',       en:'TVC / Commercial',    w:['tvc','dvc','广告','commercial','iklan','tv ad','video ad','ad shoot','advert']},
+    {k:'acting',  zh:'演员 / 戏剧',      en:'Acting',              w:['演员','演戏','拍戏','actor','actress','acting','drama','film','电影','短片','短剧','web series','角色','movie','舞台剧','theatre','theater','pelakon','lakonan','cameo']},
+    {k:'runway',  zh:'走秀',             en:'Runway / Show',       w:['runway','fashion show','走秀','catwalk']},
+    {k:'promoter',zh:'Promoter / 路演',  en:'Promoter / Roadshow', w:['promoter','促销','推广','sampling','roadshow','路演','booth','摊位','sales']},
+    {k:'shoot',   zh:'拍摄 / 内容',      en:'Shoot / Content',     w:['shoot','shooting','拍摄','photoshoot','拍照','video','视频','content','kol','ugc','直播','live stream','livestream','influencer']},
+    {k:'voice',   zh:'配音',             en:'Voice-over',          w:['voice over','voiceover','配音','vo']},
+    {k:'event',   zh:'活动 / 展会',      en:'Event / Expo',        w:['event','活动','expo','展会','展览','launch','发布会','晚宴','dinner','gala','wedding','婚礼','concert','演唱会','festival','party','派对','acara','majlis']},
+    {k:'crew',    zh:'幕后 / 助理',      en:'Crew / Assistant',    w:['crew','助理','assistant','幕后','后台','backstage','wardrobe','造型助理']}
+  ];
+  const ptRe = w => new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z0-9]|$)');
+  PT_CATS.forEach(c => { c.tests = c.w.map(w => /[a-z]/.test(w) ? (s => ptRe(w).test(s)) : (s => s.includes(w))); });
+  function ptCategory(note){
+    const s = String(note || '').toLowerCase();
+    if(!s.trim()) return { key:'other', label:T().ptOther, known:false };
+    for(const c of PT_CATS){ if(c.tests.some(t => t(s))) return { key:c.k, label: lang==='zh' ? c.zh : c.en, known:true }; }
+    // not a common type: group by the first phrase of the note, so similar jobs still add up together
+    let first = String(note).split(/[@\-–—·|,，、:：()（）\/\n。.!！]|\s(?:at|for|in|with|di|untuk|dengan)\s/i)[0].trim();
+    if(first.length > 24){ const cut = first.slice(0, 24); first = cut.includes(' ') ? cut.slice(0, cut.lastIndexOf(' ')) : cut; }
+    return first ? { key:'x:' + first.toLowerCase(), label:first, known:false } : { key:'other', label:T().ptOther, known:false };
+  }
+
+  const P = { editId:null, month: todayStr().slice(0,7) };
+  function ptSetPaid(on){ $('ptPaid').classList.toggle('on', !!on); }
+  function ptUpdateDetect(){
+    const note = $('ptNote').value;
+    if(!note.trim()){ $('ptDetect').textContent = T().ptDetectEmpty; return; }
+    const c = ptCategory(note);
+    $('ptDetect').innerHTML = (c.known ? T().ptDetectHit : T().ptDetectNew).replace('{c}', esc(c.label));
+  }
+  function ptReset(){
+    P.editId = null;
+    $('ptDate').value = todayStr(); $('ptAmt').value = ''; $('ptNote').value = '';
+    ptSetPaid(true);
+    $('ptFormTitle').textContent = T().ptNew;
+    $('ptSave').textContent = T().ptSave;
+    $('ptCancel').style.display = 'none';
+    ptUpdateDetect();
+  }
+  $('ptPaid').addEventListener('click', () => ptSetPaid(!$('ptPaid').classList.contains('on')));
+  $('ptNote').addEventListener('input', ptUpdateDetect);
+  $('ptCancel').addEventListener('click', ptReset);
+  $('ptSave').addEventListener('click', () => {
+    const rec = { date:$('ptDate').value, amount: Math.round(num($('ptAmt').value)*100)/100, note:$('ptNote').value.trim(), paid:$('ptPaid').classList.contains('on') };
+    if(!rec.date){ toast(T().ptNeedDate); return; }
+    if(!(rec.amount > 0)){ toast(T().ptNeedAmt); return; }
+    if(!rec.note){ toast(T().ptNeedNote); return; }
+    if(P.editId){
+      ptEntries = ptEntries.map(x => x.id === P.editId ? Object.assign({}, rec, {id:P.editId}) : x);
+      toast(T().ptUpdated);
+    } else {
+      ptEntries.push(Object.assign({}, rec, {id: uid()}));
+      toast(T().ptSaved);
+    }
+    savePt();
+    P.month = rec.date.slice(0,7);
+    ptReset(); renderPt();
+  });
+  function ptShift(n){
+    const [y,m] = P.month.split('-').map(Number);
+    const d = new Date(y, m-1+n, 1);
+    P.month = `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
+    renderPt();
+  }
+  $('ptPrevM').addEventListener('click', () => ptShift(-1));
+  $('ptNextM').addEventListener('click', () => ptShift(1));
+  function monthTitle(ym){
+    const [y,m] = ym.split('-').map(Number);
+    return lang === 'zh' ? `${y} 年 ${m} 月` : new Date(y, m-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+  }
+  function renderPt(){
+    $('ptMonthTitle').textContent = monthTitle(P.month);
+    const list = ptEntries.filter(e => (e.date||'').startsWith(P.month)).sort((a,b) => (a.date||'').localeCompare(b.date||''));
+    let recv = 0, due = 0;
+    $('ptList').innerHTML = list.length ? list.map(e => {
+      const c = ptCategory(e.note);
+      if(e.paid) recv += e.amount||0; else due += e.amount||0;
+      const wd = T().weekdays[new Date(e.date + 'T00:00:00').getDay()];
+      return `<div class="pt-row">
+        <div class="pt-top">
+          <span class="pt-date">${esc(e.date)} (${wd})</span>
+          <span class="pt-amt${e.paid?'':' unpaid'}">${fmt(e.amount)}</span>
+        </div>
+        <div class="pt-note">${esc(e.note)}</div>
+        <div class="pt-meta">
+          <span class="pill cat">${esc(c.label)}</span>
+          <span class="pill ${e.paid?'paid':'unpaid'}">${esc(e.paid ? T().ptPaidPill : T().ptUnpaidPill)}</span>
+        </div>
+        <div class="row-btns">
+          ${e.paid ? '' : `<button type="button" data-ptpay="${esc(e.id)}">${esc(T().ptMarkPaid)}</button>`}
+          <button type="button" data-ptedit="${esc(e.id)}">${esc(T().wesEdit_btn)}</button>
+          <button type="button" class="del" data-ptdel="${esc(e.id)}">${esc(T().wesDel_btn)}</button>
+        </div>
+      </div>`;
+    }).join('') : `<div class="empty-hint">${esc(T().ptMonthEmpty)}</div>`;
+    $('ptCount').textContent = list.length;
+    $('ptRecv').textContent = fmt(recv);
+    $('ptDue').textContent = fmt(due);
+    const allRecv = ptEntries.filter(e => e.paid).reduce((a,e) => a+(e.amount||0), 0);
+    const allDue = ptEntries.filter(e => !e.paid).reduce((a,e) => a+(e.amount||0), 0);
+    $('ptGrand').textContent = fmt(allRecv + allDue);
+    $('ptGrandSub').textContent = T().ptGrandSub.replace('{n}', ptEntries.length).replace('{r}', fmt(allRecv)).replace('{d}', fmt(allDue));
+  }
+  $('view-pt').addEventListener('click', ev => {
+    const ed = ev.target.closest('[data-ptedit]'), dl = ev.target.closest('[data-ptdel]'), py = ev.target.closest('[data-ptpay]');
+    if(ed){
+      const e = ptEntries.find(x => x.id === ed.dataset.ptedit); if(!e) return;
+      P.editId = e.id;
+      $('ptDate').value = e.date; $('ptAmt').value = e.amount; $('ptNote').value = e.note || '';
+      ptSetPaid(e.paid);
+      $('ptFormTitle').textContent = T().ptEdit;
+      $('ptSave').textContent = T().ptUpdate;
+      $('ptCancel').style.display = '';
+      ptUpdateDetect();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    if(dl){
+      const e = ptEntries.find(x => x.id === dl.dataset.ptdel); if(!e) return;
+      if(!confirm(T().ptConfirmDel.replace('{d}', e.date))) return;
+      ptEntries = ptEntries.filter(x => x.id !== e.id);
+      if(P.editId === e.id) ptReset();
+      savePt(); renderPt(); toast(T().ptDeleted);
+    }
+    if(py){
+      ptEntries = ptEntries.map(x => x.id === py.dataset.ptpay ? Object.assign({}, x, {paid:true}) : x);
+      savePt(); renderPt(); toast(T().ptMarked);
+    }
+  });
+  $('ptCsv').addEventListener('click', () => {
+    if(!ptEntries.length){ toast(T().wesNoRecords); return; }
+    const q = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
+    const rows = ptEntries.slice().sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(e =>
+      [e.date, ptCategory(e.note).label, e.note, (e.amount||0).toFixed(2), e.paid ? 'paid' : 'unpaid'].map(q).join(','));
+    const total = ptEntries.reduce((a,e) => a+(e.amount||0), 0);
+    download(`outside-part-time-${todayStr()}.csv`,
+      '﻿' + [['Date','Category','Note','Amount (RM)','Status'].map(q).join(','), ...rows, ['Total','','',total.toFixed(2),''].map(q).join(',')].join('\r\n'), 'text/csv');
+    toast(T().csvExported);
+  });
+
+  // ---------- totals across every income source ----------
+  const wesPaidFor = e => wesPaidMonths.includes(String(e.date||'').slice(0,7));
+  function sourceTotals(inWin){
+    const dRecv = docs.filter(d => isIncome(d) && inWin(d.date)).reduce((a,d) => a+(d.total||0), 0);
+    const dDue  = docs.filter(d => isOutstanding(d) && inWin(d.date)).reduce((a,d) => a+(d.total||0), 0);
+    let wRecv = 0, wDue = 0, wMin = 0; const wDays = new Set();
+    wesEntries.filter(e => inWin(e.date)).forEach(e => {
+      const r = wesCalc(e); if(!r) return;
+      wMin += r.work; wDays.add(e.date);
+      if(wesPaidFor(e)) wRecv += r.pay; else wDue += r.pay;
+    });
+    const pts = ptEntries.filter(e => inWin(e.date));
+    const pRecv = pts.filter(e => e.paid).reduce((a,e) => a+(e.amount||0), 0);
+    const pDue  = pts.filter(e => !e.paid).reduce((a,e) => a+(e.amount||0), 0);
+    return { dRecv, dDue, wRecv, wDue, wMin, wDays: wDays.size, pRecv, pDue, pCount: pts.length,
+             recv: dRecv + wRecv + pRecv, due: dDue + wDue + pDue };
+  }
+  function renderAllSources(s, e){
+    const t = sourceTotals(ds => !(s||e) || inRange(ds, s, e));
+    const row = (name, sub, r, d) => `<tr><td class="src-name">${esc(name)}<small>${esc(sub)}</small></td><td class="num">${fmt(r)}</td><td class="num due">${fmt(d)}</td></tr>`;
+    $('srcBody').innerHTML =
+      row(T().src_docs, T().src_docs_sub, t.dRecv, t.dDue) +
+      row(T().src_wes, T().src_wes_sub.replace('{h}', (t.wMin/60).toFixed(1) + 'h'), t.wRecv, t.wDue) +
+      row(T().src_pt, T().src_pt_sub.replace('{n}', t.pCount), t.pRecv, t.pDue);
+    $('srcRecv').textContent = fmt(t.recv);
+    $('srcDue').textContent = fmt(t.due);
+    $('allGrand').textContent = fmt(t.recv + t.due);
+  }
+  function renderPtAnalysis(s, e){
+    const inWin = ds => !(s||e) || inRange(ds, s, e);
+    const list = ptEntries.filter(x => inWin(x.date));
+    if(!list.length){
+      $('ptBreakdown').innerHTML = `<div class="empty-hint">${esc(T().ptAnalysisEmpty)}</div>`;
+      $('ptInsights').innerHTML = '';
+      return;
+    }
+    const groups = {};
+    list.forEach(x => {
+      const c = ptCategory(x.note);
+      if(!groups[c.key]) groups[c.key] = { label:c.label, total:0, due:0, count:0, notes:[] };
+      const g = groups[c.key];
+      g.total += x.amount||0; g.count++; if(!x.paid) g.due += x.amount||0;
+      if(g.notes.length < 3) g.notes.push(x.note);
+    });
+    const rows = Object.values(groups).sort((a,b) => b.total - a.total);
+    const total = rows.reduce((a,r) => a + r.total, 0);
+    const max = rows[0].total;
+    $('ptBreakdown').innerHTML = rows.map(r => {
+      const pct = max > 0 ? r.total/max*100 : 0, share = total > 0 ? r.total/total*100 : 0;
+      const sub = T().ptCatSub.replace('{n}', r.count).replace('{a}', fmt(r.total/r.count)) + (r.due > 0 ? T().ptCatDue.replace('{d}', fmt(r.due)) : '');
+      return `<div class="cat-row">
+        <div class="cat-row-top">
+          <div class="cat-name">${esc(r.label)}</div>
+          <div class="cat-figures"><b>${fmt(r.total)}</b> · ${share.toFixed(0)}%</div>
+        </div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+        <div class="cat-sub">${esc(sub)}</div>
+        <div class="cat-notes">${r.notes.map(n => esc(n.length > 40 ? n.slice(0,40) + '…' : n)).join(' · ')}</div>
+      </div>`;
+    }).join('');
+
+    const out = [];
+    out.push(['🎬', T().ptIns_total.replace('{n}', list.length).replace('{t}', fmt(total))]);
+    if(rows.length > 1){
+      out.push(['💡', T().ptIns_top.replace('{c}', rows[0].label).replace('{t}', fmt(rows[0].total)).replace('{p}', (rows[0].total/total*100).toFixed(0))]);
+      const best = rows.slice().sort((a,b) => b.total/b.count - a.total/a.count)[0];
+      if(best !== rows[0]) out.push(['⭐', T().ptIns_avg.replace('{c}', best.label).replace('{a}', fmt(best.total/best.count))]);
+    }
+    const top1 = list.slice().sort((a,b) => (b.amount||0) - (a.amount||0))[0];
+    if(list.length > 1) out.push(['🏆', T().ptIns_max.replace('{note}', top1.note.length > 30 ? top1.note.slice(0,30) + '…' : top1.note).replace('{t}', fmt(top1.amount)).replace('{d}', top1.date)]);
+    const unpaid = list.filter(x => !x.paid);
+    if(unpaid.length){
+      out.push(['📬', T().ptIns_due.replace('{n}', unpaid.length).replace('{t}', fmt(unpaid.reduce((a,x) => a+(x.amount||0), 0)))
+        .replace('{list}', unpaid.slice(0,3).map(x => (x.note.length > 16 ? x.note.slice(0,16) + '…' : x.note)).join('、') + (unpaid.length > 3 ? '…' : ''))]);
+    }
+    const st = sourceTotals(inWin);
+    if(st.wDays > 0) out.push(['⚖️', T().ptIns_wes.replace('{w}', fmt((st.wRecv + st.wDue) / st.wDays)).replace('{p}', fmt(total / list.length))]);
+    $('ptInsights').innerHTML = out.map(([em,t]) => `<div class="insight-item"><span class="insight-emoji">${em}</span><span>${esc(t)}</span></div>`).join('');
+  }
+
+  // ============================================================
   // home + routing
   // ============================================================
   function refreshHome(){
     const now = new Date();
     const mStart = toStr(new Date(now.getFullYear(), now.getMonth(), 1));
     const mEnd = toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
-    const received = docs.filter(d => isIncome(d) && inRange(d.date, mStart, mEnd)).reduce((a,d)=>a+(d.total||0),0);
-    const due = docs.filter(isOutstanding).reduce((a,d)=>a+(d.total||0),0);
+    // this month's received money from every source; outstanding = everything still owed
+    const received = sourceTotals(ds => inRange(ds, mStart, mEnd)).recv;
+    const due = sourceTotals(() => true).due;
     $('hsReceived').textContent = fmtShort(received);
     $('hsDue').textContent = fmtShort(due);
     $('hsCount').textContent = docs.length;
@@ -3203,6 +3632,7 @@
     if(name === 'docs') renderDocs();
     if(name === 'income') renderIncome();
     if(name === 'wes') renderWes();
+    if(name === 'pt') renderPt();
     if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
   }
@@ -3240,6 +3670,9 @@
     $('wesFormTitle').textContent = W.editId ? T().wesEdit : T().wesNew;
     $('wSave').textContent = W.editId ? T().wesUpdate : T().wesSave;
     wUpdateCalc(); renderWes();
+    $('ptFormTitle').textContent = P.editId ? T().ptEdit : T().ptNew;
+    $('ptSave').textContent = P.editId ? T().ptUpdate : T().ptSave;
+    ptUpdateDetect(); renderPt();
     refreshHome();
   }
   $('langToggle').addEventListener('click', () => { lang = lang === 'zh' ? 'en' : 'zh'; applyLang(); });
@@ -3251,9 +3684,10 @@
   renderProfessions();
   newDoc('receipt');
   wReset();
+  ptReset();
   applyLang();
   refreshHome();
-  showView(location.hash === '#wes' ? 'wes' : 'home');
+  showView(location.hash === '#wes' ? 'wes' : location.hash === '#pt' ? 'pt' : 'home');
   if(restoredFromBackup) setTimeout(() => toast(T().restoredMsg + docs.length), 500);
 })();
 

@@ -37,6 +37,11 @@
       "name": "Wes Part Time",
       "short_name": "Wes",
       "url": "./index.html#wes"
+    },
+    {
+      "name": "Outside Part Time",
+      "short_name": "Part Time",
+      "url": "./index.html#pt"
     }
   ]
 }
