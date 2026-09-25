@@ -42,6 +42,11 @@
       "name": "Outside Part Time",
       "short_name": "Part Time",
       "url": "./index.html#pt"
+    },
+    {
+      "name": "Rate Calculator",
+      "short_name": "Quote",
+      "url": "./index.html#quote"
     }
   ]
 }

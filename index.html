@@ -644,6 +644,36 @@
   .pc-btns button{flex:1;min-height:54px;font-size:16px;}
   .pc-undo{background:none;border:none;color:var(--ink-soft);font-size:12.5px;text-decoration:underline;cursor:pointer;margin-top:10px;font-family:'Inter',sans-serif;padding:6px;}
 
+  /* ---------- Quotation calculator ---------- */
+  .q-sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .q-sec-head h2{margin:0;}
+  .q-body{margin-top:14px;}
+  .q-body.off{display:none;}
+  .stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:10px;background:var(--ivory);overflow:hidden;min-height:var(--tap);}
+  .stepper button{width:46px;align-self:stretch;border:none;background:none;font-size:20px;color:var(--rose-deep);cursor:pointer;flex:none;}
+  .stepper button:active{background:#fff;}
+  .stepper span{flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;}
+  .q-pkg-info{font-size:12px;color:var(--ink-soft);background:var(--ivory);border-radius:10px;padding:10px 12px;margin:-2px 0 14px;line-height:1.55;}
+  .q-lic{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line-soft);}
+  .q-lic:last-child{border-bottom:none;}
+  .q-lic .lab{font-size:14px;flex:1;}
+  .q-lic .lab small{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .q-lic .amt{width:110px;flex:none;}
+  .q-lic .amt input{text-align:right;font-family:'IBM Plex Mono',monospace;padding:9px 10px;min-height:40px;}
+  .q-result{border:1.5px solid var(--rose-deep);}
+  .q-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .q-line:last-of-type{border-bottom:none;}
+  .q-line .ql-d small{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .q-line .ql-a{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;}
+  .q-line.note .ql-a{color:var(--ink-mute);font-weight:500;}
+  .q-total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:8px;padding-top:12px;}
+  .q-total span:first-child{font-weight:600;}
+  .q-total span:last-child{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;color:var(--rose-deep);}
+  .q-warn{font-size:12.5px;color:var(--amber);background:#FBF1E4;border:1px solid #EBD9BC;border-radius:10px;padding:9px 12px;margin-top:10px;line-height:1.5;}
+  .q-empty{font-size:13px;color:var(--ink-soft);text-align:center;padding:14px 0;}
+  .rate-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
+  .rate-grid .field input{font-family:'IBM Plex Mono',monospace;}
+
   /* ---------- Print ---------- */
   #printRoot{display:none;}
   @media print{
@@ -698,6 +728,13 @@
         <div>
           <div class="hc-title" data-t="cardRcpTitle">开立收据</div>
           <div class="hc-desc" data-t="cardRcpDesc">已收到钱之后，开一张付款证明给客户</div>
+        </div>
+      </button>
+      <button class="home-card wide" data-nav="quote">
+        <div class="hc-icon">🧮</div>
+        <div>
+          <div class="hc-title" data-t="cardQuoteTitle">模特服务费计算器</div>
+          <div class="hc-desc" data-t="cardQuoteDesc">按时数、造型、妆造和授权自动算报价，一键复制或开成发票</div>
         </div>
       </button>
       <button class="home-card" data-nav="docs">
@@ -1140,6 +1177,90 @@
     </div>
   </section>
 
+  <!-- ============ QUOTATION CALCULATOR ============ -->
+  <section id="view-quote" class="view">
+    <div class="panel">
+      <h2 data-t="q_h_client">客户</h2>
+      <div class="field" style="margin-top:14px;margin-bottom:0;">
+        <label data-t="q_l_client">客户 / 品牌名称（选填）</label>
+        <input type="text" id="qClient" data-tp="clientPh" placeholder="例如：ABC Cosmetics">
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="q-sec-head"><h2 data-t="q_h_model">模特拍摄费</h2><button type="button" class="switch" data-qsw="model" aria-label="model"></button></div>
+      <div class="q-body" id="qModelBody">
+        <div class="seg" id="qPkgSeg">
+          <button type="button" data-pkg="hourly" data-t="q_pkg_hourly">按小时</button>
+          <button type="button" data-pkg="half" data-t="q_pkg_half">半天</button>
+          <button type="button" data-pkg="full" data-t="q_pkg_full">全天</button>
+        </div>
+        <div class="q-pkg-info" id="qPkgInfo" style="margin-top:12px;"></div>
+        <div class="field-row">
+          <div class="field">
+            <label data-t="q_l_hours">实际拍摄时数</label>
+            <input type="text" inputmode="decimal" id="qHours" placeholder="2">
+            <div class="sub" data-t="q_hours_sub">只算拍摄时间，化妆、发型、换装时间不算</div>
+          </div>
+          <div class="field">
+            <label data-t="q_l_looks">造型数量</label>
+            <div class="stepper"><button type="button" data-step="looks" data-d="-1">−</button><span id="qLooks">1</span><button type="button" data-step="looks" data-d="1">+</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="q-sec-head"><h2 data-t="q_h_mua">妆造 MUA</h2><button type="button" class="switch" data-qsw="mua" aria-label="mua"></button></div>
+      <div class="q-body" id="qMuaBody">
+        <div class="field" style="margin-bottom:6px;">
+          <label data-t="q_l_muaLooks">完整妆造套数</label>
+          <div class="stepper"><button type="button" data-step="muaLooks" data-d="-1">−</button><span id="qMuaLooks">1</span><button type="button" data-step="muaLooks" data-d="1">+</button></div>
+          <div class="sub" id="qMuaSub"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="q_h_extra">额外费用</h2>
+      <div class="field-row" style="margin-top:14px;">
+        <div class="field">
+          <label id="qFitLabel">试装时数</label>
+          <input type="text" inputmode="decimal" id="qFitting" placeholder="0">
+        </div>
+        <div class="field">
+          <label id="qTransLabel">交通费 (RM)</label>
+          <input type="text" inputmode="decimal" id="qTransport" placeholder="0">
+          <div class="sub" id="qTransSub"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="q_h_lic">肖像使用授权</h2>
+      <p class="hint" data-t="q_lic_hint">独立收费，不含在模特拍摄费里。需在拍摄前确认。</p>
+      <div class="q-lic"><div class="lab" id="qLicSocialLab"></div><button type="button" class="switch" data-qsw="social" aria-label="social"></button></div>
+      <div class="q-lic"><div class="lab" id="qLicPrintLab"></div><button type="button" class="switch" data-qsw="print" aria-label="print"></button></div>
+      <div class="q-lic"><div class="lab" id="qLicGlobalLab"></div><div class="amt"><input type="text" inputmode="decimal" id="qGlobalAmt"></div><button type="button" class="switch" data-qsw="global" aria-label="global"></button></div>
+      <div class="q-lic"><div class="lab" id="qLicAiLab"></div><div class="amt"><input type="text" inputmode="decimal" id="qAiAmt" data-tp="q_ai_ph" placeholder="另行报价"></div><button type="button" class="switch" data-qsw="ai" aria-label="ai"></button></div>
+    </div>
+
+    <div class="panel q-result">
+      <h2 data-t="q_h_result">报价明细</h2>
+      <div id="qLines"></div>
+      <div class="q-total"><span data-t="q_total">报价总额</span><span id="qTotal">RM 0.00</span></div>
+      <div id="qWarns"></div>
+      <div class="btn-row">
+        <button class="secondary" id="qCopyEn" data-t="q_copyEn">复制英文报价</button>
+        <button class="ghost" id="qCopyZh" data-t="q_copyZh">复制中文报价</button>
+      </div>
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="primary" id="qToInvoice" data-t="q_toInvoice">开成发票</button>
+        <button class="ghost" id="qReset" data-t="q_reset">清空重算</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SETTINGS ============ -->
   <section id="view-settings" class="view">
 
@@ -1239,6 +1360,18 @@
         <div class="field"><label data-t="l_link2url">按钮 2 链接</label><input type="text" id="link2Url"></div>
       </div>
       <button class="primary" id="btnSaveBiz4" style="width:100%;" data-t="btnSaveBiz">保存资料</button>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_rates">报价计算器费率</h2>
+      <p class="hint" data-t="ratesHint">模特服务费计算器用的价格。改完按保存，计算器会马上用新价格。</p>
+      <div id="rateFields"></div>
+      <div class="field"><label data-t="l_termsEn">报价条款（英文）</label><textarea id="rateTermsEn" rows="5"></textarea></div>
+      <div class="field"><label data-t="l_termsZh">报价条款（中文）</label><textarea id="rateTermsZh" rows="5"></textarea></div>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="primary" id="btnSaveRates" data-t="btnSaveRates">保存费率</button>
+        <button class="danger" id="btnResetRates" data-t="btnResetRates">恢复默认</button>
+      </div>
     </div>
 
     <div class="panel">
@@ -1479,7 +1612,37 @@
       ptIns_avg:'平均每份最高的是「{c}」，{a} / 份，值得多接。',
       ptIns_max:'单份最高：「{note}」{t}（{d}）。',
       ptIns_due:'还有 {n} 份没收到钱，共 {t}：{list}。记得跟进。',
-      ptIns_wes:'对比：Wes 兼职平均每天 {w}；外接 part time 平均每份 {p}。'
+      ptIns_wes:'对比：Wes 兼职平均每天 {w}；外接 part time 平均每份 {p}。',
+      title_quote:'模特服务费计算器',
+      cardQuoteTitle:'模特服务费计算器', cardQuoteDesc:'按时数、造型、妆造和授权自动算报价，一键复制或开成发票',
+      q_h_client:'客户', q_l_client:'客户 / 品牌名称（选填）',
+      q_h_model:'模特拍摄费', q_pkg_hourly:'按小时', q_pkg_half:'半天', q_pkg_full:'全天',
+      q_info_hourly:'RM{r}/小时 · 最低 {m} 小时（RM{mp}），最多 {l} 个造型。',
+      q_info_half:'半天 {h} 小时 RM{p}，最多 {l} 个造型。超过 {h} 小时按 RM{ot}/小时，每 {b} 分钟计。',
+      q_info_full:'全天 {h} 小时 RM{p}，最多 {l} 个造型。超过 {h} 小时按 RM{ot}/小时，每 {b} 分钟计。',
+      q_l_hours:'实际拍摄时数', q_hours_sub:'只算拍摄时间，化妆、发型、换装时间不算', q_l_looks:'造型数量',
+      q_h_mua:'妆造 MUA', q_l_muaLooks:'完整妆造套数', q_mua_sub:'第 1 套 RM{a}，之后每套 RM{b}。跟妆补妆已包含。',
+      q_h_extra:'额外费用', q_l_fit:'试装时数（RM{r}/小时）', q_l_trans:'交通费 (RM)', q_trans_sub:'KL 与巴生谷：RM{a}–{b}',
+      q_h_lic:'肖像使用授权', q_lic_hint:'独立收费，不含在模特拍摄费里。需在拍摄前确认。',
+      q_lic_social:'社交媒体', q_lic_social_s:'马来西亚境内 · 1 年 · RM{a}',
+      q_lic_print:'印刷 / DOOH / OOH', q_lic_print_s:'马来西亚境内 · 1 年 · RM{a}',
+      q_lic_global:'全球使用', q_lic_global_s:'5 年 · RM{a}–{b}',
+      q_lic_ai:'AI 数字肖像授权', q_lic_ai_s:'另行报价，可在右边填金额', q_ai_ph:'另行报价',
+      q_h_result:'报价明细', q_total:'报价总额', q_nothing:'打开上面的项目，报价会在这里自动算出来',
+      q_copyEn:'复制英文报价', q_copyZh:'复制中文报价', q_toInvoice:'开成发票', q_reset:'清空重算',
+      q_copied:'报价已复制，可以直接贴给客户', q_copyFail:'复制失败，请长按选取文字',
+      q_invoiced:'已把报价填进新发票，检查后按保存', q_needLines:'报价还是空的',
+      q_resetDone:'已清空',
+      q_w_looks:'造型数量 {n} 超过这个配套的上限 {m} 个，建议改用{sug}或另外收费。',
+      q_w_trans:'交通费通常在 RM{a}–{b} 之间。',
+      q_w_min:'不足最低预约 {m} 小时，按 {m} 小时计。',
+      q_w_cheaper:'提示：同样的时数和造型，选「{alt}」是 {p}，比现在的选择更便宜。',
+      q_w_looksFull:'造型数量 {n} 超过全天上限 {m} 个，建议额外收费。',
+      q_w_ai:'AI 数字肖像授权还没填金额，报价里会写「另行报价」。',
+      h_rates:'报价计算器费率', ratesHint:'模特服务费计算器用的价格。改完按保存，计算器会马上用新价格。',
+      l_termsEn:'报价条款（英文）', l_termsZh:'报价条款（中文）',
+      btnSaveRates:'保存费率', btnResetRates:'恢复默认', ratesSaved:'费率已保存', ratesReset:'已恢复默认费率',
+      confirmResetRates:'把所有报价费率恢复成默认值吗？'
     },
     en:{
       toggleLabel:'中文',
@@ -1649,7 +1812,37 @@
       ptIns_avg:'"{c}" pays the most per gig at {a} — worth taking more of.',
       ptIns_max:'Biggest single gig: "{note}" {t} ({d}).',
       ptIns_due:'{n} gig(s) still unpaid, {t} in total: {list}. Worth following up.',
-      ptIns_wes:'For comparison: Wes averages {w} per day; outside part time averages {p} per gig.'
+      ptIns_wes:'For comparison: Wes averages {w} per day; outside part time averages {p} per gig.',
+      title_quote:'Rate Calculator',
+      cardQuoteTitle:'Model Rate Calculator', cardQuoteDesc:'Quote by hours, looks, MUA and usage — copy it or turn it into an invoice',
+      q_h_client:'Client', q_l_client:'Client / brand name (optional)',
+      q_h_model:'Model Fee', q_pkg_hourly:'Hourly', q_pkg_half:'Half Day', q_pkg_full:'Full Day',
+      q_info_hourly:'RM{r}/hour · minimum {m} hours (RM{mp}), up to {l} looks.',
+      q_info_half:'Half day, {h} hours, RM{p}, up to {l} looks. Beyond {h} hours: RM{ot}/hour in {b}-minute blocks.',
+      q_info_full:'Full day, {h} hours, RM{p}, up to {l} looks. Beyond {h} hours: RM{ot}/hour in {b}-minute blocks.',
+      q_l_hours:'Shooting hours', q_hours_sub:'Shooting time only — makeup, hair and wardrobe changes excluded', q_l_looks:'Looks',
+      q_h_mua:'MUA', q_l_muaLooks:'Complete looks', q_mua_sub:'1st look RM{a}, each additional RM{b}. Touch-ups included.',
+      q_h_extra:'Extras', q_l_fit:'Fitting hours (RM{r}/hour)', q_l_trans:'Transport (RM)', q_trans_sub:'KL & Klang Valley: RM{a}–{b}',
+      q_h_lic:'Usage License', q_lic_hint:'Charged separately from the talent fee. Confirm before the shoot.',
+      q_lic_social:'Social media', q_lic_social_s:'Malaysia only · 1 year · RM{a}',
+      q_lic_print:'Print / DOOH / OOH', q_lic_print_s:'Malaysia only · 1 year · RM{a}',
+      q_lic_global:'Global usage', q_lic_global_s:'5 years · RM{a}–{b}',
+      q_lic_ai:'AI digital likeness', q_lic_ai_s:'Quoted separately — enter an amount', q_ai_ph:'Quoted separately',
+      q_h_result:'Quotation', q_total:'Total', q_nothing:'Switch on the items above and the quote is worked out here',
+      q_copyEn:'Copy quote (English)', q_copyZh:'Copy quote (中文)', q_toInvoice:'Turn into invoice', q_reset:'Start over',
+      q_copied:'Quote copied — paste it to your client', q_copyFail:'Could not copy — long-press to select the text',
+      q_invoiced:'Quote filled into a new invoice — check it, then Save', q_needLines:'The quote is empty',
+      q_resetDone:'Cleared',
+      q_w_looks:'{n} looks is over this package\'s limit of {m} — consider {sug} or charge extra.',
+      q_w_trans:'Transport is usually RM{a}–{b}.',
+      q_w_min:'Under the {m}-hour minimum booking — billed as {m} hours.',
+      q_w_cheaper:'Tip: for the same hours and looks, {alt} comes to {p}, cheaper than this option.',
+      q_w_looksFull:'{n} looks is over the full-day limit of {m} — consider charging extra.',
+      q_w_ai:'No amount entered for AI likeness — the quote will say "quoted separately".',
+      h_rates:'Rate Calculator Prices', ratesHint:'Prices the rate calculator uses. Save and the calculator picks them up straight away.',
+      l_termsEn:'Quote terms (English)', l_termsZh:'Quote terms (Chinese)',
+      btnSaveRates:'Save Rates', btnResetRates:'Reset to Default', ratesSaved:'Rates saved', ratesReset:'Default rates restored',
+      confirmResetRates:'Reset every calculator rate to its default?'
     }
   };
   const COMPLIANCE = {
@@ -1748,7 +1941,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries, rates});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -1801,6 +1994,20 @@
     if(!Array.isArray(wesPaidMonths)){ const hit = bak1.find(x => x && Array.isArray(x.wesPaid)); wesPaidMonths = hit ? hit.wesPaid : []; }
     if(!Array.isArray(ptEntries)){ const hit = bak1.find(x => x && Array.isArray(x.parttime) && x.parttime.length); ptEntries = hit ? hit.parttime : []; }
   }
+  // ---------- quotation calculator rates (editable in Settings) ----------
+  const RATE_DEFAULTS = {
+    hourly:200, minHours:2, minLooks:2,
+    halfPrice:800, halfHours:4, halfLooks:3,
+    fullPrice:1600, fullHours:8, fullLooks:5,
+    otRate:300, otBlock:30,
+    muaFirst:250, muaExtra:150,
+    fittingRate:100, transMin:80, transMax:150,
+    licSocial:600, licPrint:1200, licGlobalMin:2500, licGlobalMax:4000,
+    termsEn:'• Shooting hours only counted for model fee. Makeup, hairstyling & wardrobe change time excluded from model billing.\n• Rates exclude travel, accommodation & meals.\n• Usage license to be confirmed prior to shoot.',
+    termsZh:'• 模特只计算拍摄工时；化妆、做发型、换装时间不计入模特收费时长。\n• 报价不含交通、住宿、餐食。\n• 肖像使用权限需拍摄前确认。'
+  };
+  let rates = Object.assign({}, RATE_DEFAULTS, readJSON('jl.rates', null) || {});
+  function saveRates(){ localStorage.setItem('jl.rates', JSON.stringify(rates)); saveBackup(); }
   function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); saveBackup(); }
   function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
 
@@ -2868,7 +3075,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:6, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries, rates}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -2900,6 +3107,7 @@
         if(Array.isArray(data.wes)){ wesEntries = data.wes; saveWes(); }
         if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; saveWesPaid(); }
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
+        if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
         saveBiz(); saveDocs(); saveProfessions();
         fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
         toast(T().imported);
@@ -2919,6 +3127,7 @@
     if(Array.isArray(latest.wes) && latest.wes.length){ wesEntries = latest.wes; saveWes(); }
     if(Array.isArray(latest.wesPaid)){ wesPaidMonths = latest.wesPaid; saveWesPaid(); }
     if(Array.isArray(latest.parttime) && latest.parttime.length){ ptEntries = latest.parttime; savePt(); }
+    if(latest.rates){ rates = Object.assign({}, RATE_DEFAULTS, latest.rates); saveRates(); }
     saveBiz(); saveDocs(); saveProfessions();
     fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
     toast(T().restored);
@@ -3743,6 +3952,244 @@
   }
 
   // ============================================================
+  // Model rate calculator (quotation)
+  // ============================================================
+  const QD_KEY = 'jl.quoteDraft';
+  const Q_BLANK = () => ({ client:'', model:true, pkg:'hourly', hours:'', looks:1, mua:false, muaLooks:1,
+    fitting:'', transport:'', social:false, print:false, global:false, ai:false, globalAmt:'', aiAmt:'' });
+  let Q = Object.assign(Q_BLANK(), readJSON(QD_KEY, null) || {});
+  const saveQ = () => { try{ localStorage.setItem(QD_KEY, JSON.stringify(Q)); }catch(e){} };
+  const rm = n => 'RM' + (Math.round(n*100)/100).toLocaleString('en-MY', {maximumFractionDigits:2});
+  const hrsTxt = n => (Math.round(n*100)/100) + 'h';
+
+  // model fee for one package choice
+  function qModel(pkg, hours){
+    const R = rates, out = { lines:[], total:0, maxLooks:0, billed:0, belowMin:false };
+    if(pkg === 'hourly'){
+      const blk = Math.max(1, R.otBlock) / 60;
+      let billed = hours > 0 ? Math.ceil(hours / blk - 1e-9) * blk : R.minHours;
+      if(billed < R.minHours){ out.belowMin = hours > 0; billed = R.minHours; }
+      out.billed = billed;
+      out.maxLooks = billed < R.halfHours ? R.minLooks : billed < R.fullHours ? R.halfLooks : R.fullLooks;
+      const amt = billed * R.hourly;
+      out.lines.push({ en:`Model fee — ${hrsTxt(billed)} × ${rm(R.hourly)}/h`, zh:`模特拍摄费 — ${hrsTxt(billed)} × ${rm(R.hourly)}/小时`,
+                       inv:{ desc:'Model fee (hourly)', qty:billed, price:R.hourly }, amount:amt });
+      out.total = amt;
+      return out;
+    }
+    const half = pkg === 'half';
+    const base = half ? R.halfPrice : R.fullPrice, incl = half ? R.halfHours : R.fullHours;
+    out.maxLooks = half ? R.halfLooks : R.fullLooks;
+    out.lines.push({ en:`Model fee — ${half?'Half Day':'Full Day'} package (${incl}h, up to ${out.maxLooks} looks)`,
+                     zh:`模特拍摄费 — ${half?'半天':'全天'}配套（${incl} 小时，最多 ${out.maxLooks} 个造型）`,
+                     inv:{ desc:`Model fee — ${half?'Half Day':'Full Day'} (${incl} hours, up to ${out.maxLooks} looks)`, qty:1, price:base }, amount:base });
+    out.total = base; out.billed = incl;
+    const extra = Math.max(0, (hours || incl) - incl);
+    if(extra > 0){
+      const blk = Math.max(1, R.otBlock) / 60;
+      const otH = Math.ceil(extra / blk - 1e-9) * blk;
+      const amt = otH * R.otRate;
+      out.lines.push({ en:`Overtime — ${hrsTxt(otH)} × ${rm(R.otRate)}/h (${R.otBlock}-min blocks)`,
+                       zh:`超时费 — ${hrsTxt(otH)} × ${rm(R.otRate)}/小时（每 ${R.otBlock} 分钟计）`,
+                       inv:{ desc:`Overtime (${R.otBlock}-minute blocks)`, qty:otH, price:R.otRate }, amount:amt });
+      out.total += amt; out.billed = incl + otH;
+    }
+    return out;
+  }
+  function quoteCalc(){
+    const R = rates, lines = [], warns = [];
+    const hours = num(Q.hours);
+    if(Q.model){
+      const m = qModel(Q.pkg, hours);
+      lines.push(...m.lines);
+      if(m.belowMin) warns.push(T().q_w_min.replace(/\{m\}/g, R.minHours));
+      if(Q.looks > m.maxLooks){
+        const sug = Q.pkg === 'half' ? T().q_pkg_full : T().q_pkg_half;
+        warns.push((Q.pkg === 'full' ? T().q_w_looksFull : T().q_w_looks).replace('{n}', Q.looks).replace('{m}', m.maxLooks).replace('{sug}', sug));
+      }
+      // cheaper option for the same shooting hours and looks?
+      const alts = ['hourly','half','full'].filter(k => k !== Q.pkg).map(k => ({k, r:qModel(k, hours)}))
+        .filter(a => Q.looks <= a.r.maxLooks && a.r.total < m.total).sort((a,b) => a.r.total - b.r.total);
+      if(hours > 0 && alts.length) warns.push(T().q_w_cheaper.replace('{alt}', T()['q_pkg_' + alts[0].k]).replace('{p}', fmt(alts[0].r.total)));
+    }
+    if(Q.mua){
+      const n = Math.max(1, Q.muaLooks);
+      lines.push({ en:'Makeup & hairstyling — 1st complete look (touch-ups included)', zh:'妆造（化妆 + 发型）— 第 1 套完整妆造（含跟妆补妆）',
+                   inv:{ desc:'Makeup & hairstyling — 1st complete look (touch-ups included)', qty:1, price:R.muaFirst }, amount:R.muaFirst });
+      if(n > 1) lines.push({ en:`Additional full re-look × ${n-1}`, zh:`新增完整改妆造型 × ${n-1}`,
+                   inv:{ desc:'Additional full re-look', qty:n-1, price:R.muaExtra }, amount:(n-1)*R.muaExtra });
+    }
+    const fit = num(Q.fitting);
+    if(fit > 0) lines.push({ en:`Fitting — ${hrsTxt(fit)} × ${rm(R.fittingRate)}/h`, zh:`试装 — ${hrsTxt(fit)} × ${rm(R.fittingRate)}/小时`,
+                   inv:{ desc:'Fitting', qty:fit, price:R.fittingRate }, amount:fit*R.fittingRate });
+    const tr = num(Q.transport);
+    if(tr > 0){
+      lines.push({ en:'Transport (KL & Klang Valley)', zh:'交通费（KL 与巴生谷）', inv:{ desc:'Transport (KL & Klang Valley)', qty:1, price:tr }, amount:tr });
+      if(tr < R.transMin || tr > R.transMax) warns.push(T().q_w_trans.replace('{a}', R.transMin).replace('{b}', R.transMax));
+    }
+    if(Q.social) lines.push({ en:'Usage license — Social media (Malaysia, 1 year)', zh:'肖像授权 — 社交媒体（马来西亚境内，1 年）',
+                   inv:{ desc:'Usage license — Social media (Malaysia only, 1 year)', qty:1, price:R.licSocial }, amount:R.licSocial });
+    if(Q.print) lines.push({ en:'Usage license — Print / DOOH & OOH (Malaysia, 1 year)', zh:'肖像授权 — 印刷 / 户外大屏 DOOH / OOH（马来西亚境内，1 年）',
+                   inv:{ desc:'Usage license — Print / DOOH & OOH (Malaysia only, 1 year)', qty:1, price:R.licPrint }, amount:R.licPrint });
+    if(Q.global){
+      const g = num(Q.globalAmt) || R.licGlobalMin;
+      lines.push({ en:'Usage license — Global, 5 years', zh:'肖像授权 — 全球范围，5 年', inv:{ desc:'Usage license — Global usage, 5 years', qty:1, price:g }, amount:g });
+    }
+    if(Q.ai){
+      const a = num(Q.aiAmt);
+      if(a > 0) lines.push({ en:'AI digital likeness license', zh:'AI 数字肖像授权', inv:{ desc:'AI digital likeness license', qty:1, price:a }, amount:a });
+      else { lines.push({ en:'AI digital likeness license', zh:'AI 数字肖像授权', note:true, amount:0 }); warns.push(T().q_w_ai); }
+    }
+    const total = lines.reduce((s,l) => s + (l.amount||0), 0);
+    return { lines, warns, total };
+  }
+
+  function qFillForm(){
+    $('qClient').value = Q.client || '';
+    $('qHours').value = Q.hours || '';
+    $('qFitting').value = Q.fitting || '';
+    $('qTransport').value = Q.transport || '';
+    $('qGlobalAmt').value = Q.globalAmt || '';
+    $('qAiAmt').value = Q.aiAmt || '';
+  }
+  function renderQuote(){
+    const R = rates;
+    document.querySelectorAll('[data-qsw]').forEach(s => s.classList.toggle('on', !!Q[s.dataset.qsw]));
+    $('qModelBody').classList.toggle('off', !Q.model);
+    $('qMuaBody').classList.toggle('off', !Q.mua);
+    document.querySelectorAll('#qPkgSeg button').forEach(b => b.classList.toggle('on', b.dataset.pkg === Q.pkg));
+    const info = Q.pkg === 'hourly' ? T().q_info_hourly : Q.pkg === 'half' ? T().q_info_half : T().q_info_full;
+    $('qPkgInfo').textContent = info.replace('{r}', R.hourly).replace('{m}', R.minHours).replace('{mp}', R.hourly*R.minHours)
+      .replace('{l}', Q.pkg === 'hourly' ? R.minLooks : Q.pkg === 'half' ? R.halfLooks : R.fullLooks)
+      .replace(/\{h\}/g, Q.pkg === 'half' ? R.halfHours : R.fullHours).replace('{p}', Q.pkg === 'half' ? R.halfPrice : R.fullPrice)
+      .replace('{ot}', R.otRate).replace('{b}', R.otBlock);
+    $('qHours').placeholder = Q.pkg === 'hourly' ? R.minHours : Q.pkg === 'half' ? R.halfHours : R.fullHours;
+    $('qLooks').textContent = Q.looks;
+    $('qMuaLooks').textContent = Q.muaLooks;
+    $('qMuaSub').textContent = T().q_mua_sub.replace('{a}', R.muaFirst).replace('{b}', R.muaExtra);
+    $('qFitLabel').textContent = T().q_l_fit.replace('{r}', R.fittingRate);
+    $('qTransLabel').textContent = T().q_l_trans;
+    $('qTransport').placeholder = R.transMin;
+    $('qTransSub').textContent = T().q_trans_sub.replace('{a}', R.transMin).replace('{b}', R.transMax);
+    const lab = (t, s) => `${esc(t)}<small>${esc(s)}</small>`;
+    $('qLicSocialLab').innerHTML = lab(T().q_lic_social, T().q_lic_social_s.replace('{a}', R.licSocial));
+    $('qLicPrintLab').innerHTML = lab(T().q_lic_print, T().q_lic_print_s.replace('{a}', R.licPrint));
+    $('qLicGlobalLab').innerHTML = lab(T().q_lic_global, T().q_lic_global_s.replace('{a}', R.licGlobalMin).replace('{b}', R.licGlobalMax));
+    $('qLicAiLab').innerHTML = lab(T().q_lic_ai, T().q_lic_ai_s);
+    $('qGlobalAmt').placeholder = R.licGlobalMin;
+
+    const q = quoteCalc();
+    $('qLines').innerHTML = q.lines.length ? q.lines.map(l => {
+      const txt = lang === 'zh' ? l.zh : l.en;
+      return `<div class="q-line${l.note?' note':''}"><span class="ql-d">${esc(txt)}</span><span class="ql-a">${l.note ? esc(T().q_ai_ph) : fmt(l.amount)}</span></div>`;
+    }).join('') : `<div class="q-empty">${esc(T().q_nothing)}</div>`;
+    $('qTotal').textContent = fmt(q.total);
+    $('qWarns').innerHTML = q.warns.map(w => `<div class="q-warn">${esc(w)}</div>`).join('');
+  }
+  document.querySelectorAll('[data-qsw]').forEach(s => s.addEventListener('click', () => {
+    const k = s.dataset.qsw; Q[k] = !Q[k]; saveQ(); renderQuote();
+  }));
+  document.querySelectorAll('#qPkgSeg button').forEach(b => b.addEventListener('click', () => { Q.pkg = b.dataset.pkg; saveQ(); renderQuote(); }));
+  document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.step; Q[k] = Math.max(1, Math.min(20, (Q[k]||1) + Number(b.dataset.d))); saveQ(); renderQuote();
+  }));
+  [['qClient','client'],['qHours','hours'],['qFitting','fitting'],['qTransport','transport'],['qGlobalAmt','globalAmt'],['qAiAmt','aiAmt']].forEach(([id,k]) =>
+    $(id).addEventListener('input', () => {
+      Q[k] = $(id).value;
+      if(k === 'globalAmt' && Q.globalAmt && !Q.global) Q.global = true;
+      if(k === 'aiAmt' && Q.aiAmt && !Q.ai) Q.ai = true;
+      saveQ(); renderQuote();
+    }));
+  $('qReset').addEventListener('click', () => { Q = Q_BLANK(); saveQ(); qFillForm(); renderQuote(); toast(T().q_resetDone); });
+
+  function quoteText(l){
+    const q = quoteCalc();
+    const zh = l === 'zh';
+    const out = [];
+    out.push(zh ? '报价单 Quotation' : 'Quotation');
+    if(Q.client) out.push((zh ? '客户：' : 'Client: ') + Q.client);
+    out.push((zh ? '日期：' : 'Date: ') + todayStr());
+    out.push('');
+    q.lines.forEach(x => out.push(`${zh ? x.zh : x.en}: ${x.note ? (zh ? '另行报价' : 'Quoted separately') : fmt(x.amount)}`));
+    out.push('');
+    out.push(`${zh ? '报价总额' : 'TOTAL'}: ${fmt(q.total)}`);
+    const terms = (zh ? rates.termsZh : rates.termsEn || '').trim();
+    if(terms){ out.push(''); out.push(zh ? '条款：' : 'Terms:'); out.push(terms); }
+    if(biz.name) { out.push(''); out.push('— ' + biz.name); }
+    return out.join('\n');
+  }
+  function copyText(txt){
+    const done = () => toast(T().q_copied);
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, txt.length);
+      let ok = false; try{ ok = document.execCommand('copy'); }catch(e){}
+      ta.remove(); toast(ok ? T().q_copied : T().q_copyFail);
+    };
+    if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(done, fallback);
+    else fallback();
+  }
+  $('qCopyEn').addEventListener('click', () => { if(!quoteCalc().lines.length){ toast(T().q_needLines); return; } copyText(quoteText('en')); });
+  $('qCopyZh').addEventListener('click', () => { if(!quoteCalc().lines.length){ toast(T().q_needLines); return; } copyText(quoteText('zh')); });
+  $('qToInvoice').addEventListener('click', () => {
+    const q = quoteCalc();
+    const items = q.lines.filter(l => l.inv);
+    if(!items.length){ toast(T().q_needLines); return; }
+    newDoc('invoice');
+    S.items = []; renderItems();
+    items.forEach(l => addItem(l.inv.desc, Math.round(l.inv.qty*100)/100, l.inv.price));
+    reindexItems();
+    // pick a fitting category if it exists
+    const want = Q.model ? ['Modeling Job','Photoshoot Service'] : ['Makeup & Styling','Bridal Makeup'];
+    const cat = want.find(c => professions.includes(c));
+    if(cat){ S.service = cat; setPicker('pkService', cat); setStyle(isAtelierCat(cat) ? 'atelier' : 'classic'); }
+    $('dClient').value = Q.client || '';
+    const aiNote = q.lines.some(l => l.note) ? 'AI digital likeness license: quoted separately.\n' : '';
+    $('dNotes').value = aiNote + (rates.termsEn || '');
+    renderTotals(); renderPreview();
+    showView('editor');
+    toast(T().q_invoiced);
+  });
+
+  // ---------- rates in Settings ----------
+  const RATE_FIELDS = [
+    ['hourly','模特时薪 (RM)','Hourly rate (RM)'], ['minHours','最低预约时数','Minimum hours'],
+    ['minLooks','最低预约造型数','Looks (minimum booking)'], ['halfPrice','半天价格 (RM)','Half day price (RM)'],
+    ['halfHours','半天时数','Half day hours'], ['halfLooks','半天造型数','Half day looks'],
+    ['fullPrice','全天价格 (RM)','Full day price (RM)'], ['fullHours','全天时数','Full day hours'],
+    ['fullLooks','全天造型数','Full day looks'], ['otRate','超时费 (RM/小时)','Overtime (RM/hour)'],
+    ['otBlock','超时计费单位 (分钟)','Overtime block (minutes)'], ['muaFirst','第 1 套妆造 (RM)','MUA 1st look (RM)'],
+    ['muaExtra','每新增一套妆造 (RM)','MUA additional look (RM)'], ['fittingRate','试装 (RM/小时)','Fitting (RM/hour)'],
+    ['transMin','交通费最低 (RM)','Transport min (RM)'], ['transMax','交通费最高 (RM)','Transport max (RM)'],
+    ['licSocial','社交媒体授权 (RM)','Social media license (RM)'], ['licPrint','印刷/户外授权 (RM)','Print / OOH license (RM)'],
+    ['licGlobalMin','全球授权最低 (RM)','Global license min (RM)'], ['licGlobalMax','全球授权最高 (RM)','Global license max (RM)']
+  ];
+  function renderRateFields(){
+    $('rateFields').innerHTML = '<div class="rate-grid">' + RATE_FIELDS.map(([k, zh, en]) =>
+      `<div class="field"><label>${esc(lang === 'zh' ? zh : en)}</label><input type="text" inputmode="decimal" data-rate="${k}" value="${esc(rates[k])}"></div>`).join('') + '</div>';
+    $('rateTermsEn').value = rates.termsEn || '';
+    $('rateTermsZh').value = rates.termsZh || '';
+  }
+  $('btnSaveRates').addEventListener('click', () => {
+    document.querySelectorAll('[data-rate]').forEach(inp => {
+      const v = num(inp.value);
+      rates[inp.dataset.rate] = v >= 0 ? v : RATE_DEFAULTS[inp.dataset.rate];
+    });
+    rates.otBlock = Math.max(1, rates.otBlock);
+    rates.termsEn = $('rateTermsEn').value.trim();
+    rates.termsZh = $('rateTermsZh').value.trim();
+    saveRates(); renderRateFields(); renderQuote();
+    toast(T().ratesSaved);
+  });
+  $('btnResetRates').addEventListener('click', () => {
+    if(!confirm(T().confirmResetRates)) return;
+    rates = Object.assign({}, RATE_DEFAULTS);
+    saveRates(); renderRateFields(); renderQuote();
+    toast(T().ratesReset);
+  });
+
+  // ============================================================
   // home + routing
   // ============================================================
   function refreshHome(){
@@ -3776,7 +4223,8 @@
     if(name === 'income') renderIncome();
     if(name === 'wes'){ renderWes(); if(!W.editId) wRenderPunch(); }
     if(name === 'pt') renderPt();
-    if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); setTimeout(sigResize, 30); }
+    if(name === 'quote'){ qFillForm(); renderQuote(); }
+    if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); renderRateFields(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', () => showView(el.dataset.nav)));
@@ -3816,6 +4264,7 @@
     $('ptFormTitle').textContent = P.editId ? T().ptEdit : T().ptNew;
     $('ptSave').textContent = P.editId ? T().ptUpdate : T().ptSave;
     ptUpdateDetect(); renderPt();
+    renderQuote(); if(currentView === 'settings') renderRateFields();
     refreshHome();
   }
   $('langToggle').addEventListener('click', () => { lang = lang === 'zh' ? 'en' : 'zh'; applyLang(); });
@@ -3828,9 +4277,10 @@
   newDoc('receipt');
   wReset();
   ptReset();
+  qFillForm();
   applyLang();
   refreshHome();
-  showView(location.hash === '#wes' ? 'wes' : location.hash === '#pt' ? 'pt' : 'home');
+  showView(({'#wes':'wes', '#pt':'pt', '#quote':'quote'})[location.hash] || 'home');
   if(restoredFromBackup) setTimeout(() => toast(T().restoredMsg + docs.length), 500);
 })();
 
