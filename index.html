@@ -623,6 +623,27 @@
   .cat-notes{font-size:11px;color:var(--ink-mute);margin-top:4px;line-height:1.5;}
   .wes-paid-row{margin-top:10px;border-top:1px solid var(--line-soft);padding-bottom:0;}
 
+  /* ---------- Wes punch clock ---------- */
+  .punch{text-align:center;}
+  .punch .pc-date{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+  .punch .pc-time{font-family:'IBM Plex Mono',monospace;font-size:46px;font-weight:600;line-height:1.1;margin:4px 0 10px;letter-spacing:1px;}
+  .punch .pc-status{
+    display:inline-block;font-size:13px;padding:7px 14px;border-radius:20px;
+    background:var(--ivory);border:1px solid var(--line);color:var(--ink-soft);line-height:1.45;
+  }
+  .punch .pc-status.working{background:#EDF2ED;border-color:#D3E0D4;color:var(--green);}
+  .punch .pc-status.break{background:#FBF1E4;border-color:#EBD9BC;color:var(--amber);}
+  .punch .pc-warn{font-size:12px;color:var(--loss);margin-top:8px;}
+  .pc-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0 4px;}
+  .pc-step{border:1px solid var(--line);border-radius:10px;padding:8px 4px;background:var(--ivory);}
+  .pc-step small{display:block;font-size:10px;color:var(--ink-soft);}
+  .pc-step b{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--ink-mute);}
+  .pc-step.set{background:var(--paper);border-color:var(--rose);}
+  .pc-step.set b{color:var(--ink);}
+  .pc-btns{display:flex;gap:10px;margin-top:12px;}
+  .pc-btns button{flex:1;min-height:54px;font-size:16px;}
+  .pc-undo{background:none;border:none;color:var(--ink-soft);font-size:12.5px;text-decoration:underline;cursor:pointer;margin-top:10px;font-family:'Inter',sans-serif;padding:6px;}
+
   /* ---------- Print ---------- */
   #printRoot{display:none;}
   @media print{
@@ -963,8 +984,24 @@
     </div>
 
     <div id="wesPageClock">
+      <div class="panel punch" id="wPunch">
+        <div class="pc-date" id="pcDate"></div>
+        <div class="pc-time" id="pcTime">--:--</div>
+        <div class="pc-status" id="pcStatus"></div>
+        <div class="pc-warn" id="pcWarn" style="display:none;"></div>
+        <div class="pc-steps">
+          <div class="pc-step" id="pcS1"><small data-t="wesStepIn">上班</small><b>--:--</b></div>
+          <div class="pc-step" id="pcS2"><small data-t="wesStepBin">休息</small><b>--:--</b></div>
+          <div class="pc-step" id="pcS3"><small data-t="wesStepBout">回来</small><b>--:--</b></div>
+          <div class="pc-step" id="pcS4"><small data-t="wesStepOut">下班</small><b>--:--</b></div>
+        </div>
+        <div class="pc-btns" id="pcBtns"></div>
+        <button type="button" class="pc-undo" id="pcUndo" style="display:none;" data-t="wesUndo">撤销上一步</button>
+      </div>
+
       <div class="panel">
         <h2 id="wesFormTitle">新增记录</h2>
+        <p class="hint" data-t="wesManualHint">打卡的时间会自动出现在这里，并且随时保存在手机里。也可以直接手动填写或补登以前的记录。</p>
         <div class="field">
           <label data-t="wes_l_date">日期</label>
           <input type="text" id="wDate" class="date-picker-input" readonly>
@@ -1383,7 +1420,14 @@
       cardWesTitle:'Wes 兼职工时', cardWesDesc:'Wardrobe Assistant 打卡上下班，自动按 RM10/小时计算工资',
       wesSub:'Wardrobe Assistant · RM10 / 小时 · 休息不计薪',
       wesTabClock:'打卡', wesTabLedger:'总记录',
-      wesNew:'新增记录', wesEdit:'编辑记录',
+      wesNew:'手动填写 / 补登', wesEdit:'编辑记录',
+      wesManualHint:'打卡的时间会自动出现在这里，并且随时保存在手机里。也可以直接手动填写或补登以前的记录。',
+      wesStepIn:'上班', wesStepBin:'休息', wesStepBout:'回来', wesStepOut:'下班',
+      wesPunchIn:'上班打卡', wesBreakStart:'开始休息', wesBreakEnd:'结束休息', wesPunchOut:'下班打卡',
+      wesUndo:'撤销上一步',
+      wesSt_off:'还没上班打卡', wesSt_work:'上班中 · 已计薪 {d}', wesSt_break:'休息中 · 已休息 {d}',
+      wesSt_old:'这是 {date} 的班次，还没下班打卡', wesPunched:'已打卡 {t}',
+      wesDayDone:'下班打卡完成，已保存：计薪 {w} → {p}', wesUndone:'已撤销',
       wes_l_date:'日期', wes_l_in:'上班 Clock In', wes_l_out:'下班 Clock Out',
       wes_l_bin:'休息开始 Break In', wes_l_bout:'休息结束 Break Out', wesNow:'现在',
       wesSave:'保存记录', wesUpdate:'更新记录', wesCancel:'取消编辑',
@@ -1546,7 +1590,14 @@
       cardWesTitle:'Wes Part Time', cardWesDesc:'Wardrobe assistant clock in / out, paid automatically at RM10 per hour',
       wesSub:'Wardrobe Assistant · RM10 / hour · breaks unpaid',
       wesTabClock:'Clock', wesTabLedger:'Ledger',
-      wesNew:'New Entry', wesEdit:'Edit Entry',
+      wesNew:'Manual entry', wesEdit:'Edit Entry',
+      wesManualHint:'Punched times appear here and are saved on your phone straight away. You can also type times in or add older records.',
+      wesStepIn:'In', wesStepBin:'Break', wesStepBout:'Back', wesStepOut:'Out',
+      wesPunchIn:'Clock In', wesBreakStart:'Start Break', wesBreakEnd:'End Break', wesPunchOut:'Clock Out',
+      wesUndo:'Undo last punch',
+      wesSt_off:'Not clocked in yet', wesSt_work:'Working · {d} paid so far', wesSt_break:'On break · {d} so far',
+      wesSt_old:'This shift is from {date} and has not been clocked out', wesPunched:'Punched {t}',
+      wesDayDone:'Clocked out and saved: {w} paid → {p}', wesUndone:'Undone',
       wes_l_date:'Date', wes_l_in:'Clock In', wes_l_out:'Clock Out',
       wes_l_bin:'Break In', wes_l_bout:'Break Out', wesNow:'Now',
       wesSave:'Save Entry', wesUpdate:'Update Entry', wesCancel:'Cancel Edit',
@@ -3168,7 +3219,7 @@
     const total = end - s, work = Math.max(0, total - brk);
     return { total, brk, work, pay: Math.round(work/60*WES_RATE*100)/100 };
   }
-  const wDur = m => { const h = Math.floor(m/60), r = m%60; return r ? `${h}${T().hr}${r}${T().min}` : `${h}${T().hr}`; };
+  const wDur = m => { const h = Math.floor(m/60), r = m%60; return !h && r ? `${r}${T().min}` : r ? `${h}${T().hr}${r}${T().min}` : `${h}${T().hr}`; };
   const wHrs = m => (m/60).toFixed(2) + 'h';
   const nowHM = () => { const d = new Date(); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
   function wForm(){ return { date:$('wDate').value, clockIn:$('wIn').value, clockOut:$('wOut').value, breakIn:$('wBin').value, breakOut:$('wBout').value }; }
@@ -3176,15 +3227,102 @@
     const r = wesCalc(wForm());
     $('wCalc').innerHTML = r ? T().wesCalc.replace('{t}', wDur(r.total)).replace('{b}', wDur(r.brk)).replace('{w}', wDur(r.work)).replace('{p}', fmt(r.pay)) : esc(T().wesCalcEmpty);
   }
+  // The shift in progress is kept on the phone (not just in the form), so
+  // clock in / break / back / clock out can be punched hours apart.
+  const WES_DRAFT_KEY = 'wes-draft';
+  const wDraft = () => readJSON(WES_DRAFT_KEY, null) || {};
+  function wSaveDraftFromForm(){
+    if(W.editId) return;                          // editing an old record never touches the shift
+    const f = wForm();
+    if(f.clockIn || f.clockOut || f.breakIn || f.breakOut) localStorage.setItem(WES_DRAFT_KEY, JSON.stringify(f));
+    else localStorage.removeItem(WES_DRAFT_KEY);
+  }
+  function wClearDraft(){ localStorage.removeItem(WES_DRAFT_KEY); }
   function wReset(){
     W.editId = null;
-    $('wDate').value = todayStr();
-    ['wIn','wOut','wBin','wBout'].forEach(id => $(id).value = '');
+    const d = wDraft();
+    $('wDate').value = d.date || todayStr();
+    $('wIn').value = d.clockIn || ''; $('wOut').value = d.clockOut || '';
+    $('wBin').value = d.breakIn || ''; $('wBout').value = d.breakOut || '';
     $('wesFormTitle').textContent = T().wesNew;
     $('wSave').textContent = T().wesSave;
     $('wCancel').style.display = 'none';
-    wUpdateCalc();
+    $('wPunch').style.display = '';
+    wUpdateCalc(); wRenderPunch();
   }
+
+  // ---------- punch clock ----------
+  function wPunchState(f){
+    if(!f.clockIn) return 'off';
+    if(f.breakIn && !f.breakOut) return 'break';
+    return 'working';
+  }
+  function wRenderPunch(){
+    if(!$('wPunch')) return;
+    const now = new Date();
+    $('pcTime').textContent = nowHM();
+    $('pcDate').textContent = lang === 'zh'
+      ? `${todayStr()} · 星期${T().weekdays[now.getDay()]}`
+      : now.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    const f = wForm(), st = wPunchState(f);
+    const status = $('pcStatus');
+    status.className = 'pc-status' + (st === 'off' ? '' : ' ' + st);
+    if(st === 'off') status.textContent = T().wesSt_off;
+    const since = t => (toMin(nowHM()) - toMin(t) + 1440) % 1440;   // minutes from t until now
+    if(st === 'working'){
+      const brk = f.breakIn && f.breakOut ? (toMin(f.breakOut) - toMin(f.breakIn) + 1440) % 1440 : 0;
+      status.textContent = T().wesSt_work.replace('{d}', wDur(Math.max(0, since(f.clockIn) - brk)));
+    }
+    if(st === 'break') status.textContent = T().wesSt_break.replace('{d}', wDur(since(f.breakIn)));
+    const old = st !== 'off' && f.date && f.date !== todayStr();
+    $('pcWarn').style.display = old ? '' : 'none';
+    if(old) $('pcWarn').textContent = T().wesSt_old.replace('{date}', f.date);
+    [['pcS1', f.clockIn], ['pcS2', f.breakIn], ['pcS3', f.breakOut], ['pcS4', f.clockOut]].forEach(([id, v]) => {
+      $(id).classList.toggle('set', !!v);
+      $(id).querySelector('b').textContent = v || '--:--';
+    });
+    let btns = '';
+    if(st === 'off') btns = `<button type="button" class="primary" data-punch="in">${esc(T().wesPunchIn)}</button>`;
+    if(st === 'working' && !f.breakIn) btns = `<button type="button" class="ghost" data-punch="bin">${esc(T().wesBreakStart)}</button><button type="button" class="primary" data-punch="out">${esc(T().wesPunchOut)}</button>`;
+    if(st === 'working' && f.breakIn) btns = `<button type="button" class="primary" data-punch="out">${esc(T().wesPunchOut)}</button>`;
+    if(st === 'break') btns = `<button type="button" class="primary" data-punch="bout">${esc(T().wesBreakEnd)}</button>`;
+    $('pcBtns').innerHTML = btns;
+    $('pcUndo').style.display = st === 'off' ? 'none' : '';
+  }
+  $('pcBtns').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-punch]'); if(!b) return;
+    const t = nowHM(), step = b.dataset.punch;
+    if(step === 'in'){
+      $('wDate').value = todayStr();
+      $('wIn').value = t; $('wBin').value = ''; $('wBout').value = ''; $('wOut').value = '';
+    }
+    if(step === 'bin') $('wBin').value = t;
+    if(step === 'bout') $('wBout').value = t;
+    if(step === 'out'){
+      $('wOut').value = t;
+      const e = wForm(), err = wValidate(e);
+      if(err){ $('wOut').value = ''; toast(err); wSaveDraftFromForm(); wRenderPunch(); return; }
+      const r = wesCalc(e);
+      wesEntries.push(Object.assign({}, e, {id: uid()}));
+      saveWes(); wClearDraft();
+      W.month = e.date.slice(0,7);
+      wReset(); renderWes();
+      toast(T().wesDayDone.replace('{w}', wDur(r.work)).replace('{p}', fmt(r.pay)));
+      return;
+    }
+    wSaveDraftFromForm(); wUpdateCalc(); wRenderPunch();
+    toast(T().wesPunched.replace('{t}', t));
+  });
+  $('pcUndo').addEventListener('click', () => {
+    const f = wForm();
+    if(f.breakOut) $('wBout').value = '';
+    else if(f.breakIn) $('wBin').value = '';
+    else if(f.clockIn) $('wIn').value = '';
+    wSaveDraftFromForm(); wUpdateCalc(); wRenderPunch();
+    toast(T().wesUndone);
+  });
+  setInterval(() => { if(currentView === 'wes' && W.tab === 'clock') wRenderPunch(); }, 20000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden && currentView === 'wes') wRenderPunch(); });
   function wValidate(e){
     if(!e.date) return T().wesNeedDate;
     if(!e.clockIn || !e.clockOut) return T().wesNeedTimes;
@@ -3201,6 +3339,7 @@
       toast(T().wesUpdated);
     } else {
       wesEntries.push(Object.assign({}, e, {id: uid()}));
+      wClearDraft();
       toast(T().wesSaved);
     }
     saveWes();
@@ -3211,9 +3350,12 @@
   document.querySelectorAll('[data-now]').forEach(b => b.addEventListener('click', () => {
     $(b.dataset.now).value = nowHM();
     if(!$('wDate').value) $('wDate').value = todayStr();
-    wUpdateCalc();
+    wSaveDraftFromForm(); wUpdateCalc(); wRenderPunch();
   }));
-  ['wDate','wIn','wOut','wBin','wBout'].forEach(id => { $(id).addEventListener('input', wUpdateCalc); $(id).addEventListener('change', wUpdateCalc); });
+  ['wDate','wIn','wOut','wBin','wBout'].forEach(id => {
+    const on = () => { wSaveDraftFromForm(); wUpdateCalc(); if(!W.editId) wRenderPunch(); };
+    $(id).addEventListener('input', on); $(id).addEventListener('change', on);
+  });
   function wShift(n){
     const [y,m] = W.month.split('-').map(Number);
     const d = new Date(y, m-1+n, 1);
@@ -3290,6 +3432,7 @@
       $('wesFormTitle').textContent = T().wesEdit;
       $('wSave').textContent = T().wesUpdate;
       $('wCancel').style.display = '';
+      $('wPunch').style.display = 'none';
       wUpdateCalc(); wSetTab('clock');
       window.scrollTo({top:0, behavior:'smooth'});
     }
@@ -3631,7 +3774,7 @@
     if(name === 'home') refreshHome();
     if(name === 'docs') renderDocs();
     if(name === 'income') renderIncome();
-    if(name === 'wes') renderWes();
+    if(name === 'wes'){ renderWes(); if(!W.editId) wRenderPunch(); }
     if(name === 'pt') renderPt();
     if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
@@ -3669,7 +3812,7 @@
     if(currentView === 'income') renderIncome();
     $('wesFormTitle').textContent = W.editId ? T().wesEdit : T().wesNew;
     $('wSave').textContent = W.editId ? T().wesUpdate : T().wesSave;
-    wUpdateCalc(); renderWes();
+    wUpdateCalc(); renderWes(); wRenderPunch();
     $('ptFormTitle').textContent = P.editId ? T().ptEdit : T().ptNew;
     $('ptSave').textContent = P.editId ? T().ptUpdate : T().ptSave;
     ptUpdateDetect(); renderPt();
