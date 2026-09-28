@@ -674,6 +674,33 @@
   .rate-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;}
   .rate-grid .field input{font-family:'IBM Plex Mono',monospace;}
 
+  /* ---------- Business metrics + investments ---------- */
+  .kpi{padding:14px 0;border-bottom:1px solid var(--line-soft);}
+  .kpi:last-child{border-bottom:none;padding-bottom:4px;}
+  .kpi-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .kpi-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;line-height:1.2;}
+  .kpi-name small{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-mute);font-weight:400;letter-spacing:.5px;}
+  .kpi-val{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;white-space:nowrap;}
+  .kpi-val.pos{color:var(--green);} .kpi-val.neg{color:var(--loss);} .kpi-val.due{color:var(--amber);} .kpi-val.mute{color:var(--ink-mute);font-size:14px;font-weight:500;}
+  .kpi-sub{font-size:12.5px;color:var(--ink-soft);margin-top:6px;line-height:1.55;}
+  .kpi-f{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-mute);margin-top:6px;background:var(--ivory);border-radius:6px;padding:5px 8px;display:inline-block;}
+  .kpi-go{background:none;border:none;color:var(--rose-deep);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:4px 0 0;font-family:'Inter',sans-serif;}
+  .x-tags{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+  .x-tags button{
+    border:1px solid var(--line);background:var(--ivory);border-radius:10px;padding:8px 2px;cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:11.5px;color:var(--ink-soft);line-height:1.3;
+  }
+  .x-tags button span{display:block;font-size:18px;}
+  .x-tags button em{font-style:normal;}
+  .x-tags button.on{background:var(--rose-deep);border-color:var(--rose-deep);color:#fff;}
+  .x-roi{font-size:12px;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+  .x-roi .pos{color:var(--green);font-weight:600;} .x-roi .neg{color:var(--loss);font-weight:600;}
+  .rec-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);}
+  .rec-row .rn{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .rec-row .ra{font-family:'IBM Plex Mono',monospace;font-size:13px;white-space:nowrap;}
+  .add-row.rec input.amt{flex:0 0 96px;text-align:right;font-family:'IBM Plex Mono',monospace;}
+  .src-net{font-size:12px;color:var(--ink-soft);text-align:right;margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+
   /* ---------- Print ---------- */
   #printRoot{display:none;}
   @media print{
@@ -763,6 +790,13 @@
         <div>
           <div class="hc-title" data-t="cardPtTitle">外接 Part Time</div>
           <div class="hc-desc" data-t="cardPtDesc">Usher、TVC、演员等外接工作，写备注就会自动分类分析</div>
+        </div>
+      </button>
+      <button class="home-card wide" data-nav="exp">
+        <div class="hc-icon">💼</div>
+        <div>
+          <div class="hc-title" data-t="cardExpTitle">投资 / 支出</div>
+          <div class="hc-desc" data-t="cardExpDesc">作品集、器材、宣传、课程的花费，自动算回本进度和 ROI</div>
         </div>
       </button>
     </div>
@@ -981,6 +1015,13 @@
         <small data-t="allGrandLabel">总收入（已收 + 未收）</small>
         <span id="allGrand">RM 0.00</span>
       </div>
+      <div class="src-net" id="srcNet"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_kpi">经营指标</h2>
+      <p class="hint" data-t="kpiHint">用做生意的公式看你的自由业：平均单价、回头客、稳定收入、能撑几个月、投资回报、获客成本。按上面选的日期计算。</p>
+      <div id="kpiBox"></div>
     </div>
 
     <div class="stats-bar">
@@ -1261,6 +1302,47 @@
     </div>
   </section>
 
+  <!-- ============ INVESTMENTS / EXPENSES ============ -->
+  <section id="view-exp" class="view">
+    <div class="panel">
+      <h2 id="xFormTitle">新增投资 / 支出</h2>
+      <p class="hint" data-t="xHint">记下为了工作花的钱，例如拍作品集、化妆品和器材、宣传、上课。选了「回本来源」，就会自动算这笔钱帮你赚回多少。</p>
+      <div class="field">
+        <label data-t="x_l_tag">类别</label>
+        <div class="x-tags" id="xTags">
+          <button type="button" data-xtag="portfolio"><span>📸</span><em data-t="xt_portfolio">作品集</em></button>
+          <button type="button" data-xtag="equipment"><span>💄</span><em data-t="xt_equipment">器材 / 化妆品</em></button>
+          <button type="button" data-xtag="marketing"><span>📣</span><em data-t="xt_marketing">宣传</em></button>
+          <button type="button" data-xtag="course"><span>🎓</span><em data-t="xt_course">课程</em></button>
+          <button type="button" data-xtag="other"><span>📦</span><em data-t="xt_other">其他</em></button>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label data-t="x_l_date">日期</label><input type="text" id="xDate" class="date-picker-input" readonly></div>
+        <div class="field"><label data-t="x_l_amt">金额 (RM)</label><input type="text" inputmode="decimal" id="xAmt" placeholder="0.00"></div>
+      </div>
+      <div class="field"><label data-t="x_l_note">备注</label><input type="text" id="xNote" data-tp="xNotePh" placeholder="例如：Portfolio 拍摄 with XX / MAC 化妆品补货 / IG 广告"></div>
+      <div class="field">
+        <label data-t="x_l_src">回本来源（选填）</label>
+        <button type="button" class="picker" id="pkXSrc"><span class="pk-val"></span><span class="pk-arrow">▼</span></button>
+        <div class="sub" data-t="xSrcSub">这笔钱是为了哪一类工作？之后那类工作的收入会算成它的回报</div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="xSave" data-t="xSave">保存</button>
+        <button class="ghost" id="xCancel" style="display:none;" data-t="xCancel">取消编辑</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-box"><div class="sl" data-t="x_s_year">今年投资</div><div class="sv" id="xYear">RM 0.00</div></div>
+      <div class="stat-box"><div class="sl" data-t="x_s_all">全部投资</div><div class="sv" id="xAll">RM 0.00</div></div>
+      <div class="stat-box"><div class="sl" data-t="x_s_back">已回本</div><div class="sv pos" id="xBack">0 / 0</div></div>
+    </div>
+    <div class="panel">
+      <div id="xList"></div>
+    </div>
+  </section>
+
   <!-- ============ SETTINGS ============ -->
   <section id="view-settings" class="view">
 
@@ -1360,6 +1442,24 @@
         <div class="field"><label data-t="l_link2url">按钮 2 链接</label><input type="text" id="link2Url"></div>
       </div>
       <button class="primary" id="btnSaveBiz4" style="width:100%;" data-t="btnSaveBiz">保存资料</button>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="h_fin">经营资料</h2>
+      <p class="hint" data-t="finHint">「收入分析 → 经营指标」用来算能撑几个月和稳定收入。只存在这台设备里。</p>
+      <div class="field-row">
+        <div class="field"><label data-t="l_savings">目前存款 (RM)</label><input type="text" inputmode="decimal" id="finSavings" placeholder="0"></div>
+        <div class="field"><label data-t="l_monthlyExp">每月生活开销 (RM)</label><input type="text" inputmode="decimal" id="finExpense" placeholder="0"><div class="sub" data-t="monthlyExpSub">房租、吃饭、交通、电话等全部加起来</div></div>
+      </div>
+      <button class="primary" id="btnSaveFin" style="width:100%;" data-t="btnSaveFin">保存</button>
+      <div class="sub-divider" data-t="h_recurring" style="margin-top:18px;">长期客户（每月固定收费）</div>
+      <p class="hint" data-t="recurringHint">例如每月固定帮人管理社交媒体。会算进「稳定收入底线」。</p>
+      <div id="recList"></div>
+      <div class="add-row rec">
+        <input type="text" id="recName" data-tp="recNamePh" placeholder="客户 / 工作名称">
+        <input type="text" inputmode="decimal" id="recAmt" class="amt" placeholder="RM / 月">
+        <button class="ghost" id="recAdd" data-t="btnAddProfession">添加</button>
+      </div>
     </div>
 
     <div class="panel">
@@ -1642,7 +1742,52 @@
       h_rates:'报价计算器费率', ratesHint:'模特服务费计算器用的价格。改完按保存，计算器会马上用新价格。',
       l_termsEn:'报价条款（英文）', l_termsZh:'报价条款（中文）',
       btnSaveRates:'保存费率', btnResetRates:'恢复默认', ratesSaved:'费率已保存', ratesReset:'已恢复默认费率',
-      confirmResetRates:'把所有报价费率恢复成默认值吗？'
+      confirmResetRates:'把所有报价费率恢复成默认值吗？',
+      title_exp:'投资 / 支出',
+      cardExpTitle:'投资 / 支出', cardExpDesc:'作品集、器材、宣传、课程的花费，自动算回本进度和 ROI',
+      xHint:'记下为了工作花的钱，例如拍作品集、化妆品和器材、宣传、上课。选了「回本来源」，就会自动算这笔钱帮你赚回多少。',
+      xNew:'新增投资 / 支出', xEdit:'编辑投资 / 支出',
+      x_l_tag:'类别', xt_portfolio:'作品集', xt_equipment:'器材 / 化妆品', xt_marketing:'宣传', xt_course:'课程', xt_other:'其他',
+      x_l_date:'日期', x_l_amt:'金额 (RM)', x_l_note:'备注', xNotePh:'例如：Portfolio 拍摄 with XX / MAC 化妆品补货 / IG 广告',
+      x_l_src:'回本来源（选填）', xSrcSub:'这笔钱是为了哪一类工作？之后那类工作的收入会算成它的回报',
+      xSrcNone:'不追踪回本', xSrcAll:'全部收入', xSrcWes:'Wes 兼职', xSrcPt:'外接 Part Time', pickXSrc:'这笔投资是为了哪类工作？',
+      xSave:'保存', xUpdate:'更新', xCancel:'取消编辑',
+      x_s_year:'今年投资', x_s_all:'全部投资', x_s_back:'已回本',
+      xEmpty:'还没有投资 / 支出记录',
+      xNeedAmt:'请填写金额', xNeedNote:'请写备注', xSaved:'已保存', xUpdated:'已更新', xDeleted:'已删除',
+      xConfirmDel:'确定删除「{n}」这笔记录吗？',
+      xRoiLine:'已带来 {r} · ROI ', xRoiBack:'✓ 已回本', xRoiLeft:'还差 {d} 回本', xRoiNone:'没有追踪回本',
+      srcNet:'期间投资 / 支出 {x} · 扣除后净额 {n}',
+      h_kpi:'经营指标', kpiHint:'用做生意的公式看你的自由业：平均单价、回头客、稳定收入、能撑几个月、投资回报、获客成本。按上面选的日期计算。',
+      k_aov:'平均单价', k_aov_f:'平均单价 = 总收入 ÷ 工作数',
+      k_aov_sub:'委托单据 {d} / 单 · Part Time {p} / 份 · Wes {w} / 天',
+      k_aov_best:'平均单价最高：「{c}」{a}。有空档时优先接这类工作。',
+      k_rep:'回头客比例', k_rep_f:'回头客比例 = 合作 2 次以上的客户 ÷ 全部客户（流失率反过来看）',
+      k_rep_sub:'{t} 位客户里，有 {r} 位找过你第二次。',
+      k_rep_dorm:'很久没合作（超过 4 个月）：{list}。可以主动问候一下。',
+      k_mrr:'稳定收入底线', k_mrr_f:'稳定收入 = Wes 平均每月 + 长期客户每月固定收费（类似 MRR）',
+      k_mrr_sub:'Wes 平均每月 {w} + 长期客户 {r}（{n} 位）',
+      k_run:'能撑几个月', k_run_f:'Runway = 存款 ÷（每月开销 − 稳定收入）',
+      k_run_ok:'稳定收入已经够付每月开销，存款不会被吃掉。',
+      k_run_sub:'最坏情况（只有稳定收入）：存款 {s}，每月缺 {b}。',
+      k_run_avg_pos:'按最近 {m} 个月的平均收入 {a}，每月还能存 {x}。',
+      k_run_avg_neg:'按最近 {m} 个月的平均收入 {a}，每月还缺 {x}。',
+      k_run_need:'还没填存款和每月开销。', k_run_go:'去 ⚙️ 设置填写',
+      k_roi:'投资回报 ROI', k_roi_f:'ROI =（带来的收入 − 投资金额）÷ 投资金额 × 100%',
+      k_roi_sub:'{n} 笔有追踪的投资，共 {i}，已带来 {r}。',
+      k_roi_best:'最值得：「{note}」ROI {p}。', k_roi_worst:'还没回本：「{note}」还差 {d}。',
+      k_roi_need:'这段期间没有设了「回本来源」的投资。', k_roi_go:'去记录投资 / 支出',
+      k_cac:'获客成本 CAC', k_cac_f:'CAC =（作品集 + 宣传花费）÷ 新客户数',
+      k_cac_sub:'作品集 + 宣传花了 {s}，这段期间有 {n} 位新客户。',
+      k_cac_none:'花了 {s} 在作品集 / 宣传，这段期间还没有新客户。',
+      k_cac_free:'这段期间没有作品集 / 宣传花费，{n} 位新客户都是零成本得来的。',
+      k_na:'资料不足',
+      h_fin:'经营资料', finHint:'「收入分析 → 经营指标」用来算能撑几个月和稳定收入。只存在这台设备里。',
+      l_savings:'目前存款 (RM)', l_monthlyExp:'每月生活开销 (RM)', monthlyExpSub:'房租、吃饭、交通、电话等全部加起来',
+      btnSaveFin:'保存', finSaved:'经营资料已保存',
+      h_recurring:'长期客户（每月固定收费）', recurringHint:'例如每月固定帮人管理社交媒体。会算进「稳定收入底线」。',
+      recNamePh:'客户 / 工作名称', recNeed:'请填写名称和每月金额', recEmpty:'还没有长期客户', perMonth:'/ 月',
+      months:'个月'
     },
     en:{
       toggleLabel:'中文',
@@ -1842,7 +1987,52 @@
       h_rates:'Rate Calculator Prices', ratesHint:'Prices the rate calculator uses. Save and the calculator picks them up straight away.',
       l_termsEn:'Quote terms (English)', l_termsZh:'Quote terms (Chinese)',
       btnSaveRates:'Save Rates', btnResetRates:'Reset to Default', ratesSaved:'Rates saved', ratesReset:'Default rates restored',
-      confirmResetRates:'Reset every calculator rate to its default?'
+      confirmResetRates:'Reset every calculator rate to its default?',
+      title_exp:'Investments',
+      cardExpTitle:'Investments / Expenses', cardExpDesc:'Portfolio, kit, marketing and courses — tracks payback and ROI for you',
+      xHint:'Log money spent on your work: portfolio shoots, makeup and equipment, marketing, courses. Pick a payback source and it tracks what the spend earns back.',
+      xNew:'New Investment / Expense', xEdit:'Edit Investment / Expense',
+      x_l_tag:'Type', xt_portfolio:'Portfolio', xt_equipment:'Kit / makeup', xt_marketing:'Marketing', xt_course:'Course', xt_other:'Other',
+      x_l_date:'Date', x_l_amt:'Amount (RM)', x_l_note:'Note', xNotePh:'e.g. Portfolio shoot with XX / MAC restock / IG ads',
+      x_l_src:'Payback source (optional)', xSrcSub:'Which kind of work is this for? Income from that work after this date counts as its return',
+      xSrcNone:'Don\'t track payback', xSrcAll:'All income', xSrcWes:'Wes part time', xSrcPt:'Outside part time', pickXSrc:'What kind of work is this spend for?',
+      xSave:'Save', xUpdate:'Update', xCancel:'Cancel Edit',
+      x_s_year:'This year', x_s_all:'All time', x_s_back:'Paid back',
+      xEmpty:'No investments or expenses yet',
+      xNeedAmt:'Enter the amount', xNeedNote:'Write a note', xSaved:'Saved', xUpdated:'Updated', xDeleted:'Deleted',
+      xConfirmDel:'Delete "{n}"?',
+      xRoiLine:'Earned back {r} · ROI ', xRoiBack:'✓ Paid back', xRoiLeft:'{d} to pay back', xRoiNone:'Payback not tracked',
+      srcNet:'Investments / expenses in period {x} · net after spending {n}',
+      h_kpi:'Business Metrics', kpiHint:'Business formulas applied to your freelance work: average job value, repeat clients, stable income, runway, ROI and client cost. Uses the dates chosen above.',
+      k_aov:'Average job value', k_aov_f:'AOV = total income ÷ number of jobs',
+      k_aov_sub:'Documents {d} / job · Part time {p} / gig · Wes {w} / day',
+      k_aov_best:'Highest average: "{c}" at {a}. Prioritise this kind of work when you have a gap.',
+      k_rep:'Repeat client rate', k_rep_f:'Repeat rate = clients with 2+ jobs ÷ all clients (churn, flipped)',
+      k_rep_sub:'{r} of your {t} clients have booked you again.',
+      k_rep_dorm:'Quiet for over 4 months: {list}. Worth a friendly check-in.',
+      k_mrr:'Stable income floor', k_mrr_f:'Stable income = Wes monthly average + fixed monthly retainers (like MRR)',
+      k_mrr_sub:'Wes averages {w} a month + retainers {r} ({n})',
+      k_run:'Runway', k_run_f:'Runway = savings ÷ (monthly expenses − stable income)',
+      k_run_ok:'Stable income already covers your monthly expenses — savings are not being eaten.',
+      k_run_sub:'Worst case (stable income only): savings {s}, short {b} a month.',
+      k_run_avg_pos:'At your last {m}-month average income of {a}, you save {x} a month.',
+      k_run_avg_neg:'At your last {m}-month average income of {a}, you are short {x} a month.',
+      k_run_need:'Savings and monthly expenses are not filled in yet.', k_run_go:'Fill them in ⚙️ Settings',
+      k_roi:'Return on investment', k_roi_f:'ROI = (income earned − amount invested) ÷ amount invested × 100%',
+      k_roi_sub:'{n} tracked investment(s), {i} in total, {r} earned back.',
+      k_roi_best:'Best: "{note}" ROI {p}.', k_roi_worst:'Not paid back yet: "{note}", {d} to go.',
+      k_roi_need:'No investments with a payback source in this period.', k_roi_go:'Log investments',
+      k_cac:'Client acquisition cost', k_cac_f:'CAC = (portfolio + marketing spend) ÷ new clients',
+      k_cac_sub:'{s} on portfolio + marketing, {n} new client(s) in this period.',
+      k_cac_none:'{s} spent on portfolio / marketing, no new clients in this period yet.',
+      k_cac_free:'No portfolio / marketing spend in this period — {n} new client(s) at zero cost.',
+      k_na:'Not enough data',
+      h_fin:'Business Figures', finHint:'Used by Income → Business Metrics for runway and stable income. Stored on this device only.',
+      l_savings:'Current savings (RM)', l_monthlyExp:'Monthly living costs (RM)', monthlyExpSub:'Rent, food, transport, phone — everything together',
+      btnSaveFin:'Save', finSaved:'Business figures saved',
+      h_recurring:'Retainer clients (fixed monthly fee)', recurringHint:'e.g. managing someone\'s social media every month. Counts towards the stable income floor.',
+      recNamePh:'Client / job name', recNeed:'Enter a name and a monthly amount', recEmpty:'No retainer clients yet', perMonth:'/ month',
+      months:'months'
     }
   };
   const COMPLIANCE = {
@@ -1941,7 +2131,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries, rates});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries, rates, invest: invEntries, fin});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -2008,6 +2198,18 @@
   };
   let rates = Object.assign({}, RATE_DEFAULTS, readJSON('jl.rates', null) || {});
   function saveRates(){ localStorage.setItem('jl.rates', JSON.stringify(rates)); saveBackup(); }
+  // ---------- investments / expenses + business figures ----------
+  let invEntries = readJSON('jl.invest', null);
+  let fin = readJSON('jl.fin', null);
+  {
+    const bak2 = readJSON(BAK_KEY, []);
+    if(!Array.isArray(invEntries)){ const hit = bak2.find(x => x && Array.isArray(x.invest) && x.invest.length); invEntries = hit ? hit.invest : []; }
+    if(!fin || typeof fin !== 'object'){ const hit = bak2.find(x => x && x.fin); fin = hit ? hit.fin : null; }
+  }
+  fin = Object.assign({ savings:0, expense:0, recurring:[] }, fin || {});
+  if(!Array.isArray(fin.recurring)) fin.recurring = [];
+  function saveInv(){ localStorage.setItem('jl.invest', JSON.stringify(invEntries)); saveBackup(); }
+  function saveFin(){ localStorage.setItem('jl.fin', JSON.stringify(fin)); saveBackup(); }
   function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); saveBackup(); }
   function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
 
@@ -2119,7 +2321,7 @@
       popup.style.display = 'block';
     });
   }
-  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate'].forEach(id => initDatePicker($(id)));
+  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate','xDate'].forEach(id => initDatePicker($(id)));
 
   // ============================================================
   // editor state
@@ -2820,6 +3022,7 @@
     }).join('');
     renderInsights(earned, rows, income, due);
     renderAllSources(s, e);
+    renderKpis(s, e);
     renderPtAnalysis(s, e);
   }
   function renderInsights(earned, rows, income, due){
@@ -3075,7 +3278,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries, rates}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, parttime: ptEntries, rates, invest: invEntries, fin}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -3108,6 +3311,8 @@
         if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; saveWesPaid(); }
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
+        if(Array.isArray(data.invest)){ invEntries = data.invest; saveInv(); }
+        if(data.fin && typeof data.fin === 'object'){ fin = Object.assign({ savings:0, expense:0, recurring:[] }, data.fin); saveFin(); }
         saveBiz(); saveDocs(); saveProfessions();
         fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
         toast(T().imported);
@@ -3128,6 +3333,8 @@
     if(Array.isArray(latest.wesPaid)){ wesPaidMonths = latest.wesPaid; saveWesPaid(); }
     if(Array.isArray(latest.parttime) && latest.parttime.length){ ptEntries = latest.parttime; savePt(); }
     if(latest.rates){ rates = Object.assign({}, RATE_DEFAULTS, latest.rates); saveRates(); }
+    if(Array.isArray(latest.invest) && latest.invest.length){ invEntries = latest.invest; saveInv(); }
+    if(latest.fin){ fin = Object.assign({ savings:0, expense:0, recurring:[] }, latest.fin); saveFin(); }
     saveBiz(); saveDocs(); saveProfessions();
     fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
     toast(T().restored);
@@ -3898,6 +4105,8 @@
     $('srcRecv').textContent = fmt(t.recv);
     $('srcDue').textContent = fmt(t.due);
     $('allGrand').textContent = fmt(t.recv + t.due);
+    const spent = invEntries.filter(x => !(s||e) || inRange(x.date, s, e)).reduce((a,x) => a+(x.amount||0), 0);
+    $('srcNet').textContent = spent > 0 ? T().srcNet.replace('{x}', fmt(spent)).replace('{n}', fmt(t.recv + t.due - spent)) : '';
   }
   function renderPtAnalysis(s, e){
     const inWin = ds => !(s||e) || inRange(ds, s, e);
@@ -4190,6 +4399,238 @@
   });
 
   // ============================================================
+  // Investments / expenses — payback + ROI
+  // ============================================================
+  const X = { editId:null, tag:'portfolio', src:'' };
+  const X_TAG_EMOJI = { portfolio:'📸', equipment:'💄', marketing:'📣', course:'🎓', other:'📦' };
+  function xSrcLabel(v){
+    if(!v) return T().xSrcNone;
+    if(v === '__all') return T().xSrcAll;
+    if(v === '__wes') return T().xSrcWes;
+    if(v === '__pt') return T().xSrcPt;
+    return v;
+  }
+  // income earned from a source between two dates (inclusive)
+  function incomeFrom(src, from, to){
+    const inW = d => d && d >= from && (!to || d <= to);
+    let sum = 0;
+    if(src === '__all' || (src && src[0] !== '_'))
+      sum += docs.filter(d => isIncome(d) && inW(d.date) && (src === '__all' || d.service === src)).reduce((a,d) => a+(d.total||0), 0);
+    if(src === '__all' || src === '__wes')
+      sum += wesEntries.filter(e => inW(e.date)).reduce((a,e) => { const r = wesCalc(e); return a + (r ? r.pay : 0); }, 0);
+    if(src === '__all' || src === '__pt')
+      sum += ptEntries.filter(e => inW(e.date)).reduce((a,e) => a+(e.amount||0), 0);
+    return sum;
+  }
+  function invReturn(x){
+    if(!x.src) return null;
+    const ret = incomeFrom(x.src, x.date, todayStr());
+    return { ret, roi: x.amount > 0 ? (ret - x.amount) / x.amount * 100 : 0, back: ret >= x.amount };
+  }
+  const pct = n => (n >= 0 ? '+' : '') + Math.round(n) + '%';
+  function xSetTag(t){ X.tag = t; document.querySelectorAll('#xTags button').forEach(b => b.classList.toggle('on', b.dataset.xtag === t)); }
+  function xReset(){
+    X.editId = null; X.src = '';
+    xSetTag('portfolio');
+    $('xDate').value = todayStr(); $('xAmt').value = ''; $('xNote').value = '';
+    setPicker('pkXSrc', xSrcLabel(''), true);
+    $('xFormTitle').textContent = T().xNew; $('xSave').textContent = T().xSave; $('xCancel').style.display = 'none';
+  }
+  document.querySelectorAll('#xTags button').forEach(b => b.addEventListener('click', () => xSetTag(b.dataset.xtag)));
+  $('pkXSrc').addEventListener('click', () => {
+    const opts = [{value:'', label:T().xSrcNone}, {value:'__all', label:T().xSrcAll}]
+      .concat(professions.map(p => ({value:p, label:p})))
+      .concat([{value:'__wes', label:T().xSrcWes}, {value:'__pt', label:T().xSrcPt}]);
+    openSheet(T().pickXSrc, opts, X.src, v => { X.src = v; setPicker('pkXSrc', xSrcLabel(v), !v); });
+  });
+  $('xCancel').addEventListener('click', xReset);
+  $('xSave').addEventListener('click', () => {
+    const rec = { date:$('xDate').value || todayStr(), amount: Math.round(num($('xAmt').value)*100)/100, note:$('xNote').value.trim(), tag:X.tag, src:X.src };
+    if(!(rec.amount > 0)){ toast(T().xNeedAmt); return; }
+    if(!rec.note){ toast(T().xNeedNote); return; }
+    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId}) : x); toast(T().xUpdated); }
+    else { invEntries.push(Object.assign({}, rec, {id:uid()})); toast(T().xSaved); }
+    saveInv(); xReset(); renderInv();
+  });
+  function renderInv(){
+    const yr = String(new Date().getFullYear());
+    const list = invEntries.slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    $('xYear').textContent = fmt(list.filter(x => (x.date||'').startsWith(yr)).reduce((a,x) => a+(x.amount||0), 0));
+    $('xAll').textContent = fmt(list.reduce((a,x) => a+(x.amount||0), 0));
+    const tracked = list.filter(x => x.src);
+    $('xBack').textContent = `${tracked.filter(x => invReturn(x).back).length} / ${tracked.length}`;
+    $('xList').innerHTML = list.length ? list.map(x => {
+      const r = invReturn(x);
+      const roi = r
+        ? `<div class="x-roi">${esc(T().xRoiLine.replace('{r}', fmt(r.ret)))}<span class="${r.roi>=0?'pos':'neg'}">${esc(pct(r.roi))}</span> · ${r.back ? `<span class="pos">${esc(T().xRoiBack)}</span>` : esc(T().xRoiLeft.replace('{d}', fmt(x.amount - r.ret)))}</div>`
+        : `<div class="x-roi" style="color:var(--ink-mute);">${esc(T().xRoiNone)}</div>`;
+      return `<div class="pt-row">
+        <div class="pt-top"><span class="pt-date">${esc(x.date)}</span><span class="pt-amt">${fmt(x.amount)}</span></div>
+        <div class="pt-note">${esc(x.note)}</div>
+        <div class="pt-meta"><span class="pill cat">${X_TAG_EMOJI[x.tag]||''} ${esc(T()['xt_' + x.tag] || x.tag)}</span>${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
+        ${roi}
+        <div class="row-btns"><button type="button" data-xedit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-xdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
+      </div>`;
+    }).join('') : `<div class="empty-hint">${esc(T().xEmpty)}</div>`;
+  }
+  $('view-exp').addEventListener('click', ev => {
+    const ed = ev.target.closest('[data-xedit]'), dl = ev.target.closest('[data-xdel]');
+    if(ed){
+      const x = invEntries.find(i => i.id === ed.dataset.xedit); if(!x) return;
+      X.editId = x.id; X.src = x.src || ''; xSetTag(x.tag || 'other');
+      $('xDate').value = x.date; $('xAmt').value = x.amount; $('xNote').value = x.note || '';
+      setPicker('pkXSrc', xSrcLabel(X.src), !X.src);
+      $('xFormTitle').textContent = T().xEdit; $('xSave').textContent = T().xUpdate; $('xCancel').style.display = '';
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    if(dl){
+      const x = invEntries.find(i => i.id === dl.dataset.xdel); if(!x) return;
+      if(!confirm(T().xConfirmDel.replace('{n}', x.note))) return;
+      invEntries = invEntries.filter(i => i.id !== x.id);
+      if(X.editId === x.id) xReset();
+      saveInv(); renderInv(); toast(T().xDeleted);
+    }
+  });
+
+  // ---------- business figures in Settings ----------
+  function renderFin(){
+    $('finSavings').value = fin.savings || '';
+    $('finExpense').value = fin.expense || '';
+    $('recList').innerHTML = fin.recurring.length ? fin.recurring.map((r,i) =>
+      `<div class="rec-row"><span class="rn">${esc(r.name)}</span><span class="ra">${fmt(r.amount)} ${esc(T().perMonth)}</span><button type="button" class="del-btn" data-recdel="${i}" aria-label="delete">✕</button></div>`).join('')
+      : `<div class="empty-hint" style="padding:10px 0;">${esc(T().recEmpty)}</div>`;
+  }
+  $('btnSaveFin').addEventListener('click', () => {
+    fin.savings = Math.max(0, num($('finSavings').value)); fin.expense = Math.max(0, num($('finExpense').value));
+    saveFin(); renderFin(); toast(T().finSaved);
+  });
+  $('recAdd').addEventListener('click', () => {
+    const name = $('recName').value.trim(), amount = num($('recAmt').value);
+    if(!name || !(amount > 0)){ toast(T().recNeed); return; }
+    fin.recurring.push({name, amount}); saveFin();
+    $('recName').value = ''; $('recAmt').value = ''; renderFin();
+  });
+  $('recList').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-recdel]'); if(!b) return;
+    fin.recurring.splice(Number(b.dataset.recdel), 1); saveFin(); renderFin();
+  });
+
+  // ---------- business metrics ----------
+  const ymOf = d => String(d||'').slice(0,7);
+  function lastMonths(n){   // current month and the n-1 before it, newest first
+    const out = [], d = new Date();
+    for(let i = 0; i < n; i++){ const x = new Date(d.getFullYear(), d.getMonth() - i, 1); out.push(`${x.getFullYear()}-${pad2(x.getMonth()+1)}`); }
+    return out;
+  }
+  // average of the most recent (up to 3) months that have data, looking back 6 months
+  function recentMonthlyAvg(perMonth){
+    const vals = lastMonths(6).map(perMonth).filter(v => v > 0).slice(0, 3);
+    return { avg: vals.length ? vals.reduce((a,v) => a+v, 0) / vals.length : 0, n: vals.length };
+  }
+  const wesMonth = ym => wesEntries.filter(e => ymOf(e.date) === ym).reduce((a,e) => { const r = wesCalc(e); return a + (r ? r.pay : 0); }, 0);
+  const allMonth = ym => docs.filter(d => isIncome(d) && ymOf(d.date) === ym).reduce((a,d) => a+(d.total||0), 0)
+                        + wesMonth(ym) + ptEntries.filter(e => ymOf(e.date) === ym).reduce((a,e) => a+(e.amount||0), 0);
+  function clientStats(){
+    const m = new Map();
+    docs.filter(d => !isVoid(d) && (d.client||'').trim()).forEach(d => {
+      const k = d.client.trim().toLowerCase();
+      const c = m.get(k) || { name:d.client.trim(), count:0, first:d.date, last:d.date, total:0 };
+      c.count++; c.total += d.total||0;
+      if(d.date < c.first) c.first = d.date;
+      if(d.date > c.last) c.last = d.date;
+      m.set(k, c);
+    });
+    return Array.from(m.values());
+  }
+  function renderKpis(s, e){
+    const inWin = ds => !(s||e) || inRange(ds, s, e);
+    const out = [];
+    const kpi = (name, en, val, cls, subs, formula, go) => out.push(
+      `<div class="kpi"><div class="kpi-top"><div class="kpi-name">${esc(name)}<small>${esc(en)}</small></div><div class="kpi-val ${cls||''}">${esc(val)}</div></div>` +
+      subs.filter(Boolean).map(x => `<div class="kpi-sub">${esc(x)}</div>`).join('') +
+      `<div class="kpi-f">${esc(formula)}</div>` + (go ? `<br><button type="button" class="kpi-go" data-kgo="${go[0]}">${esc(go[1])} →</button>` : '') + `</div>`);
+
+    // 1. AOV
+    const dj = docs.filter(d => isIncome(d) && inWin(d.date));
+    const pj = ptEntries.filter(x => inWin(x.date));
+    const wj = wesEntries.filter(x => inWin(x.date));
+    const dSum = dj.reduce((a,d) => a+(d.total||0), 0), pSum = pj.reduce((a,x) => a+(x.amount||0), 0);
+    const wSum = wj.reduce((a,x) => { const r = wesCalc(x); return a + (r ? r.pay : 0); }, 0), wDays = new Set(wj.map(x => x.date)).size;
+    const jobs = dj.length + pj.length;
+    if(jobs || wDays){
+      const cats = {};
+      dj.forEach(d => { const k = d.service || 'Other'; (cats[k] = cats[k] || {s:0,n:0}); cats[k].s += d.total||0; cats[k].n++; });
+      pj.forEach(x => { const k = ptCategory(x.note).label; (cats[k] = cats[k] || {s:0,n:0}); cats[k].s += x.amount||0; cats[k].n++; });
+      const best = Object.entries(cats).map(([k,v]) => ({k, a:v.s/v.n})).sort((a,b) => b.a - a.a)[0];
+      kpi(T().k_aov, 'AOV', jobs ? fmt((dSum + pSum) / jobs) : fmt(wSum / wDays), '', [
+        T().k_aov_sub.replace('{d}', dj.length ? fmt(dSum/dj.length) : '—').replace('{p}', pj.length ? fmt(pSum/pj.length) : '—').replace('{w}', wDays ? fmt(wSum/wDays) : '—'),
+        best && Object.keys(cats).length > 1 ? T().k_aov_best.replace('{c}', best.k).replace('{a}', fmt(best.a)) : ''
+      ], T().k_aov_f);
+    } else kpi(T().k_aov, 'AOV', T().k_na, 'mute', [], T().k_aov_f);
+
+    // 2. repeat clients (all time) + quiet clients
+    const cs = clientStats();
+    if(cs.length){
+      const rep = cs.filter(c => c.count >= 2).length;
+      const cut = new Date(); cut.setDate(cut.getDate() - 120);
+      const dorm = cs.filter(c => c.last < toStr(cut)).sort((a,b) => b.total - a.total).slice(0, 3);
+      kpi(T().k_rep, 'Repeat rate · Churn', Math.round(rep / cs.length * 100) + '%', rep ? 'pos' : '', [
+        T().k_rep_sub.replace('{t}', cs.length).replace('{r}', rep),
+        dorm.length ? T().k_rep_dorm.replace('{list}', dorm.map(c => `${c.name} (${c.last})`).join('、')) : ''
+      ], T().k_rep_f);
+    } else kpi(T().k_rep, 'Repeat rate · Churn', T().k_na, 'mute', [], T().k_rep_f);
+
+    // 3. stable income floor (MRR)
+    const wAvg = recentMonthlyAvg(wesMonth);
+    const recSum = fin.recurring.reduce((a,r) => a+(r.amount||0), 0);
+    const stable = wAvg.avg + recSum;
+    kpi(T().k_mrr, 'MRR', stable > 0 ? fmt(stable) + ' ' + T().perMonth : T().k_na, stable > 0 ? 'pos' : 'mute', [
+      T().k_mrr_sub.replace('{w}', fmt(wAvg.avg)).replace('{r}', fmt(recSum)).replace('{n}', fin.recurring.length)
+    ], T().k_mrr_f, fin.recurring.length ? null : ['settings', T().k_run_go]);
+
+    // 4. runway
+    if(fin.savings > 0 && fin.expense > 0){
+      const burn = fin.expense - stable;
+      const allAvg = recentMonthlyAvg(allMonth);
+      const avgLine = allAvg.n ? (allAvg.avg >= fin.expense
+        ? T().k_run_avg_pos.replace('{m}', allAvg.n).replace('{a}', fmt(allAvg.avg)).replace('{x}', fmt(allAvg.avg - fin.expense))
+        : T().k_run_avg_neg.replace('{m}', allAvg.n).replace('{a}', fmt(allAvg.avg)).replace('{x}', fmt(fin.expense - allAvg.avg))) : '';
+      if(burn <= 0) kpi(T().k_run, 'Runway', '∞', 'pos', [T().k_run_ok, avgLine], T().k_run_f);
+      else {
+        const mths = fin.savings / burn;
+        kpi(T().k_run, 'Runway', mths.toFixed(1) + ' ' + T().months, mths < 3 ? 'neg' : mths < 6 ? 'due' : 'pos',
+          [T().k_run_sub.replace('{s}', fmt(fin.savings)).replace('{b}', fmt(burn)), avgLine], T().k_run_f);
+      }
+    } else kpi(T().k_run, 'Runway', T().k_na, 'mute', [T().k_run_need], T().k_run_f, ['settings', T().k_run_go]);
+
+    // 5. ROI of tracked investments made in the period
+    const invs = invEntries.filter(x => x.src && inWin(x.date));
+    if(invs.length){
+      const rs = invs.map(x => Object.assign({x}, invReturn(x)));
+      const inv = invs.reduce((a,x) => a+(x.amount||0), 0), ret = rs.reduce((a,r) => a + r.ret, 0);
+      const roi = inv > 0 ? (ret - inv) / inv * 100 : 0;
+      const best = rs.slice().sort((a,b) => b.roi - a.roi)[0];
+      const worst = rs.filter(r => !r.back).sort((a,b) => (b.x.amount - b.ret) - (a.x.amount - a.ret))[0];
+      kpi(T().k_roi, 'ROI', pct(roi), roi >= 0 ? 'pos' : 'neg', [
+        T().k_roi_sub.replace('{n}', invs.length).replace('{i}', fmt(inv)).replace('{r}', fmt(ret)),
+        rs.length > 1 || best.back ? T().k_roi_best.replace('{note}', best.x.note).replace('{p}', pct(best.roi)) : '',
+        worst ? T().k_roi_worst.replace('{note}', worst.x.note).replace('{d}', fmt(worst.x.amount - worst.ret)) : ''
+      ], T().k_roi_f);
+    } else kpi(T().k_roi, 'ROI', T().k_na, 'mute', [T().k_roi_need], T().k_roi_f, ['exp', T().k_roi_go]);
+
+    // 6. CAC
+    const mkt = invEntries.filter(x => (x.tag === 'marketing' || x.tag === 'portfolio') && inWin(x.date)).reduce((a,x) => a+(x.amount||0), 0);
+    const newC = cs.filter(c => inWin(c.first)).length;
+    if(mkt > 0 && newC > 0) kpi(T().k_cac, 'CAC', fmt(mkt / newC) + ' / ' + (lang==='zh' ? '位' : 'client'), '', [T().k_cac_sub.replace('{s}', fmt(mkt)).replace('{n}', newC)], T().k_cac_f);
+    else if(mkt > 0) kpi(T().k_cac, 'CAC', '—', 'due', [T().k_cac_none.replace('{s}', fmt(mkt))], T().k_cac_f);
+    else if(newC > 0) kpi(T().k_cac, 'CAC', 'RM 0', 'pos', [T().k_cac_free.replace('{n}', newC)], T().k_cac_f, ['exp', T().k_roi_go]);
+    else kpi(T().k_cac, 'CAC', T().k_na, 'mute', [], T().k_cac_f, ['exp', T().k_roi_go]);
+
+    $('kpiBox').innerHTML = out.join('');
+  }
+  $('kpiBox').addEventListener('click', ev => { const b = ev.target.closest('[data-kgo]'); if(b) showView(b.dataset.kgo); });
+
+  // ============================================================
   // home + routing
   // ============================================================
   function refreshHome(){
@@ -4224,7 +4665,8 @@
     if(name === 'wes'){ renderWes(); if(!W.editId) wRenderPunch(); }
     if(name === 'pt') renderPt();
     if(name === 'quote'){ qFillForm(); renderQuote(); }
-    if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); renderRateFields(); setTimeout(sigResize, 30); }
+    if(name === 'exp') renderInv();
+    if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); renderRateFields(); renderFin(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
   }
   document.querySelectorAll('[data-nav]').forEach(el => el.addEventListener('click', () => showView(el.dataset.nav)));
@@ -4264,7 +4706,9 @@
     $('ptFormTitle').textContent = P.editId ? T().ptEdit : T().ptNew;
     $('ptSave').textContent = P.editId ? T().ptUpdate : T().ptSave;
     ptUpdateDetect(); renderPt();
-    renderQuote(); if(currentView === 'settings') renderRateFields();
+    renderQuote(); if(currentView === 'settings'){ renderRateFields(); renderFin(); }
+    $('xFormTitle').textContent = X.editId ? T().xEdit : T().xNew; $('xSave').textContent = X.editId ? T().xUpdate : T().xSave;
+    setPicker('pkXSrc', xSrcLabel(X.src), !X.src); renderInv();
     refreshHome();
   }
   $('langToggle').addEventListener('click', () => { lang = lang === 'zh' ? 'en' : 'zh'; applyLang(); });
@@ -4278,9 +4722,10 @@
   wReset();
   ptReset();
   qFillForm();
+  xReset();
   applyLang();
   refreshHome();
-  showView(({'#wes':'wes', '#pt':'pt', '#quote':'quote'})[location.hash] || 'home');
+  showView(({'#wes':'wes', '#pt':'pt', '#quote':'quote', '#exp':'exp'})[location.hash] || 'home');
   if(restoredFromBackup) setTimeout(() => toast(T().restoredMsg + docs.length), 500);
 })();
 
