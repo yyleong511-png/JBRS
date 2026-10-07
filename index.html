@@ -640,6 +640,9 @@
   .pc-step b{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--ink-mute);}
   .pc-step.set{background:var(--paper);border-color:var(--rose);}
   .pc-step.set b{color:var(--ink);}
+  .pc-steps.six{grid-template-columns:repeat(3,1fr);}
+  .add-brk{background:none;border:1px dashed var(--line);border-radius:10px;color:var(--rose-deep);font-size:13.5px;padding:10px 12px;width:100%;cursor:pointer;margin:2px 0 12px;font-family:'Inter',sans-serif;}
+  .add-brk2-del{background:none;border:none;color:var(--ink-soft);font-size:12px;text-decoration:underline;cursor:pointer;padding:4px 0;margin:-6px 0 10px;font-family:'Inter',sans-serif;}
   .pc-btns{display:flex;gap:10px;margin-top:12px;}
   .pc-btns button{flex:1;min-height:54px;font-size:16px;}
   .pc-undo{background:none;border:none;color:var(--ink-soft);font-size:12.5px;text-decoration:underline;cursor:pointer;margin-top:10px;font-family:'Inter',sans-serif;padding:6px;}
@@ -1067,10 +1070,12 @@
         <div class="pc-time" id="pcTime">--:--</div>
         <div class="pc-status" id="pcStatus"></div>
         <div class="pc-warn" id="pcWarn" style="display:none;"></div>
-        <div class="pc-steps">
+        <div class="pc-steps" id="pcSteps">
           <div class="pc-step" id="pcS1"><small data-t="wesStepIn">上班</small><b>--:--</b></div>
           <div class="pc-step" id="pcS2"><small data-t="wesStepBin">休息</small><b>--:--</b></div>
           <div class="pc-step" id="pcS3"><small data-t="wesStepBout">回来</small><b>--:--</b></div>
+          <div class="pc-step" id="pcS5" style="display:none;"><small data-t="wesStepBin2">休息 2</small><b>--:--</b></div>
+          <div class="pc-step" id="pcS6" style="display:none;"><small data-t="wesStepBout2">回来 2</small><b>--:--</b></div>
           <div class="pc-step" id="pcS4"><small data-t="wesStepOut">下班</small><b>--:--</b></div>
         </div>
         <div class="pc-btns" id="pcBtns"></div>
@@ -1103,6 +1108,20 @@
             <label data-t="wes_l_bout">休息结束 Break Out</label>
             <div class="time-row"><input type="time" id="wBout"><button type="button" class="now-btn" data-now="wBout" data-t="wesNow">现在</button></div>
           </div>
+        </div>
+        <button type="button" class="add-brk" id="wAddBrk2" data-t="wesAddBrk2">＋ 有第二段午休？点这里添加</button>
+        <div id="wBrk2Box" style="display:none;">
+          <div class="field-row">
+            <div class="field">
+              <label data-t="wes_l_bin2">第二段休息开始</label>
+              <div class="time-row"><input type="time" id="wBin2"><button type="button" class="now-btn" data-now="wBin2" data-t="wesNow">现在</button></div>
+            </div>
+            <div class="field">
+              <label data-t="wes_l_bout2">第二段休息结束</label>
+              <div class="time-row"><input type="time" id="wBout2"><button type="button" class="now-btn" data-now="wBout2" data-t="wesNow">现在</button></div>
+            </div>
+          </div>
+          <button type="button" class="add-brk2-del" id="wDelBrk2" data-t="wesDelBrk2">移除第二段休息</button>
         </div>
         <div class="wes-calc" id="wCalc"></div>
         <div class="btn-row">
@@ -1656,6 +1675,10 @@
       wesNew:'手动填写 / 补登', wesEdit:'编辑记录',
       wesManualHint:'打卡的时间会自动出现在这里，并且随时保存在手机里。也可以直接手动填写或补登以前的记录。',
       wesStepIn:'上班', wesStepBin:'休息', wesStepBout:'回来', wesStepOut:'下班',
+      wesStepBin2:'休息 2', wesStepBout2:'回来 2', wesBreakStart2:'第二段休息',
+      wesAddBrk2:'＋ 有第二段午休？点这里添加', wesDelBrk2:'移除第二段休息',
+      wes_l_bin2:'第二段休息开始', wes_l_bout2:'第二段休息结束', wesBreak2:'休息2',
+      wesBrk2Order:'第二段休息要在第一段休息结束之后',
       wesPunchIn:'上班打卡', wesBreakStart:'开始休息', wesBreakEnd:'结束休息', wesPunchOut:'下班打卡',
       wesUndo:'撤销上一步',
       wesSt_off:'还没上班打卡', wesSt_work:'上班中 · 已计薪 {d}', wesSt_break:'休息中 · 已休息 {d}',
@@ -1901,6 +1924,10 @@
       wesNew:'Manual entry', wesEdit:'Edit Entry',
       wesManualHint:'Punched times appear here and are saved on your phone straight away. You can also type times in or add older records.',
       wesStepIn:'In', wesStepBin:'Break', wesStepBout:'Back', wesStepOut:'Out',
+      wesStepBin2:'Break 2', wesStepBout2:'Back 2', wesBreakStart2:'2nd Break',
+      wesAddBrk2:'+ Had a second break? Tap to add', wesDelBrk2:'Remove second break',
+      wes_l_bin2:'2nd Break In', wes_l_bout2:'2nd Break Out', wesBreak2:'Break 2',
+      wesBrk2Order:'The second break must start after the first break ends',
       wesPunchIn:'Clock In', wesBreakStart:'Start Break', wesBreakEnd:'End Break', wesPunchOut:'Clock Out',
       wesUndo:'Undo last punch',
       wesSt_off:'Not clocked in yet', wesSt_work:'Working · {d} paid so far', wesSt_break:'On break · {d} so far',
@@ -3632,13 +3659,24 @@
       if(be < bs) be += 1440;
       brk = be - bs;
     }
+    if(e.breakIn2 && e.breakOut2){
+      let bs = toMin(e.breakIn2), be = toMin(e.breakOut2);
+      if(bs < s) bs += 1440;
+      if(be < bs) be += 1440;
+      brk += be - bs;
+    }
     const total = end - s, work = Math.max(0, total - brk);
     return { total, brk, work, pay: Math.round(work/60*WES_RATE*100)/100 };
   }
   const wDur = m => { const h = Math.floor(m/60), r = m%60; return !h && r ? `${r}${T().min}` : r ? `${h}${T().hr}${r}${T().min}` : `${h}${T().hr}`; };
   const wHrs = m => (m/60).toFixed(2) + 'h';
   const nowHM = () => { const d = new Date(); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
-  function wForm(){ return { date:$('wDate').value, clockIn:$('wIn').value, clockOut:$('wOut').value, breakIn:$('wBin').value, breakOut:$('wBout').value }; }
+  function wForm(){ return { date:$('wDate').value, clockIn:$('wIn').value, clockOut:$('wOut').value, breakIn:$('wBin').value, breakOut:$('wBout').value, breakIn2:$('wBin2').value, breakOut2:$('wBout2').value }; }
+  // second break row stays hidden until it is needed
+  function wShowBrk2(on){
+    $('wBrk2Box').style.display = on ? '' : 'none';
+    $('wAddBrk2').style.display = on ? 'none' : '';
+  }
   function wUpdateCalc(){
     const r = wesCalc(wForm());
     $('wCalc').innerHTML = r ? T().wesCalc.replace('{t}', wDur(r.total)).replace('{b}', wDur(r.brk)).replace('{w}', wDur(r.work)).replace('{p}', fmt(r.pay)) : esc(T().wesCalcEmpty);
@@ -3650,7 +3688,7 @@
   function wSaveDraftFromForm(){
     if(W.editId) return;                          // editing an old record never touches the shift
     const f = wForm();
-    if(f.clockIn || f.clockOut || f.breakIn || f.breakOut) localStorage.setItem(WES_DRAFT_KEY, JSON.stringify(f));
+    if(f.clockIn || f.clockOut || f.breakIn || f.breakOut || f.breakIn2 || f.breakOut2) localStorage.setItem(WES_DRAFT_KEY, JSON.stringify(f));
     else localStorage.removeItem(WES_DRAFT_KEY);
   }
   function wClearDraft(){ localStorage.removeItem(WES_DRAFT_KEY); }
@@ -3660,6 +3698,8 @@
     $('wDate').value = d.date || todayStr();
     $('wIn').value = d.clockIn || ''; $('wOut').value = d.clockOut || '';
     $('wBin').value = d.breakIn || ''; $('wBout').value = d.breakOut || '';
+    $('wBin2').value = d.breakIn2 || ''; $('wBout2').value = d.breakOut2 || '';
+    wShowBrk2(!!(d.breakIn2 || d.breakOut2));
     $('wesFormTitle').textContent = T().wesNew;
     $('wSave').textContent = T().wesSave;
     $('wCancel').style.display = 'none';
@@ -3671,6 +3711,7 @@
   function wPunchState(f){
     if(!f.clockIn) return 'off';
     if(f.breakIn && !f.breakOut) return 'break';
+    if(f.breakIn2 && !f.breakOut2) return 'break2';
     return 'working';
   }
   function wRenderPunch(){
@@ -3682,25 +3723,33 @@
       : now.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
     const f = wForm(), st = wPunchState(f);
     const status = $('pcStatus');
-    status.className = 'pc-status' + (st === 'off' ? '' : ' ' + st);
+    status.className = 'pc-status' + (st === 'off' ? '' : st === 'break2' ? ' break' : ' ' + st);
     if(st === 'off') status.textContent = T().wesSt_off;
     const since = t => (toMin(nowHM()) - toMin(t) + 1440) % 1440;   // minutes from t until now
     if(st === 'working'){
-      const brk = f.breakIn && f.breakOut ? (toMin(f.breakOut) - toMin(f.breakIn) + 1440) % 1440 : 0;
+      const brk = (f.breakIn && f.breakOut ? (toMin(f.breakOut) - toMin(f.breakIn) + 1440) % 1440 : 0)
+                + (f.breakIn2 && f.breakOut2 ? (toMin(f.breakOut2) - toMin(f.breakIn2) + 1440) % 1440 : 0);
       status.textContent = T().wesSt_work.replace('{d}', wDur(Math.max(0, since(f.clockIn) - brk)));
     }
     if(st === 'break') status.textContent = T().wesSt_break.replace('{d}', wDur(since(f.breakIn)));
+    if(st === 'break2') status.textContent = T().wesSt_break.replace('{d}', wDur(since(f.breakIn2)));
     const old = st !== 'off' && f.date && f.date !== todayStr();
     $('pcWarn').style.display = old ? '' : 'none';
     if(old) $('pcWarn').textContent = T().wesSt_old.replace('{date}', f.date);
-    [['pcS1', f.clockIn], ['pcS2', f.breakIn], ['pcS3', f.breakOut], ['pcS4', f.clockOut]].forEach(([id, v]) => {
+    const two = !!(f.breakIn2 || f.breakOut2);
+    $('pcSteps').classList.toggle('six', two);
+    $('pcS5').style.display = $('pcS6').style.display = two ? '' : 'none';
+    $('pcSteps').appendChild($('pcS4'));             // keep "Out" last
+    [['pcS1', f.clockIn], ['pcS2', f.breakIn], ['pcS3', f.breakOut], ['pcS5', f.breakIn2], ['pcS6', f.breakOut2], ['pcS4', f.clockOut]].forEach(([id, v]) => {
       $(id).classList.toggle('set', !!v);
       $(id).querySelector('b').textContent = v || '--:--';
     });
     let btns = '';
     if(st === 'off') btns = `<button type="button" class="primary" data-punch="in">${esc(T().wesPunchIn)}</button>`;
     if(st === 'working' && !f.breakIn) btns = `<button type="button" class="ghost" data-punch="bin">${esc(T().wesBreakStart)}</button><button type="button" class="primary" data-punch="out">${esc(T().wesPunchOut)}</button>`;
-    if(st === 'working' && f.breakIn) btns = `<button type="button" class="primary" data-punch="out">${esc(T().wesPunchOut)}</button>`;
+    if(st === 'working' && f.breakIn && !f.breakIn2) btns = `<button type="button" class="ghost" data-punch="bin2">${esc(T().wesBreakStart2)}</button><button type="button" class="primary" data-punch="out">${esc(T().wesPunchOut)}</button>`;
+    if(st === 'working' && f.breakIn2) btns = `<button type="button" class="primary" data-punch="out">${esc(T().wesPunchOut)}</button>`;
+    if(st === 'break2') btns = `<button type="button" class="primary" data-punch="bout2">${esc(T().wesBreakEnd)}</button>`;
     if(st === 'break') btns = `<button type="button" class="primary" data-punch="bout">${esc(T().wesBreakEnd)}</button>`;
     $('pcBtns').innerHTML = btns;
     $('pcUndo').style.display = st === 'off' ? 'none' : '';
@@ -3711,9 +3760,12 @@
     if(step === 'in'){
       $('wDate').value = todayStr();
       $('wIn').value = t; $('wBin').value = ''; $('wBout').value = ''; $('wOut').value = '';
+      $('wBin2').value = ''; $('wBout2').value = ''; wShowBrk2(false);
     }
     if(step === 'bin') $('wBin').value = t;
     if(step === 'bout') $('wBout').value = t;
+    if(step === 'bin2'){ $('wBin2').value = t; wShowBrk2(true); }
+    if(step === 'bout2') $('wBout2').value = t;
     if(step === 'out'){
       $('wOut').value = t;
       const e = wForm(), err = wValidate(e);
@@ -3731,7 +3783,9 @@
   });
   $('pcUndo').addEventListener('click', () => {
     const f = wForm();
-    if(f.breakOut) $('wBout').value = '';
+    if(f.breakOut2) $('wBout2').value = '';
+    else if(f.breakIn2){ $('wBin2').value = ''; wShowBrk2(false); }
+    else if(f.breakOut) $('wBout').value = '';
     else if(f.breakIn) $('wBin').value = '';
     else if(f.clockIn) $('wIn').value = '';
     wSaveDraftFromForm(); wUpdateCalc(); wRenderPunch();
@@ -3743,6 +3797,12 @@
     if(!e.date) return T().wesNeedDate;
     if(!e.clockIn || !e.clockOut) return T().wesNeedTimes;
     if(!!e.breakIn !== !!e.breakOut) return T().wesNeedBoth;
+    if(!!e.breakIn2 !== !!e.breakOut2) return T().wesNeedBoth;
+    if(e.breakIn2 && !e.breakIn){ e.breakIn = e.breakIn2; e.breakOut = e.breakOut2; e.breakIn2 = e.breakOut2 = ''; }
+    if(e.breakIn2){
+      const rel = t => (toMin(t) - toMin(e.clockIn) + 1440) % 1440;   // minutes after clock in
+      if(rel(e.breakIn2) < rel(e.breakOut)) return T().wesBrk2Order;
+    }
     const r = wesCalc(e);
     if(r.brk > r.total) return T().wesBreakTooLong;
     return '';
@@ -3768,7 +3828,12 @@
     if(!$('wDate').value) $('wDate').value = todayStr();
     wSaveDraftFromForm(); wUpdateCalc(); wRenderPunch();
   }));
-  ['wDate','wIn','wOut','wBin','wBout'].forEach(id => {
+  $('wAddBrk2').addEventListener('click', () => { wShowBrk2(true); $('wBin2').focus(); });
+  $('wDelBrk2').addEventListener('click', () => {
+    $('wBin2').value = ''; $('wBout2').value = ''; wShowBrk2(false);
+    wSaveDraftFromForm(); wUpdateCalc(); if(!W.editId) wRenderPunch();
+  });
+  ['wDate','wIn','wOut','wBin','wBout','wBin2','wBout2'].forEach(id => {
     const on = () => { wSaveDraftFromForm(); wUpdateCalc(); if(!W.editId) wRenderPunch(); };
     $(id).addEventListener('input', on); $(id).addEventListener('change', on);
   });
@@ -3805,7 +3870,7 @@
     $('wMonthList').innerHTML = list.length ? list.map(e => {
       const r = wesCalc(e); mins += r.work; pay += r.pay; days.add(e.date);
       const wd = T().weekdays[new Date(e.date + 'T00:00:00').getDay()];
-      const brk = e.breakIn ? ` · ${T().wesBreak} ${e.breakIn}–${e.breakOut}` : '';
+      const brk = (e.breakIn ? ` · ${T().wesBreak} ${e.breakIn}–${e.breakOut}` : '') + (e.breakIn2 ? ` · ${T().wesBreak2} ${e.breakIn2}–${e.breakOut2}` : '');
       return `<div class="wes-row">
         <div class="wr-main">
           <div class="wr-date">${esc(e.date.slice(5))} (${wd})</div>
@@ -3824,7 +3889,8 @@
     let tm = 0, tp = 0;
     $('wLedgerBody').innerHTML = all.length ? all.map(e => {
       const r = wesCalc(e); tm += r.work; tp += r.pay;
-      const brk = e.breakIn ? `<div class="sub-line">${esc(T().wesBreak)} ${esc(e.breakIn)}–${esc(e.breakOut)}</div>` : '';
+      const brk = (e.breakIn ? `<div class="sub-line">${esc(T().wesBreak)} ${esc(e.breakIn)}–${esc(e.breakOut)}</div>` : '')
+                + (e.breakIn2 ? `<div class="sub-line">${esc(T().wesBreak2)} ${esc(e.breakIn2)}–${esc(e.breakOut2)}</div>` : '');
       return `<tr>
         <td>${esc(e.date.slice(5))}<div class="sub-line">${esc(e.date.slice(0,4))}</div></td>
         <td>${esc(e.clockIn)}–${esc(e.clockOut)}${brk}</td>
@@ -3845,6 +3911,8 @@
       W.editId = e.id;
       $('wDate').value = e.date; $('wIn').value = e.clockIn || ''; $('wOut').value = e.clockOut || '';
       $('wBin').value = e.breakIn || ''; $('wBout').value = e.breakOut || '';
+      $('wBin2').value = e.breakIn2 || ''; $('wBout2').value = e.breakOut2 || '';
+      wShowBrk2(!!(e.breakIn2 || e.breakOut2));
       $('wesFormTitle').textContent = T().wesEdit;
       $('wSave').textContent = T().wesUpdate;
       $('wCancel').style.display = '';
@@ -3866,10 +3934,10 @@
     let total = 0;
     const rows = wesEntries.slice().sort(wSortAsc).map(e => {
       const r = wesCalc(e); total += r.pay;
-      return [e.date, e.clockIn, e.clockOut, e.breakIn||'', e.breakOut||'', (r.work/60).toFixed(2), r.pay.toFixed(2)].map(q).join(',');
+      return [e.date, e.clockIn, e.clockOut, e.breakIn||'', e.breakOut||'', e.breakIn2||'', e.breakOut2||'', (r.work/60).toFixed(2), r.pay.toFixed(2)].map(q).join(',');
     });
-    const head = ['Date','Clock In','Clock Out','Break In','Break Out','Paid Hours','Amount (RM)'].map(q).join(',');
-    const foot = ['Total','','','','','',total.toFixed(2)].map(q).join(',');
+    const head = ['Date','Clock In','Clock Out','Break In','Break Out','Break 2 In','Break 2 Out','Paid Hours','Amount (RM)'].map(q).join(',');
+    const foot = ['Total','','','','','','','',total.toFixed(2)].map(q).join(',');
     download(`wes-part-time-${todayStr()}.csv`, '﻿' + [head, ...rows, foot].join('\r\n'), 'text/csv');
     toast(T().csvExported);
   });
@@ -3896,7 +3964,10 @@
       m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s||''); if(m) return `${m[3]}-${pad2(m[2])}-${pad2(m[1])}`; // DD/MM/YYYY (Excel re-save)
       return '';
     };
-    return rows.map(r => ({ date: ymd(r[0]), clockIn: hm(r[1]), clockOut: hm(r[2]), breakIn: hm(r[3]), breakOut: hm(r[4]) }))
+    // new exports carry "Break 2 In/Out" in columns 6-7; older files have Paid Hours there
+    const two = rows.some(r => /break 2 in/i.test(r[5] || ''));
+    return rows.map(r => ({ date: ymd(r[0]), clockIn: hm(r[1]), clockOut: hm(r[2]), breakIn: hm(r[3]), breakOut: hm(r[4]),
+                            breakIn2: two ? hm(r[5]) : '', breakOut2: two ? hm(r[6]) : '' }))
                .filter(e => e.date && e.clockIn && e.clockOut);   // skips header + total rows
   }
   $('wImportOld').addEventListener('click', () => $('wImportFile').click());
@@ -3915,12 +3986,13 @@
         }
         if(!Array.isArray(data) || !data.length) throw new Error('bad');
         const ids = new Set(wesEntries.map(e => e.id));
-        const sig = e => [e.date, e.clockIn, e.clockOut, e.breakIn||'', e.breakOut||''].join('|');
+        const sig = e => [e.date, e.clockIn, e.clockOut, e.breakIn||'', e.breakOut||'', e.breakIn2||'', e.breakOut2||''].join('|');
         const sigs = new Set(wesEntries.map(sig));
         let n = 0;
         data.forEach(e => {
           if(!e || !e.date || !e.clockIn || !e.clockOut) return;
-          const rec = { id: e.id || uid(), date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakIn:(e.breakIn && e.breakOut) ? e.breakIn : '', breakOut:(e.breakIn && e.breakOut) ? e.breakOut : '' };
+          const rec = { id: e.id || uid(), date:e.date, clockIn:e.clockIn, clockOut:e.clockOut, breakIn:(e.breakIn && e.breakOut) ? e.breakIn : '', breakOut:(e.breakIn && e.breakOut) ? e.breakOut : '',
+                        breakIn2:(e.breakIn2 && e.breakOut2) ? e.breakIn2 : '', breakOut2:(e.breakIn2 && e.breakOut2) ? e.breakOut2 : '' };
           if(ids.has(rec.id) || sigs.has(sig(rec))) return;   // already here
           wesEntries.push(rec); ids.add(rec.id); sigs.add(sig(rec)); n++;
         });
