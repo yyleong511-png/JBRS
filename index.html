@@ -648,6 +648,31 @@
   .pc-undo{background:none;border:none;color:var(--ink-soft);font-size:12.5px;text-decoration:underline;cursor:pointer;margin-top:10px;font-family:'Inter',sans-serif;padding:6px;}
 
   /* ---------- Quotation calculator ---------- */
+  .q-scope textarea{min-height:120px;font-size:13.5px;line-height:1.55;}
+  .q-scope .sub{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+  /* bilingual quotation sheet */
+  .qt-wrap{position:fixed;inset:0;z-index:180;background:var(--ivory);overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .qt-wrap[hidden]{display:none;}
+  .qt-bar{position:sticky;top:0;z-index:3;display:flex;gap:10px;padding:calc(10px + var(--safe-top, 0px)) 16px 10px;background:var(--ivory);border-bottom:1px solid var(--line);}
+  .qt-bar button{flex:1;}
+  .qt-inner{max-width:720px;margin:0 auto;padding:16px 16px 40px;}
+  .doc-quote .wordmark small{display:block;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;margin-top:4px;}
+  .doc-quote .d-items td.desc small{display:block;font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .doc-quote .inv-meta .cell span small{font-size:10px;}
+  .qt-scope{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  @media (max-width:560px){ .qt-scope{grid-template-columns:1fr;} }
+  .qt-box{border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--ivory);}
+  .qt-box .l{font-size:11px;font-weight:700;margin-bottom:6px;}
+  .qt-box.in .l{color:var(--green);} .qt-box.out .l{color:var(--loss);}
+  .qt-box ul{margin:0;padding:0;list-style:none;}
+  .qt-box li{font-size:11.5px;line-height:1.45;padding:4px 0 4px 16px;position:relative;border-bottom:1px dashed var(--line-soft);}
+  .qt-box li:last-child{border-bottom:none;}
+  .qt-box li::before{position:absolute;left:0;top:4px;font-weight:700;}
+  .qt-box.in li::before{content:'✓';color:var(--green);} .qt-box.out li::before{content:'✗';color:var(--loss);}
+  .qt-box li small{display:block;color:var(--ink-soft);font-size:10.5px;margin-top:1px;}
+  .doc-quote .qt-terms{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:560px){ .doc-quote .qt-terms{grid-template-columns:1fr;} }
+  .doc-quote .qt-terms b{display:block;font-size:10.5px;color:var(--ink);margin-bottom:3px;}
   .q-sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .q-sec-head h2{margin:0;}
   .q-body{margin-top:14px;}
@@ -1305,12 +1330,39 @@
       <div class="q-lic"><div class="lab" id="qLicAiLab"></div><div class="amt"><input type="text" inputmode="decimal" id="qAiAmt" data-tp="q_ai_ph" placeholder="另行报价"></div><button type="button" class="switch" data-qsw="ai" aria-label="ai"></button></div>
     </div>
 
+    <div class="panel q-scope">
+      <h2 data-t="q_h_scope">报价单：包含 / 不包含</h2>
+      <p class="hint" data-t="q_scope_hint">每行写一项，用「 / 」分开英文和中文，报价单上会中英双语显示。会根据上面的选项自动填好，你也可以自己改。</p>
+      <div class="field">
+        <label data-t="q_l_incl">✓ 这个价钱包含</label>
+        <textarea id="qIncl" rows="5"></textarea>
+      </div>
+      <div class="field">
+        <label data-t="q_l_excl">✗ 这个价钱不包含</label>
+        <textarea id="qExcl" rows="5"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label data-t="q_l_valid">报价有效期（天）</label>
+          <input type="text" inputmode="numeric" id="qValid" placeholder="14">
+        </div>
+        <div class="field">
+          <label data-t="q_l_shootDate">拍摄日期（选填）</label>
+          <input type="text" id="qShootDate" data-tp="q_shootDate_ph" placeholder="例如：2026-10-20">
+        </div>
+      </div>
+      <button type="button" class="ghost" id="qAutoScope" style="width:100%;" data-t="q_autoScope">按目前选项重新自动填写</button>
+    </div>
+
     <div class="panel q-result">
       <h2 data-t="q_h_result">报价明细</h2>
       <div id="qLines"></div>
       <div class="q-total"><span data-t="q_total">报价总额</span><span id="qTotal">RM 0.00</span></div>
       <div id="qWarns"></div>
       <div class="btn-row">
+        <button class="primary" id="qMakeSheet" data-t="q_makeSheet">生成报价单（中英双语）</button>
+      </div>
+      <div class="btn-row" style="margin-top:10px;">
         <button class="secondary" id="qCopyEn" data-t="q_copyEn">复制英文报价</button>
         <button class="ghost" id="qCopyZh" data-t="q_copyZh">复制中文报价</button>
       </div>
@@ -1531,6 +1583,14 @@
     <button class="primary" id="btnSaveM" data-t="btnSave">保存单据</button>
     <button class="secondary" id="btnPrintM" data-t="btnPrint">存为 PDF</button>
   </div>
+</div>
+
+<div class="qt-wrap" id="qtWrap" hidden>
+  <div class="qt-bar">
+    <button type="button" class="ghost" id="qtClose" data-t="q_sheetClose">← 返回修改</button>
+    <button type="button" class="primary" id="qtPrint" data-t="q_sheetPrint">下载 PDF / 分享</button>
+  </div>
+  <div class="qt-inner"><div id="qtDoc"></div></div>
 </div>
 
 <div class="sheet-wrap" id="sheetWrap" hidden>
@@ -1756,6 +1816,13 @@
       q_copied:'报价已复制，可以直接贴给客户', q_copyFail:'复制失败，请长按选取文字',
       q_invoiced:'已把报价填进新发票，检查后按保存', q_needLines:'报价还是空的',
       q_resetDone:'已清空',
+      q_h_scope:'报价单：包含 / 不包含',
+      q_scope_hint:'每行写一项，用「 / 」分开英文和中文，报价单上会中英双语显示。会根据上面的选项自动填好，你也可以自己改。',
+      q_l_incl:'✓ 这个价钱包含', q_l_excl:'✗ 这个价钱不包含',
+      q_l_valid:'报价有效期（天）', q_l_shootDate:'拍摄日期（选填）', q_shootDate_ph:'例如：2026-10-20',
+      q_autoScope:'按目前选项重新自动填写', q_autoDone:'已按目前选项重新填写',
+      q_makeSheet:'生成报价单（中英双语）', q_sheetClose:'← 返回修改', q_sheetPrint:'下载 PDF / 分享',
+      q_sheetHint:'在打印画面选「存储为 PDF」，就可以发给客户',
       q_w_looks:'造型数量 {n} 超过这个配套的上限 {m} 个，建议改用{sug}或另外收费。',
       q_w_trans:'交通费通常在 RM{a}–{b} 之间。',
       q_w_min:'不足最低预约 {m} 小时，按 {m} 小时计。',
@@ -2005,6 +2072,13 @@
       q_copied:'Quote copied — paste it to your client', q_copyFail:'Could not copy — long-press to select the text',
       q_invoiced:'Quote filled into a new invoice — check it, then Save', q_needLines:'The quote is empty',
       q_resetDone:'Cleared',
+      q_h_scope:'Quotation: included / not included',
+      q_scope_hint:'One item per line. Separate English and Chinese with " / " and the quotation shows both. Filled in from your choices above — edit freely.',
+      q_l_incl:'✓ This price includes', q_l_excl:'✗ This price does not include',
+      q_l_valid:'Quote valid for (days)', q_l_shootDate:'Shoot date (optional)', q_shootDate_ph:'e.g. 2026-10-20',
+      q_autoScope:'Refill from current choices', q_autoDone:'Refilled from your current choices',
+      q_makeSheet:'Create quotation (EN + 中文)', q_sheetClose:'← Back to edit', q_sheetPrint:'Save PDF / Share',
+      q_sheetHint:'Choose "Save as PDF" in the print screen, then send it to your client',
       q_w_looks:'{n} looks is over this package\'s limit of {m} — consider {sug} or charge extra.',
       q_w_trans:'Transport is usually RM{a}–{b}.',
       q_w_min:'Under the {m}-hour minimum booking — billed as {m} hours.',
@@ -4237,7 +4311,8 @@
   // ============================================================
   const QD_KEY = 'jl.quoteDraft';
   const Q_BLANK = () => ({ client:'', model:true, pkg:'hourly', hours:'', looks:1, mua:false, muaLooks:1,
-    fitting:'', transport:'', social:false, print:false, global:false, ai:false, globalAmt:'', aiAmt:'' });
+    fitting:'', transport:'', social:false, print:false, global:false, ai:false, globalAmt:'', aiAmt:'',
+    incl:null, excl:null, valid:'', shootDate:'' });   // incl / excl: null = follow the choices automatically
   let Q = Object.assign(Q_BLANK(), readJSON(QD_KEY, null) || {});
   const saveQ = () => { try{ localStorage.setItem(QD_KEY, JSON.stringify(Q)); }catch(e){} };
   const rm = n => 'RM' + (Math.round(n*100)/100).toLocaleString('en-MY', {maximumFractionDigits:2});
@@ -4332,6 +4407,8 @@
     $('qTransport').value = Q.transport || '';
     $('qGlobalAmt').value = Q.globalAmt || '';
     $('qAiAmt').value = Q.aiAmt || '';
+    $('qValid').value = Q.valid || '';
+    $('qShootDate').value = Q.shootDate || '';
   }
   function renderQuote(){
     const R = rates;
@@ -4366,6 +4443,10 @@
     }).join('') : `<div class="q-empty">${esc(T().q_nothing)}</div>`;
     $('qTotal').textContent = fmt(q.total);
     $('qWarns').innerHTML = q.warns.map(w => `<div class="q-warn">${esc(w)}</div>`).join('');
+    // inclusions follow the choices until edited by hand
+    const sc = qScopeAuto();
+    if(Q.incl === null && document.activeElement !== $('qIncl')) $('qIncl').value = sc.incl;
+    if(Q.excl === null && document.activeElement !== $('qExcl')) $('qExcl').value = sc.excl;
   }
   document.querySelectorAll('[data-qsw]').forEach(s => s.addEventListener('click', () => {
     const k = s.dataset.qsw; Q[k] = !Q[k]; saveQ(); renderQuote();
@@ -4381,7 +4462,137 @@
       if(k === 'aiAmt' && Q.aiAmt && !Q.ai) Q.ai = true;
       saveQ(); renderQuote();
     }));
+  [['qIncl','incl'],['qExcl','excl']].forEach(([id,k]) => $(id).addEventListener('input', () => { Q[k] = $(id).value; saveQ(); }));
+  [['qValid','valid'],['qShootDate','shootDate']].forEach(([id,k]) => $(id).addEventListener('input', () => { Q[k] = $(id).value; saveQ(); }));
+  $('qAutoScope').addEventListener('click', () => { Q.incl = null; Q.excl = null; saveQ(); renderQuote(); toast(T().q_autoDone); });
   $('qReset').addEventListener('click', () => { Q = Q_BLANK(); saveQ(); qFillForm(); renderQuote(); toast(T().q_resetDone); });
+
+  // ---------- bilingual quotation sheet ----------
+  // default "included / not included" lines from the current choices ("English / 中文" per line)
+  function qScopeAuto(){
+    const R = rates, inc = [], exc = [];
+    const hours = num(Q.hours);
+    if(Q.model){
+      const m = qModel(Q.pkg, hours);
+      const looks = Math.min(Q.looks, m.maxLooks) || 1;
+      const h = Math.round(m.billed*100)/100;
+      if(Q.pkg === 'hourly') inc.push(`Model service — ${h}h shooting time, up to ${looks} look${looks>1?'s':''} / 模特服务 — 拍摄 ${h} 小时，${looks} 个造型`);
+      else inc.push(`Model service — ${Q.pkg==='half'?'Half Day':'Full Day'} package, ${h}h shooting time, up to ${looks} look${looks>1?'s':''} / 模特服务 — ${Q.pkg==='half'?'半天':'全天'}配套，拍摄 ${h} 小时，${looks} 个造型`);
+    }
+    if(Q.mua){
+      const n = Math.max(1, Q.muaLooks);
+      inc.push(`Makeup & hairstyling — ${n} complete look${n>1?'s':''}, on-set touch-ups / 妆造（化妆 + 发型）${n} 套，含现场补妆`);
+    }
+    if(num(Q.fitting) > 0) inc.push(`Fitting session — ${num(Q.fitting)}h / 试装 ${num(Q.fitting)} 小时`);
+    if(num(Q.transport) > 0) inc.push('Transport within KL & Klang Valley / KL 与巴生谷内交通');
+    if(Q.social) inc.push('Image usage — social media, Malaysia, 1 year / 肖像授权 — 社交媒体，马来西亚境内，1 年');
+    if(Q.print) inc.push('Image usage — print / DOOH & OOH, Malaysia, 1 year / 肖像授权 — 印刷 / 户外广告，马来西亚境内，1 年');
+    if(Q.global) inc.push('Image usage — global, 5 years / 肖像授权 — 全球范围，5 年');
+    if(Q.ai) inc.push('AI digital likeness license / AI 数字肖像授权');
+
+    if(!Q.mua) exc.push('Makeup & hairstyling / 化妆与发型');
+    exc.push('Wardrobe, outfits & props (provided by client) / 服装、配饰与道具（由客户提供）');
+    if(!(num(Q.transport) > 0)) exc.push('Transport / 交通费');
+    exc.push('Accommodation & meals / 住宿与餐食');
+    if(Q.model) exc.push(`Overtime beyond the booked hours — RM${R.otRate}/h, ${R.otBlock}-min blocks / 超出预约时数的超时费 — RM${R.otRate}/小时，每 ${R.otBlock} 分钟计`);
+    if(!Q.social && !Q.print && !Q.global) exc.push('Image usage license (quoted separately) / 肖像使用授权（另行报价）');
+    else if(!Q.global) exc.push('Usage beyond the license stated above / 超出以上授权范围的使用');
+    if(!Q.ai) exc.push('AI digital likeness usage / AI 数字肖像使用');
+    return { incl: inc.join('\n'), excl: exc.join('\n') };
+  }
+  // "English / 中文" → [English, 中文]; a line in one language stays as is
+  function qSplit(line){
+    const i = line.indexOf(' / ');
+    if(i < 0) return [line.trim(), ''];
+    return [line.slice(0, i).trim(), line.slice(i + 3).trim()];
+  }
+  function qScopeList(text){
+    return String(text || '').split(/\r?\n/).map(l => l.replace(/^[\s•\-✓✗*]+/, '').trim()).filter(Boolean)
+      .map(l => { const [a, b] = qSplit(l); return `<li>${esc(a)}${b ? `<small>${esc(b)}</small>` : ''}</li>`; }).join('');
+  }
+  function quoteSheetHTML(){
+    const q = quoteCalc(), b = biz, name = esc(b.name || 'Your Name');
+    const sc = qScopeAuto();
+    const incl = Q.incl === null ? sc.incl : Q.incl, excl = Q.excl === null ? sc.excl : Q.excl;
+    const days = Math.max(1, Math.round(num(Q.valid)) || 14);
+    const d = new Date(); const until = new Date(d.getTime() + days*86400000);
+    const no = 'QT-' + todayStr().replace(/-/g, '') + '-' + pad2(d.getHours()) + pad2(d.getMinutes());
+    const rows = q.lines.map(l => `<tr>
+        <td class="desc">${esc(l.en)}<small>${esc(l.zh)}</small></td>
+        <td class="num">${l.note ? 'TBC<br><small>另行报价</small>' : fmt(l.amount)}</td>
+      </tr>`).join('');
+    const inL = qScopeList(incl), exL = qScopeList(excl);
+    const tEn = (rates.termsEn || '').trim(), tZh = (rates.termsZh || '').trim();
+    return { no, html: `<div class="doc doc-invoice doc-quote style-classic" id="qtNode">
+      <div class="inv-head">
+        <div>
+          <div class="biz">${name}</div>
+          ${b.sub ? `<div class="biz-sub">${esc(b.sub)}</div>` : ''}
+          <div class="contact">${esc(supplierLines(b))}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="wordmark">Quotation<small>报价单</small></div>
+          <div class="inv-no">${esc(no)}</div>
+        </div>
+      </div>
+      <hr class="rule">
+      <div class="inv-meta">
+        <div class="cell"><span>Prepared for <small>客户</small></span><b>${esc(Q.client || '—')}</b></div>
+        <div class="stack">
+          <div class="cell"><span>Date <small>日期</small></span><b>${esc(todayStr())}</b></div>
+          <div class="cell"><span>Valid until <small>有效至</small></span><b>${esc(toStr(until))}</b></div>
+          ${Q.shootDate ? `<div class="cell"><span>Shoot date <small>拍摄日期</small></span><b>${esc(Q.shootDate)}</b></div>` : ''}
+        </div>
+      </div>
+      <table class="d-items"><thead><tr><th>Description 项目</th><th class="num">Amount 金额</th></tr></thead><tbody>${rows}</tbody></table>
+      <div class="d-totals"><div class="row grand"><span>Total 报价总额</span><span>${fmt(q.total)}</span></div></div>
+      ${inL || exL ? `<div class="qt-scope">
+        ${inL ? `<div class="qt-box in"><div class="l">✓ Included 包含</div><ul>${inL}</ul></div>` : ''}
+        ${exL ? `<div class="qt-box out"><div class="l">✗ Not included 不包含</div><ul>${exL}</ul></div>` : ''}
+      </div>` : ''}
+      ${tEn || tZh ? `<div class="d-terms qt-terms">
+        ${tEn ? `<div><b>Terms</b>${esc(tEn)}</div>` : ''}${tZh ? `<div><b>条款</b>${esc(tZh)}</div>` : ''}
+      </div>` : ''}
+      <div class="d-note">This quotation is valid for ${days} days. Prices in Malaysian Ringgit (MYR).
+本报价有效期 ${days} 天，金额以马币（MYR）计算。</div>
+      ${signatureHTML(b)}
+      <div class="d-foot">${esc(no)} · ${name}</div>
+    </div>` };
+  }
+  let qtNo = '';
+  $('qMakeSheet').addEventListener('click', () => {
+    if(!quoteCalc().lines.length){ toast(T().q_needLines); return; }
+    const r = quoteSheetHTML(); qtNo = r.no;
+    $('qtDoc').innerHTML = r.html;
+    $('qtWrap').hidden = false; $('qtWrap').scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+  });
+  function qtClose(){ $('qtWrap').hidden = true; document.body.style.overflow = ''; }
+  $('qtClose').addEventListener('click', qtClose);
+  let qtPrinting = false, qtPrevTitle = '';
+  $('qtPrint').addEventListener('click', () => {
+    const node = $('qtNode'); if(!node) return;
+    $('printRoot').innerHTML = '';
+    $('printRoot').appendChild(node.cloneNode(true));
+    document.body.classList.add('printing');
+    qtPrevTitle = document.title;
+    document.title = [qtNo, Q.client].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g, '');   // PDF filename
+    qtPrinting = true;
+    toast(T().q_sheetHint);
+    setTimeout(() => { try{ window.print(); }catch(e){ qtAfterPrint(); } }, 80);
+  });
+  function qtAfterPrint(){
+    if(!qtPrinting) return;
+    qtPrinting = false;
+    document.body.classList.remove('printing');
+    $('printRoot').innerHTML = '';
+    document.title = qtPrevTitle || 'Jesse L Backstage';
+  }
+  window.addEventListener('afterprint', qtAfterPrint);
+  // iOS does not always fire afterprint
+  window.addEventListener('focus', () => { if(qtPrinting) setTimeout(qtAfterPrint, 500); });
+  document.addEventListener('visibilitychange', () => { if(!document.hidden && qtPrinting) setTimeout(qtAfterPrint, 500); });
+  if(window.matchMedia) window.matchMedia('print').addEventListener?.('change', e => { if(!e.matches) setTimeout(qtAfterPrint, 120); });
 
   function quoteText(l){
     const q = quoteCalc();
