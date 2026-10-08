@@ -3743,7 +3743,8 @@
     return { total, brk, work, pay: Math.round(work/60*WES_RATE*100)/100 };
   }
   const wDur = m => { const h = Math.floor(m/60), r = m%60; return !h && r ? `${r}${T().min}` : r ? `${h}${T().hr}${r}${T().min}` : `${h}${T().hr}`; };
-  const wHrs = m => (m/60).toFixed(2) + 'h';
+  // decimal hours rounded to 0.1, e.g. 450 min → 7.5 小时 / 7.5h (display only; pay uses exact minutes)
+  const wHrs = m => { const h = Math.round(m/6)/10; return lang === 'zh' ? `${h} ${T().hr}` : `${h}${T().hr}`; };
   const nowHM = () => { const d = new Date(); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
   function wForm(){ return { date:$('wDate').value, clockIn:$('wIn').value, clockOut:$('wOut').value, breakIn:$('wBin').value, breakOut:$('wBout').value, breakIn2:$('wBin2').value, breakOut2:$('wBout2').value }; }
   // second break row stays hidden until it is needed
@@ -3753,7 +3754,7 @@
   }
   function wUpdateCalc(){
     const r = wesCalc(wForm());
-    $('wCalc').innerHTML = r ? T().wesCalc.replace('{t}', wDur(r.total)).replace('{b}', wDur(r.brk)).replace('{w}', wDur(r.work)).replace('{p}', fmt(r.pay)) : esc(T().wesCalcEmpty);
+    $('wCalc').innerHTML = r ? T().wesCalc.replace('{t}', wHrs(r.total)).replace('{b}', wHrs(r.brk)).replace('{w}', wHrs(r.work)).replace('{p}', fmt(r.pay)) : esc(T().wesCalcEmpty);
   }
   // The shift in progress is kept on the phone (not just in the form), so
   // clock in / break / back / clock out can be punched hours apart.
@@ -3849,7 +3850,7 @@
       saveWes(); wClearDraft();
       W.month = e.date.slice(0,7);
       wReset(); renderWes();
-      toast(T().wesDayDone.replace('{w}', wDur(r.work)).replace('{p}', fmt(r.pay)));
+      toast(T().wesDayDone.replace('{w}', wHrs(r.work)).replace('{p}', fmt(r.pay)));
       return;
     }
     wSaveDraftFromForm(); wUpdateCalc(); wRenderPunch();
@@ -3948,7 +3949,7 @@
       return `<div class="wes-row">
         <div class="wr-main">
           <div class="wr-date">${esc(e.date.slice(5))} (${wd})</div>
-          <div class="wr-meta">${esc(e.clockIn)}–${esc(e.clockOut)}${esc(brk)}<br>${wDur(r.work)}</div>
+          <div class="wr-meta">${esc(e.clockIn)}–${esc(e.clockOut)}${esc(brk)}<br>${wHrs(r.work)}</div>
         </div>
         <div><div class="wr-amt">${fmt(r.pay)}</div><div class="row-btns">${wRowBtns(e.id)}</div></div>
       </div>`;
