@@ -91,7 +91,8 @@
     background:var(--paper);border:1px solid var(--line);border-radius:14px;
     padding:16px 8px;box-shadow:var(--shadow);
   }
-  .hs-cell{text-align:center;padding:0 4px;}
+  .hs-cell{text-align:center;padding:4px;background:none;border:none;border-radius:10px;cursor:pointer;font-family:inherit;color:inherit;min-height:0;font-weight:inherit;}
+  .hs-cell:active{background:var(--ivory);}
   .hs-cell + .hs-cell{border-left:1px solid var(--line-soft);}
   .hs-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;}
   .hs-val.due{color:var(--amber);}
@@ -202,6 +203,9 @@
   .sheet-opt.sel{background:var(--ivory);font-weight:600;color:var(--rose-deep);}
   .sheet-opt .tick{color:var(--rose-deep);font-size:15px;}
   .sheet-opt small{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
+  .sheet-opt .hl-amt{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;white-space:nowrap;text-align:right;}
+  .sheet-opt .hl-amt small{text-align:right;}
+  .sheet-opt .hl-amt.due{color:var(--amber);} .sheet-opt .hl-amt.void{color:var(--ink-mute);text-decoration:line-through;}
 
   /* ---------- Segmented ---------- */
   .seg{display:flex;gap:6px;background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:5px;}
@@ -766,9 +770,9 @@
       <p data-t="homeSubtitle">私人单据与收入记录系统</p>
     </div>
     <div class="home-summary">
-      <div class="hs-cell"><div class="hs-val" id="hsReceived">RM 0</div><div class="hs-lab" data-t="hsReceived">本月已收</div></div>
-      <div class="hs-cell"><div class="hs-val due" id="hsDue">RM 0</div><div class="hs-lab" data-t="hsDue">未收款</div></div>
-      <div class="hs-cell"><div class="hs-val" id="hsCount">0</div><div class="hs-lab" data-t="hsCount">单据总数</div></div>
+      <button type="button" class="hs-cell" data-hs="recv"><div class="hs-val" id="hsReceived">RM 0</div><div class="hs-lab"><span data-t="hsReceived">本月已收</span> ›</div></button>
+      <button type="button" class="hs-cell" data-hs="due"><div class="hs-val due" id="hsDue">RM 0</div><div class="hs-lab"><span data-t="hsDue">未收款</span> ›</div></button>
+      <button type="button" class="hs-cell" data-hs="docs"><div class="hs-val" id="hsCount">0</div><div class="hs-lab"><span data-t="hsCount">单据总数</span> ›</div></button>
     </div>
     <div class="home-grid">
       <button class="home-card" data-new="invoice">
@@ -1629,6 +1633,9 @@
       title_invoice:'开立发票', title_receipt:'开立收据',
       homeSubtitle:'私人单据与收入记录系统',
       hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', hsCount:'单据总数',
+      hl_recv:'本月已收', hl_due:'未收款', hl_docs:'全部单据', hl_empty:'这里还没有记录',
+      hl_wesMonth:'Wes 兼职 · {m}', hl_wesSub:'{n} 天 · {h}', hl_pt:'外接 Part Time', hl_noClient:'（没有客户名）',
+      hl_inv:'发票', hl_rcp:'收据', hl_st_unpaid:'未付', hl_st_partial:'部分付款', hl_st_paid:'已付', hl_st_overdue:'逾期', hl_st_void:'已作废', hl_st_converted:'已开收据',
       cardInvTitle:'开立发票', cardInvDesc:'先向客户收费，可设定到期日与付款状态',
       cardRcpTitle:'开立收据', cardRcpDesc:'已收到钱之后，开一张付款证明给客户',
       cardDocsTitle:'单据记录', cardDocsDesc:'发票与收据分开管理，可筛选日期与类别',
@@ -1885,6 +1892,9 @@
       title_invoice:'New Invoice', title_receipt:'New Receipt',
       homeSubtitle:'Private billing and income records',
       hsReceived:'This month · all', hsDue:'Outstanding · all', hsCount:'Documents',
+      hl_recv:'Received this month', hl_due:'Outstanding', hl_docs:'All documents', hl_empty:'Nothing here yet',
+      hl_wesMonth:'Wes Part Time · {m}', hl_wesSub:'{n} days · {h}', hl_pt:'Outside Part Time', hl_noClient:'(no client name)',
+      hl_inv:'Invoice', hl_rcp:'Receipt', hl_st_unpaid:'Unpaid', hl_st_partial:'Partially paid', hl_st_paid:'Paid', hl_st_overdue:'Overdue', hl_st_void:'Void', hl_st_converted:'Receipt issued',
       cardInvTitle:'New Invoice', cardInvDesc:'Bill a client, with a due date and payment status',
       cardRcpTitle:'New Receipt', cardRcpDesc:'Confirm money you have already received',
       cardDocsTitle:'Documents', cardDocsDesc:'Invoices and receipts, filtered by date and category',
@@ -4928,6 +4938,60 @@
     $('hsDue').textContent = fmtShort(due);
     $('hsCount').textContent = docs.length;
   }
+  // tap a home figure → the list behind it (documents, Wes months, outside part time)
+  function homeList(kind){
+    const now = new Date();
+    const mStart = toStr(new Date(now.getFullYear(), now.getMonth(), 1));
+    const mEnd = toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
+    const inWin = kind === 'recv' ? (ds => inRange(ds, mStart, mEnd)) : (() => true);
+    const rows = [];
+    const docRow = d => {
+      const st = isVoid(d) ? 'void' : d.convertedToId ? 'converted' : d.docType === 'invoice' ? effStatus(d.status, d.dueDate) : 'paid';
+      const cls = st === 'void' ? 'void' : isOutstanding(d) ? 'due' : '';
+      rows.push({ date:d.date || '', value:'doc:' + d.id, cls,
+        label:`${d.docType === 'invoice' ? '📄' : '🧾'} ${d.client || T().hl_noClient}`,
+        sub:`${d.no} · ${d.date || '—'}`, amt:d.total || 0, st:T()['hl_st_' + st] || '' });
+    };
+    if(kind === 'docs') docs.forEach(docRow);
+    else docs.filter(d => (kind === 'recv' ? isIncome(d) : isOutstanding(d)) && inWin(d.date)).forEach(docRow);
+    if(kind !== 'docs'){
+      // Wes: one row per month (salary is paid monthly)
+      const months = {};
+      wesEntries.filter(e => inWin(e.date) && (kind === 'recv' ? wesPaidFor(e) : !wesPaidFor(e))).forEach(e => {
+        const r = wesCalc(e); if(!r) return;
+        const m = String(e.date).slice(0,7);
+        const g = months[m] || (months[m] = { pay:0, min:0, days:new Set() });
+        g.pay += r.pay; g.min += r.work; g.days.add(e.date);
+      });
+      Object.keys(months).forEach(m => {
+        const g = months[m], [y, mo] = m.split('-').map(Number);
+        const mName = lang === 'zh' ? `${y} 年 ${mo} 月` : new Date(y, mo-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+        rows.push({ date:m + '-31', value:'wes:' + m, cls:kind === 'due' ? 'due' : '', label:'🕘 ' + T().hl_wesMonth.replace('{m}', mName),
+          sub:T().hl_wesSub.replace('{n}', g.days.size).replace('{h}', wHrs(g.min)), amt:g.pay, st:'' });
+      });
+      ptEntries.filter(e => inWin(e.date) && (kind === 'recv' ? e.paid : !e.paid)).forEach(e => rows.push({
+        date:e.date || '', value:'pt:' + e.id, cls:kind === 'due' ? 'due' : '', label:'🎬 ' + (e.note || T().hl_pt).split('\n')[0].slice(0, 40),
+        sub:`${T().hl_pt} · ${e.date || '—'}`, amt:e.amount || 0, st:'' }));
+    }
+    rows.sort((a, b) => b.date.localeCompare(a.date));
+    const total = rows.filter(r => r.cls !== 'void').reduce((a, r) => a + r.amt, 0);
+    const title = kind === 'docs' ? `${T().hl_docs} · ${rows.length}` : `${T()['hl_' + kind]} · ${fmt(total)}`;
+    $('sheetTitle').textContent = title;
+    $('sheetBody').innerHTML = rows.length ? rows.map(r =>
+      `<button type="button" class="sheet-opt" data-value="${esc(r.value)}">
+         <span>${esc(r.label)}<small>${esc(r.sub)}</small></span>
+         <span class="hl-amt ${r.cls}">${fmt(r.amt)}${r.st ? `<small>${esc(r.st)}</small>` : ''}</span>
+       </button>`).join('') : `<div class="empty-hint">${esc(T().hl_empty)}</div>`;
+    sheetHandler = v => {
+      const [type, id] = [v.slice(0, v.indexOf(':')), v.slice(v.indexOf(':') + 1)];
+      if(type === 'doc'){ const rec = docs.find(d => d.id === id); if(rec) loadDoc(rec); }
+      if(type === 'wes'){ W.month = id; showView('wes'); wSetTab('clock'); }
+      if(type === 'pt'){ const e = ptEntries.find(x => x.id === id); if(e) P.month = String(e.date).slice(0,7); showView('pt'); }
+    };
+    $('sheetWrap').hidden = false;
+  }
+  document.querySelectorAll('[data-hs]').forEach(b => b.addEventListener('click', () => homeList(b.dataset.hs)));
+
   let currentView = 'home';
   function setTopbarTitle(){
     let title = T()['title_' + currentView] || '';
