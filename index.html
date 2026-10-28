@@ -95,7 +95,7 @@
   .hs-cell:active{background:var(--ivory);}
   .hs-cell + .hs-cell{border-left:1px solid var(--line-soft);}
   .hs-val{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;}
-  .hs-val.due{color:var(--amber);}
+  .hs-val.due{color:var(--amber);} .hs-val.pos{color:var(--green);}
   .hs-lab{font-size:10.5px;color:var(--ink-soft);margin-top:4px;}
   .home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;}
   @media (max-width:640px){.home-grid{grid-template-columns:1fr;}}
@@ -772,7 +772,7 @@
     <div class="home-summary">
       <button type="button" class="hs-cell" data-hs="recv"><div class="hs-val" id="hsReceived">RM 0</div><div class="hs-lab"><span data-t="hsReceived">本月已收</span> ›</div></button>
       <button type="button" class="hs-cell" data-hs="due"><div class="hs-val due" id="hsDue">RM 0</div><div class="hs-lab"><span data-t="hsDue">未收款</span> ›</div></button>
-      <button type="button" class="hs-cell" data-hs="docs"><div class="hs-val" id="hsCount">0</div><div class="hs-lab"><span data-t="hsCount">单据总数</span> ›</div></button>
+      <button type="button" class="hs-cell" data-hs="month"><div class="hs-val pos" id="hsMonth">RM 0</div><div class="hs-lab"><span data-t="hsMonth">本月总收入</span> ›</div></button>
     </div>
     <div class="home-grid">
       <button class="home-card" data-new="invoice">
@@ -824,11 +824,18 @@
           <div class="hc-desc" data-t="cardPtDesc">Usher、TVC、演员等外接工作，写备注就会自动分类分析</div>
         </div>
       </button>
-      <button class="home-card wide" data-nav="exp">
+      <button class="home-card" data-nav="exp">
         <div class="hc-icon">💼</div>
         <div>
           <div class="hc-title" data-t="cardExpTitle">投资 / 支出</div>
           <div class="hc-desc" data-t="cardExpDesc">作品集、器材、宣传、课程的花费，自动算回本进度和 ROI</div>
+        </div>
+      </button>
+      <button class="home-card" id="cardWardrobe">
+        <div class="hc-icon">👗</div>
+        <div>
+          <div class="hc-title" data-t="cardWardTitle">衣橱预算账本</div>
+          <div class="hc-desc" data-t="cardWardDesc">按这个月收入算出能花在衣服首饰上的钱，加入清单看会不会超支</div>
         </div>
       </button>
     </div>
@@ -1632,8 +1639,9 @@
       title_home:'', title_docs:'单据记录', title_income:'收入分析', title_settings:'设置',
       title_invoice:'开立发票', title_receipt:'开立收据',
       homeSubtitle:'私人单据与收入记录系统',
-      hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', hsCount:'单据总数',
-      hl_recv:'本月已收', hl_due:'未收款', hl_docs:'全部单据', hl_empty:'这里还没有记录',
+      hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', hsMonth:'本月总收入',
+      cardWardTitle:'衣橱预算账本', cardWardDesc:'按这个月收入算出能花在衣服首饰上的钱，加入清单看会不会超支',
+      hl_recv:'本月已收', hl_due:'未收款', hl_month:'本月总收入', hl_empty:'这里还没有记录',
       hl_wesMonth:'Wes 兼职 · {m}', hl_wesSub:'{n} 天 · {h}', hl_pt:'外接 Part Time', hl_noClient:'（没有客户名）',
       hl_inv:'发票', hl_rcp:'收据', hl_st_unpaid:'未付', hl_st_partial:'部分付款', hl_st_paid:'已付', hl_st_overdue:'逾期', hl_st_void:'已作废', hl_st_converted:'已开收据',
       cardInvTitle:'开立发票', cardInvDesc:'先向客户收费，可设定到期日与付款状态',
@@ -1891,8 +1899,9 @@
       title_home:'', title_docs:'Documents', title_income:'Income', title_settings:'Settings',
       title_invoice:'New Invoice', title_receipt:'New Receipt',
       homeSubtitle:'Private billing and income records',
-      hsReceived:'This month · all', hsDue:'Outstanding · all', hsCount:'Documents',
-      hl_recv:'Received this month', hl_due:'Outstanding', hl_docs:'All documents', hl_empty:'Nothing here yet',
+      hsReceived:'This month · all', hsDue:'Outstanding · all', hsMonth:'Total this month',
+      cardWardTitle:'Wardrobe Ledger', cardWardDesc:'Turn this month\'s income into a clothes & jewellery budget and check your wishlist',
+      hl_recv:'Received this month', hl_due:'Outstanding', hl_month:'Total income this month', hl_empty:'Nothing here yet',
       hl_wesMonth:'Wes Part Time · {m}', hl_wesSub:'{n} days · {h}', hl_pt:'Outside Part Time', hl_noClient:'(no client name)',
       hl_inv:'Invoice', hl_rcp:'Receipt', hl_st_unpaid:'Unpaid', hl_st_partial:'Partially paid', hl_st_paid:'Paid', hl_st_overdue:'Overdue', hl_st_void:'Void', hl_st_converted:'Receipt issued',
       cardInvTitle:'New Invoice', cardInvDesc:'Bill a client, with a due date and payment status',
@@ -4936,14 +4945,18 @@
     const due = sourceTotals(() => true).due;
     $('hsReceived').textContent = fmtShort(received);
     $('hsDue').textContent = fmtShort(due);
-    $('hsCount').textContent = docs.length;
+    // this month's total income = received + still owed, from every source
+    const m = sourceTotals(ds => inRange(ds, mStart, mEnd));
+    $('hsMonth').textContent = fmtShort(m.recv + m.due);
   }
   // tap a home figure → the list behind it (documents, Wes months, outside part time)
   function homeList(kind){
     const now = new Date();
     const mStart = toStr(new Date(now.getFullYear(), now.getMonth(), 1));
     const mEnd = toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
-    const inWin = kind === 'recv' ? (ds => inRange(ds, mStart, mEnd)) : (() => true);
+    const inWin = kind === 'due' ? (() => true) : (ds => inRange(ds, mStart, mEnd));
+    // recv = money in, due = still owed, month = both (this month's total income)
+    const want = paid => kind === 'month' || (kind === 'recv' ? paid : !paid);
     const rows = [];
     const docRow = d => {
       const st = isVoid(d) ? 'void' : d.convertedToId ? 'converted' : d.docType === 'invoice' ? effStatus(d.status, d.dueDate) : 'paid';
@@ -4952,30 +4965,29 @@
         label:`${d.docType === 'invoice' ? '📄' : '🧾'} ${d.client || T().hl_noClient}`,
         sub:`${d.no} · ${d.date || '—'}`, amt:d.total || 0, st:T()['hl_st_' + st] || '' });
     };
-    if(kind === 'docs') docs.forEach(docRow);
-    else docs.filter(d => (kind === 'recv' ? isIncome(d) : isOutstanding(d)) && inWin(d.date)).forEach(docRow);
-    if(kind !== 'docs'){
+    docs.filter(d => inWin(d.date) && ((isIncome(d) && want(true)) || (isOutstanding(d) && want(false)))).forEach(docRow);
+    {
       // Wes: one row per month (salary is paid monthly)
       const months = {};
-      wesEntries.filter(e => inWin(e.date) && (kind === 'recv' ? wesPaidFor(e) : !wesPaidFor(e))).forEach(e => {
+      wesEntries.filter(e => inWin(e.date) && want(wesPaidFor(e))).forEach(e => {
         const r = wesCalc(e); if(!r) return;
         const m = String(e.date).slice(0,7);
-        const g = months[m] || (months[m] = { pay:0, min:0, days:new Set() });
+        const g = months[m] || (months[m] = { pay:0, min:0, days:new Set(), paid:wesPaidFor(e) });
         g.pay += r.pay; g.min += r.work; g.days.add(e.date);
       });
       Object.keys(months).forEach(m => {
         const g = months[m], [y, mo] = m.split('-').map(Number);
         const mName = lang === 'zh' ? `${y} 年 ${mo} 月` : new Date(y, mo-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
-        rows.push({ date:m + '-31', value:'wes:' + m, cls:kind === 'due' ? 'due' : '', label:'🕘 ' + T().hl_wesMonth.replace('{m}', mName),
+        rows.push({ date:m + '-31', value:'wes:' + m, cls:g.paid ? '' : 'due', label:'🕘 ' + T().hl_wesMonth.replace('{m}', mName),
           sub:T().hl_wesSub.replace('{n}', g.days.size).replace('{h}', wHrs(g.min)), amt:g.pay, st:'' });
       });
-      ptEntries.filter(e => inWin(e.date) && (kind === 'recv' ? e.paid : !e.paid)).forEach(e => rows.push({
-        date:e.date || '', value:'pt:' + e.id, cls:kind === 'due' ? 'due' : '', label:'🎬 ' + (e.note || T().hl_pt).split('\n')[0].slice(0, 40),
+      ptEntries.filter(e => inWin(e.date) && want(!!e.paid)).forEach(e => rows.push({
+        date:e.date || '', value:'pt:' + e.id, cls:e.paid ? '' : 'due', label:'🎬 ' + (e.note || T().hl_pt).split('\n')[0].slice(0, 40),
         sub:`${T().hl_pt} · ${e.date || '—'}`, amt:e.amount || 0, st:'' }));
     }
     rows.sort((a, b) => b.date.localeCompare(a.date));
     const total = rows.filter(r => r.cls !== 'void').reduce((a, r) => a + r.amt, 0);
-    const title = kind === 'docs' ? `${T().hl_docs} · ${rows.length}` : `${T()['hl_' + kind]} · ${fmt(total)}`;
+    const title = `${T()['hl_' + kind]} · ${fmt(total)}`;
     $('sheetTitle').textContent = title;
     $('sheetBody').innerHTML = rows.length ? rows.map(r =>
       `<button type="button" class="sheet-opt" data-value="${esc(r.value)}">
@@ -4990,6 +5002,12 @@
     };
     $('sheetWrap').hidden = false;
   }
+  // wardrobe ledger is its own page; hand it this month's received money as the income
+  $('cardWardrobe').addEventListener('click', () => {
+    const now = new Date();
+    const inc = sourceTotals(ds => inRange(ds, toStr(new Date(now.getFullYear(), now.getMonth(), 1)), toStr(new Date(now.getFullYear(), now.getMonth()+1, 0)))).recv;
+    location.href = 'wardrobe.html' + (inc > 0 ? '?income=' + Math.round(inc) : '');
+  });
   document.querySelectorAll('[data-hs]').forEach(b => b.addEventListener('click', () => homeList(b.dataset.hs)));
 
   let currentView = 'home';

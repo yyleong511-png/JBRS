@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEF0EC">
+<title>衣橱预算账本 · Jesse L Backstage</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: budget console on top (summary first), then a filterable rack of price-tag cards with flat sketches; sticky cart bar at the bottom */
+:root{
+  --bg:#EEF0EC; --paper:#FAFBF8; --ink:#1E2420; --muted:#626B64; --line:#D3D8D0;
+  --accent:#3F5F4A; --accent-soft:#DCE6DD; --warn:#B4532A; --ok:#2F7A4E; --tag:#E9E4D6; --wa:#1F7A4A;
+  --f-display:"Noto Serif SC","Songti SC",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#151916; --paper:#1D221F; --ink:#E8ECE7; --muted:#9AA39C; --line:#323A35;
+  --accent:#8FB79B; --accent-soft:#26332B; --warn:#E08A62; --ok:#7CC79A; --tag:#2A2A24; --wa:#6FCB95; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151916; --paper:#1D221F; --ink:#E8ECE7; --muted:#9AA39C; --line:#323A35;
+  --accent:#8FB79B; --accent-soft:#26332B; --warn:#E08A62; --ok:#7CC79A; --tag:#2A2A24; --wa:#6FCB95; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 130px}
+.wrap{max-width:1080px;margin:0 auto;display:grid;gap:28px}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(28px,5vw,42px);line-height:1.15;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:600;font-size:20px;margin:0;text-wrap:balance}
+.lede{color:var(--muted);max-width:62ch;margin:6px 0 0}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.label{font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.console{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:20px;grid-template-columns:1.1fr 1fr}
+@media (max-width:760px){.console{grid-template-columns:1fr}}
+.inputs{display:grid;gap:16px;min-width:0}
+.field{display:grid;gap:6px}
+.field input[type=number]{font:600 20px var(--f-num);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%}
+.field input[type=range]{width:100%;accent-color:var(--accent)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
+.check input{accent-color:var(--accent);width:18px;height:18px}
+.rowflex{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start;min-width:0}
+.res{background:var(--bg);border-radius:10px;padding:12px 14px}
+.res b{display:block;font:600 22px var(--f-num);font-variant-numeric:tabular-nums}
+.res.big{grid-column:1/-1;background:var(--accent-soft)}
+.res.big b{font-size:32px;color:var(--accent)}
+.split{grid-column:1/-1;display:grid;gap:6px}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;display:flex}
+.bar span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:760px){.rules{grid-template-columns:1fr 1fr}}
+.rule{border-top:2px solid var(--ink);padding-top:8px;font-size:13.5px}
+.rule strong{display:block;font-size:14.5px}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 13px var(--f-body);padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.chip small{font-family:var(--f-num);opacity:.6;margin-left:4px}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:focus-visible,button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;grid-template-rows:auto auto auto 1fr auto;min-width:0}
+.card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pic{display:block;aspect-ratio:4/3;max-width:100%;border-radius:8px;background:var(--bg);overflow:hidden;position:relative}
+.pic svg{width:100%;height:100%;display:block}
+.pic.photo{aspect-ratio:4/5;background:#fff}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block}
+.pic .sw{z-index:1;position:absolute;left:8px;bottom:8px;font-size:11px;background:var(--paper);color:var(--muted);padding:2px 8px;border-radius:999px}
+.pic .ref{position:absolute;left:8px;top:8px;font-size:11px;background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:999px;z-index:1}
+.pic .staff{z-index:1;position:absolute;right:8px;top:8px;font:600 11px var(--f-num);background:var(--accent);color:var(--paper);padding:2px 8px;border-radius:999px}
+.ol{stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.dt{fill:none;stroke:var(--ink);stroke-width:1.1;opacity:.5;stroke-linecap:round}
+.brand{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.brand .b{font-weight:700;font-size:13px}
+.tier{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--tag);color:var(--muted);white-space:nowrap}
+.name{font-weight:500;font-size:15px;line-height:1.4}
+.why{font-size:13px;color:var(--muted)}
+.price{display:flex;justify-content:space-between;align-items:end;gap:8px;border-top:1px dashed var(--line);padding-top:10px}
+.p{font:600 20px var(--f-num);font-variant-numeric:tabular-nums}
+.orig{display:block;font:400 13px var(--f-num);color:var(--muted);text-decoration:line-through}
+.plabel{display:block;font-size:11px;color:var(--accent);font-weight:700}
+.cpw{font-size:12px;color:var(--muted);text-align:right}
+.cpw b{font-family:var(--f-num);color:var(--ink)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{flex:1 1 auto;font:500 13px var(--f-body);padding:8px 10px;border-radius:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-align:center;text-decoration:none;white-space:nowrap}
+.btn.solid{background:var(--ink);color:var(--paper)}
+.card.on .btn.add{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.note{font-size:11.5px;color:var(--muted)}
+.wait{font-size:12px;color:var(--warn)}
+.wait.ready{color:var(--ok)}
+.card.missing{border-style:dashed;background:transparent;grid-template-rows:auto}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:13px;z-index:9;max-width:calc(100% - 32px)}
+.cart{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.cart .in{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px}
+.meter{flex:1 1 220px;min-width:0}
+.meter .bar{height:8px}
+.status{font-weight:700;font-size:14px}
+.status.over{color:var(--warn)} .status.fine{color:var(--ok)}
+footer{font-size:12px;color:var(--muted);display:grid;gap:4px}
+.offbtn{font:600 13px var(--f-body);padding:7px 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);cursor:pointer}
+.offers{max-width:1080px;margin:0 auto 10px;max-height:min(52vh,420px);overflow-y:auto;display:grid;gap:14px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.ob h3{margin:0 0 6px;font-size:14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ob h3 span{font:400 12px var(--f-num);color:var(--muted)}
+.off{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:8px 0;border-top:1px dashed var(--line);font-size:13px}
+.off .t{font-weight:600}
+.off .d{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.code{font:600 13px var(--f-num);padding:4px 10px;border:1px dashed var(--ink);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer;white-space:nowrap}
+.st{font-size:12px;font-weight:700;white-space:nowrap}
+.st.y{color:var(--ok)} .st.n{color:var(--warn)} .st.m{color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
+.back{display:inline-flex;align-items:center;gap:6px;font:500 13px var(--f-body);color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--paper);justify-self:start}
+.back:active{opacity:.8}
+.fromsys{color:var(--accent);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 返回 Backstage</a>
+  <header>
+    <div class="label">Wardrobe ledger · MYR</div>
+    <h1>衣橱预算账本</h1>
+    <p class="lede">输入这个月的收入，算出能花在衣服和首饰上的钱。下面的单品可以先加入清单，看看会不会超支；加入后要等 48 小时才会显示「可以买了」。所有价格都是马币 RM。</p>
+  </header>
+
+  <section class="console" aria-label="预算换算">
+    <div class="inputs">
+      <div class="field">
+        <label class="label" for="income">这个月收入（RM）</label>
+        <input type="number" id="income" min="0" step="50" value="4000" inputmode="decimal">
+        <span class="note fromsys" id="incomeSrc" hidden>已自动带入系统里这个月已收到的钱，可以自己改</span>
+      </div>
+      <div class="field">
+        <div class="rowflex"><label class="label" for="pct">治装比例</label><span class="num" id="pctOut">8%</span></div>
+        <input type="range" id="pct" min="3" max="15" step="1" value="8">
+        <span class="note">建议 5–10%。收入不固定，就每收到一笔钱按这个比例转进治装户口。</span>
+      </div>
+      <div class="field">
+        <label class="label" for="carry">上个月没花完、留下来的（RM）</label>
+        <input type="number" id="carry" min="0" step="10" value="0" inputmode="decimal">
+      </div>
+      <label class="check" for="staff"><input type="checkbox" id="staff" checked> 用 The WES Studio 员工价（五折）计算</label>
+    </div>
+    <div class="results">
+      <div class="res big"><span class="label">本月可花</span><b id="rBudget">RM 320</b></div>
+      <div class="res"><span class="label">一年累计</span><b id="rYear">RM 3,840</b></div>
+      <div class="res"><span class="label">员工价已省</span><b id="rSaved">RM 0</b><span class="note">清单里 WES 单品</span></div>
+      <div class="split">
+        <span class="label">本月预算怎么分</span>
+        <div class="bar" id="splitBar"></div>
+        <div class="legend" id="splitLegend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rules" aria-label="购买规则">
+    <div class="rule"><strong>等 48 小时</strong>加入清单后先放着，两天后还想要再买。</div>
+    <div class="rule"><strong>单次成本</strong>实付价 ÷ 预计穿的次数。低于 RM 5 一次算划算。</div>
+    <div class="rule"><strong>3 套搭配</strong>想不出 3 种穿法就先不买。</div>
+    <div class="rule"><strong>进一出一</strong>买一件新的，就送走或卖掉一件旧的。</div>
+  </section>
+
+  <section style="display:grid;gap:14px">
+    <div class="rowflex" style="flex-wrap:wrap">
+      <h2>推荐单品</h2>
+      <span class="note">价格于 2026 年 10 月 28 日从马来西亚官网更新，可能随时调整</span>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="按类别筛选"></div>
+    <div class="rack" id="rack"></div>
+  </section>
+
+  <footer>
+    <span>商品照片来自各品牌官网；Uniqlo 两件用的是 Unsplash 的免费类似款参考照片，不是官网实物。照片暂时打不开时，显示按商品颜色画的款式示意。这个页面不会替你付款，选好尺码后在官网结账。</span>
+    <span>The WES Studio、Shuren Projects、Charles &amp; Keith 的价格和照片于 2026 年 10 月 28 日从官网更新；Shuren Projects 的特价随时可能结束。</span>
+    <span>清单和计时只存在这台设备的浏览器里。来源：thewesstudio.com · shurenprojects.com · charleskeith.com/my · uniqlo.com/my</span>
+  </footer>
+</div>
+
+<div class="cart" aria-live="polite">
+  <div class="offers" id="offers" hidden></div>
+  <div class="in">
+    <div><span class="label">清单合计（实付）</span><div class="num" style="font-size:20px;font-weight:600" id="cTotal">RM 0</div></div>
+    <div class="meter"><div class="bar"><span id="cFill" style="width:0;background:var(--accent)"></span></div><span class="note" id="cNote">还没加东西</span></div>
+    <div class="status fine" id="cStatus">预算内</div>
+    <button class="offbtn" id="offBtn" aria-expanded="false" aria-controls="offers">可用优惠</button>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const W="https://thewesstudio.com/products/";
+const S="https://www.shurenprojects.com/collections/all/products/";
+const ITEMS=[
+ {id:"wes-tank",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/Slouchy_Knit_High_Neck_Top_Beige_-1.jpg?v=1791368471&width=600",wes:1,cat:"上衣",shape:"tank",color:"#D9C8A9",cn:"米色",name:"Slouchy Knit Semi High Neck Tank Top",price:129,wears:60,why:"针织背心，能单穿也能叠穿。",url:W+"slouchy-knit-semi-high-neck-tank-top-beige"},
+ {id:"wes-drape",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/DSC01683.jpg?v=1784091467&width=600",wes:1,cat:"上衣",shape:"tank",color:"#7A5A44",cn:"棕色",name:"WES x GUNG x SO | Gentle Drape Neck Tank Top",price:149,wears:50,why:"垂坠领口，比普通背心正式一点。",url:W+"wes-x-gung-x-so-gentle-drape-neck-tank-top-brown"},
+ {id:"wes-knit",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-4__5.jpg?v=1791366819&width=600",wes:1,cat:"上衣",shape:"knit",color:"#B39B74",cn:"卡其",name:"Lazy Thin Knit Long Sleeve Button Top",price:169,wears:50,why:"薄针织长袖，冷气房和拍摄间隙都用得上。",url:W+"lazy-thin-knit-long-sleeve-button-top-khaki"},
+ {id:"wes-wrap",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026EP03ModelCatalogue-_4of37.jpg?v=1789710808&width=600",wes:1,cat:"上衣",shape:"wrap",color:"#8C8F92",stripe:1,cn:"灰色细条纹",name:"Wrap Crop Cap Sleeve Top",price:169,wears:35,why:"有设计感，配基础款裤子就够出片。",url:W+"wrap-crop-cap-sleeve-top-grey-pinstripe"},
+ {id:"wes-blouse",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/DSC01856.jpg?v=1784093113&width=600",wes:1,cat:"上衣",shape:"blouse",color:"#A3A9AE",cn:"冷灰",name:"WES x GUNG x SO | Easy Shimmer U-Hem Blouse",price:199,wears:40,why:"微光面料加 U 形下摆，上班和活动都能穿。",url:W+"wes-x-gung-x-so-easy-shimmer-u-hem-blouse-cool-grey"},
+ {id:"uq-tee",img:"https://images.unsplash.com/photo-1778671394516-8270eac13c42?w=600&q=70&auto=format&fit=crop",stock:1,brand:"UNIQLO",tier:"平价基础",cat:"上衣",shape:"tee",color:"#F4F4F2",cn:"白色",name:"SUPIMA Cotton 圆领 T 恤",price:39.9,wears:80,why:"100% Supima 棉，不易起球，白黑各一件打底。",url:"https://www.uniqlo.com/my/en/search?q=SUPIMA%20Cotton%20Crew%20Neck%20T-Shirt",note:"价格来自马来西亚媒体报道，买前在官网确认"},
+ {id:"wes-denim",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-4__2.jpg?v=1790677960&width=600",wes:1,cat:"裤子",shape:"jeans",color:"#8E7B5C",cn:"Dirty Tea",name:"Medium Rise Straight-Cut Denim Pants",price:329,wears:100,why:"直筒牛仔裤是穿得最多的单品。",url:W+"medium-rise-straight-cut-denim-pants-dirty-tea"},
+ {id:"wes-pleat",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026EP03ModelCatalogue-_7of37.jpg?v=1789710809&width=600",wes:1,cat:"裤子",shape:"trousers",color:"#6F7377",stripe:1,cn:"灰色细条纹",name:"Triple Pleated Long Trousers",price:269,wears:70,why:"三褶西裤，配背心或衬衫都利落。",url:W+"triple-pleated-long-trousers-grey-pinstripe"},
+ {id:"wes-skirt",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-_9_of_18.jpg?v=1790737210&width=600",wes:1,cat:"裙子",shape:"skirt",color:"#E8D79A",cn:"奶油黄",name:"Dual Layer Skirt w/ Braided Belt",price:249,wears:35,why:"双层半裙配编织腰带，颜色亮但不夸张。",url:W+"dual-layer-skirt-w-braided-belt-butter"},
+ {id:"wes-cocoon",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-1__4.jpg?v=1790677612&width=600",wes:1,cat:"裙子",shape:"dress",color:"#CDB89A",cn:"Aged Beige",name:"Front Deep-V Tank Cocoon Dress",price:289,wears:25,why:"茧型连衣裙，一件就是一套造型。",url:W+"front-deep-v-tank-cocoon-dress-aged-beige"},
+ {id:"wes-kdress",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-8__6.jpg?v=1791366161&width=600",wes:1,cat:"裙子",shape:"ldress",color:"#A8916B",cn:"卡其配围巾",name:"Lazy Thin Knit Long Sleeve Button Dress w/ Large Tri Scarf",price:339,wears:25,why:"附大三角围巾，冷气房或旅行很实用。",url:W+"lazy-thin-knit-long-sleeve-button-dress-w-large-tri-scarf-khaki-w-aged-beige"},
+ {id:"uq-cardi",img:"https://images.unsplash.com/photo-1616522431599-568dfc895b6b?w=600&q=70&auto=format&fit=crop",stock:1,brand:"UNIQLO",tier:"平价基础",cat:"外套",shape:"cardigan",color:"#E6E1D6",cn:"米白",name:"Pointelle Cardigan",price:59.9,wears:40,why:"薄开衫，室内冷气必备。",url:"https://www.uniqlo.com/my/en/search?q=Pointelle%20Cardigan",note:"RM59.90 是 App 会员价，到 10 月 15 日"},
+ {id:"ck-flat",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw2096c94f/images/hi-res/2026-L7-CK1-70381256-J6-1.jpg",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"flat",color:"#222222",cn:"黑色",name:"Bettina Double-Bow Pointed Ballet Flats",price:219.9,wears:80,why:"尖头平底鞋，正式和休闲都能配。",url:"https://www.charleskeith.com/my/CK1-70381256_BLKBOX.html"},
+ {id:"ck-sling",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw4b15f9a7/images/hi-res/2026-L7-CK1-70381255-29-1.jpg",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"sling",color:"#4A3226",cn:"深棕",name:"Aira Buckled-Strap Slingback Flats",price:239.9,wears:60,why:"深棕比黑色好配大地色系衣服。",url:"https://www.charleskeith.com/my/CK1-70381255_DK.BRW.html"},
+ {id:"ck-mj",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw1245def5/images/hi-res/2026-L7-CK1-70381259-44-1.jpg",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"mj",color:"#C9B08A",cn:"Sand",name:"Franca Faux Suede Mary Janes",price:219.9,wears:45,why:"玛丽珍鞋，适合半裙和直筒裤。",url:"https://www.charleskeith.com/my/CK1-70381259_SAND.html"},
+ {id:"ck-hoop",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw803b55b7/images/hi-res/2026-L6-CK5-42120486-07-1.jpg",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"hoop",color:"#C9CDD1",cn:"银色",name:"Pearl Open-Hoop Earrings",price:129.9,wears:120,why:"珍珠开口耳圈，日常和拍摄都适合。",url:"https://www.charleskeith.com/my/CK5-42120486_SILVER.html"},
+ {id:"ck-ring",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw53fcd8e9/images/hi-res/2026-L6-CK5-31470160-07-1.jpg",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"ring",color:"#C9CDD1",cn:"银色",name:"Gabine Sculptural Open Ring",price:89.9,wears:120,why:"开口戒指，尺寸可以微调。",url:"https://www.charleskeith.com/my/CK5-31470160_SILVER.html"},
+ {id:"ck-neck",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dwae58bc3f/images/hi-res/2026-L6-CK5-22120476-03-1.jpg",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"necklace",color:"#E8E2D4",cn:"白色",name:"Pearl & Gemstone Double-Chain Necklace",price:179.9,wears:80,why:"双链珍珠项链，素色上衣配它就够。",url:"https://www.charleskeith.com/my/CK5-22120476_WHITE.html"}
+,
+ {id:"sr-quiet",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/tee_bl.jpg?v=1780219843&width=600",sr:1,cat:"上衣",shape:"tee",color:"#A9B9C8",cn:"Misty Blue",name:"Quiet Tee",price:189,wears:70,why:"雾蓝色素 T，比白 T 多一点颜色但一样好配。",url:S+"quiet-tee-misty-blue"},
+ {id:"sr-mid",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/DSCF1988.jpg?v=1791017538&width=600",sr:1,cat:"上衣",shape:"tee",color:"#3A3A3C",cn:"Heather Black",name:"Mid Sleeve Tee / Rayon",price:189,wears:60,why:"中袖嫘萦面料，垂感比棉 T 好，热天也透气。",url:S+"mid-sleeve-tee-rayon-heather-black"},
+ {id:"sr-polo",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/polo_navy.jpg?v=1749014842&width=600",sr:1,cat:"上衣",shape:"polo",color:"#2B3A55",cn:"Navy",name:"3P Polo Tee / Rayon",price:202,orig:289,wears:50,why:"深蓝 Polo，配西裤或短裤都利落。",url:S+"3p-polo-tee-rayon-navy"},
+ {id:"sr-sidepull",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/shirt.jpg?v=1780229111&width=600",sr:1,cat:"上衣",shape:"shirt",color:"#8FA6C4",stripe:1,cn:"蓝色条纹",name:"Sidepull SL Shirt",price:289,wears:40,why:"条纹衬衫，侧边抽绳可以调松紧。",url:S+"sidepull-sl-shirt-blue-stripe"},
+ {id:"sr-halfzip",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/halfzip_grey_thumb_8cff2c7a-de2a-49ef-8e99-8965bfdff979.jpg?v=1742192395&width=600",sr:1,cat:"上衣",shape:"halfzip",color:"#8A8D90",cn:"灰色",name:"Pullover Halfzip / Sorona® Agile",price:203,orig:290,wears:45,why:"半拉链套头衫，冷气房当薄外层。",url:S+"pullover-halfzip-sorona%C2%AE-agile-grey"},
+ {id:"sr-panel",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/5wxTxfr56978938723f64_1769509767.jpg?v=1769581004&width=600",sr:1,cat:"裤子",shape:"trousers",color:"#2A2A2A",cn:"黑色",name:"Panel Pants / Nylon",price:287,orig:319,wears:70,why:"尼龙拼接裤，耐脏快干，跑拍摄很方便。",url:S+"panel-pants-nylon-black"},
+ {id:"sr-zz",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/DSCF1971.jpg?v=1791025284&width=600",sr:1,cat:"裤子",shape:"trousers",color:"#6B2E33",cn:"Maroon",name:"ZZ Side Pants",price:329,wears:45,why:"酒红色长裤，一条就能撑起整套搭配。",url:"https://www.shurenprojects.com/collections/frontpage/products/zz-side-pants-maroon"},
+ {id:"sr-shorts",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/Brgy2V5N6937df3619f23_1765269302.jpg?v=1765269306&width=600",sr:1,cat:"裤子",shape:"shorts",color:"#C8B48E",cn:"Sand",name:"Camping Shorts 2-Tone / Nylon",price:309,wears:45,why:"双色尼龙短裤，旅行和户外活动穿。",url:S+"camping-shorts-2-tone-nylon-sand"},
+ {id:"sr-noragi",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/ngy1.jpg?v=1742550307&width=600",sr:1,cat:"外套",shape:"noragi",color:"#7E8285",cn:"灰色",name:"Noragi Jacket / Teflon™ Polyester",price:244,orig:349,wears:50,why:"和风系带外套，表面防泼水。",url:S+"noragi-jacket-teflon%E2%84%A2-polyester-grey"},
+ {id:"sr-ot",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/jacketlogo1.jpg?v=1729077310&width=600",sr:1,cat:"外套",shape:"jacket",color:"#26282A",cn:"黑色",name:"OTJacket / Teflon™",price:209,orig:299,wears:50,why:"黑色轻外套，防泼水，雨季很实用。",url:S+"otjacket-teflon%E2%84%A2-black"},
+ {id:"sr-seer",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/DSCF2039.jpg?v=1791024235&width=600",sr:1,cat:"外套",shape:"jacket",color:"#9A9C9E",cn:"灰色",name:"Seersucker Shirt Jacket / Nylon",price:329,wears:40,why:"泡泡纱衬衫外套，可以当衬衫穿，也可以当外套。",url:S+"seersucker-shirt-jacket-nylon-grey"}
+].map(x=>x.wes?{...x,brand:"The WES Studio",tier:"本地小众"}:x.sr?{...x,brand:"Shuren Projects 树人",tier:"本地小众"}:x);
+const CATS=["全部","上衣","裤子","裙子","外套","鞋","首饰"];
+const SPLIT=[["衣服",.6,"var(--accent)"],["鞋",.25,"var(--ink)"],["首饰",.15,"var(--warn)"]];
+const $=id=>document.getElementById(id);
+const fmt=n=>"RM "+(Math.round(n*100)/100).toLocaleString("en-MY",{minimumFractionDigits:Math.round(n*100)%100?2:0,maximumFractionDigits:2});
+const pay=x=>x.wes&&$("staff").checked?x.price*.5:x.price;
+
+/* flat sketches, viewBox 0 0 160 120 */
+function sketch(x){
+  const id="s"+x.id, f=x.stripe?`url(#${id})`:x.color;
+  const defs=x.stripe?`<defs><pattern id="${id}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${x.color}"/><line x1="2.5" y1="0" x2="2.5" y2="5" stroke="#fff" stroke-opacity=".45" stroke-width=".7"/></pattern></defs>`:"";
+  const S={
+   tee:`<path class="ol" fill="${f}" d="M58 16 L70 12 Q80 20 90 12 L102 16 L124 32 L114 46 L104 40 L104 108 L56 108 L56 40 L46 46 L36 32 Z"/><path class="dt" d="M70 12 Q80 22 90 12"/>`,
+   tank:`<path class="ol" fill="${f}" d="M64 12 L70 12 Q80 30 90 12 L96 12 Q98 30 106 40 L106 108 L54 108 L54 40 Q62 30 64 12 Z"/><path class="dt" d="M66 14 Q80 34 94 14"/>`,
+   knit:`<path class="ol" fill="${f}" d="M60 14 L70 12 Q80 22 90 12 L100 14 L118 30 L130 100 L118 104 L106 50 L106 108 L54 108 L54 50 L42 104 L30 100 L42 30 Z"/><path class="dt" d="M80 22 L80 106 M76 34 h0 M76 50 h0 M76 66 h0 M76 82 h0"/><circle cx="76" cy="38" r="1.6" fill="var(--ink)"/><circle cx="76" cy="58" r="1.6" fill="var(--ink)"/><circle cx="76" cy="78" r="1.6" fill="var(--ink)"/><path class="dt" d="M54 100 H106 M42 98 l12 2 M118 98 l-12 2"/>`,
+   wrap:`<path class="ol" fill="${f}" d="M62 18 L72 16 L80 30 L88 16 L98 18 L116 30 L110 44 L102 40 L104 78 L56 78 L58 40 L50 44 L44 30 Z"/><path class="dt" d="M72 16 L100 76 M88 16 L66 52"/>`,
+   blouse:`<path class="ol" fill="${f}" d="M60 14 L70 12 Q80 20 90 12 L100 14 L120 30 L132 84 L120 88 L106 46 L108 100 Q80 112 52 100 L54 46 L40 88 L28 84 L40 30 Z"/><path class="dt" d="M70 12 Q80 22 90 12"/>`,
+   jeans:`<path class="ol" fill="${f}" d="M56 10 H104 L110 112 H86 L80 44 L74 112 H50 Z"/><path class="dt" d="M56 18 H104 M62 18 Q66 30 76 30 M98 18 Q94 30 84 30 M80 18 V40"/>`,
+   trousers:`<path class="ol" fill="${f}" d="M56 10 H104 L114 112 H88 L80 46 L72 112 H46 Z"/><path class="dt" d="M56 18 H104 M66 18 L58 110 M94 18 L102 110 M70 18 V30 M90 18 V30"/>`,
+   skirt:`<path class="ol" fill="${f}" d="M60 14 H100 L124 104 Q80 114 36 104 Z"/><path class="ol" fill="${f}" opacity=".7" d="M60 14 H100 L114 70 Q80 78 46 70 Z"/><path class="dt" d="M58 20 H102"/><path d="M60 17 H100" stroke="var(--ink)" stroke-width="3" stroke-dasharray="3 2" opacity=".6"/>`,
+   dress:`<path class="ol" fill="${f}" d="M66 8 L72 8 L80 34 L88 8 L94 8 Q98 26 106 36 Q122 70 104 112 H56 Q38 70 54 36 Q62 26 66 8 Z"/><path class="dt" d="M72 8 L80 34 L88 8"/>`,
+   ldress:`<path class="ol" fill="${f}" d="M62 12 L70 10 Q80 18 90 10 L98 12 L116 26 L128 76 L118 80 L104 40 L110 114 H50 L56 40 L42 80 L32 76 L44 26 Z"/><path class="ol" fill="#E5D9C3" d="M58 22 Q80 34 102 22 L92 52 Q80 58 68 52 Z"/><circle cx="80" cy="66" r="1.6" fill="var(--ink)"/><circle cx="80" cy="82" r="1.6" fill="var(--ink)"/><circle cx="80" cy="98" r="1.6" fill="var(--ink)"/>`,
+   cardigan:`<path class="ol" fill="${f}" d="M60 14 L72 12 L80 40 L88 12 L100 14 L118 30 L130 100 L118 104 L106 50 L106 108 L54 108 L54 50 L42 104 L30 100 L42 30 Z"/><path class="dt" d="M80 40 V108 M54 100 H106"/><circle cx="84" cy="52" r="1.6" fill="var(--ink)"/><circle cx="84" cy="68" r="1.6" fill="var(--ink)"/><circle cx="84" cy="84" r="1.6" fill="var(--ink)"/><path class="dt" d="M60 60 h40 M60 74 h40 M60 88 h40" stroke-dasharray="1 4"/>`,
+   polo:`<path class="ol" fill="${f}" d="M58 16 L70 12 L80 22 L90 12 L102 16 L124 32 L114 46 L104 40 L104 108 L56 108 L56 40 L46 46 L36 32 Z"/><path class="ol" fill="${f}" d="M70 12 L80 22 L72 30 L66 16 Z M90 12 L80 22 L88 30 L94 16 Z"/><path class="dt" d="M80 22 V44"/><circle cx="80" cy="30" r="1.5" fill="var(--ink)"/><circle cx="80" cy="38" r="1.5" fill="var(--ink)"/>`,
+   shirt:`<path class="ol" fill="${f}" d="M60 14 L70 12 L80 24 L90 12 L100 14 L118 28 L110 42 L104 38 L106 108 L54 108 L56 38 L50 42 L42 28 Z"/><path class="ol" fill="${f}" d="M70 12 L80 24 L74 30 L66 14 Z M90 12 L80 24 L86 30 L94 14 Z"/><path class="dt" d="M80 24 V108 M54 92 Q48 96 52 102 M106 92 Q112 96 108 102"/>`,
+   halfzip:`<path class="ol" fill="${f}" d="M60 12 L70 10 L80 12 L90 10 L100 12 L118 28 L130 100 L118 104 L106 50 L106 108 L54 108 L54 50 L42 104 L30 100 L42 28 Z"/><path class="ol" fill="${f}" d="M68 6 H92 L90 16 H70 Z"/><path d="M80 8 V46" stroke="var(--ink)" stroke-width="2"/><rect x="77" y="44" width="6" height="8" rx="1" fill="var(--ink)"/><path class="dt" d="M54 100 H106"/>`,
+   shorts:`<path class="ol" fill="${f}" d="M52 22 H108 L118 92 H86 L80 54 L74 92 H42 Z"/><path class="ol" fill="#3B3B3B" opacity=".55" d="M52 22 H108 L110 36 H50 Z"/><path class="dt" d="M64 36 Q68 48 76 48 M96 36 Q92 48 84 48"/>`,
+   noragi:`<path class="ol" fill="${f}" d="M60 12 L74 10 L82 60 L90 10 L102 12 L132 30 L124 58 L108 48 L110 108 L52 108 L54 48 L38 58 L28 30 Z"/><path class="dt" d="M74 10 L82 60 L76 108 M90 10 L82 60"/><path d="M70 62 q-6 6 -2 12 M94 62 q6 6 2 12" stroke="var(--ink)" stroke-width="1.4" fill="none"/>`,
+   jacket:`<path class="ol" fill="${f}" d="M60 14 L70 12 L80 22 L90 12 L100 14 L118 30 L130 100 L118 104 L106 50 L106 108 L54 108 L54 50 L42 104 L30 100 L42 30 Z"/><path class="ol" fill="${f}" d="M70 12 L80 22 L72 30 L64 16 Z M90 12 L80 22 L88 30 L96 16 Z"/><path class="dt" d="M80 22 V108 M60 64 h14 M86 64 h14"/><circle cx="84" cy="40" r="1.6" fill="var(--ink)"/><circle cx="84" cy="60" r="1.6" fill="var(--ink)"/><circle cx="84" cy="80" r="1.6" fill="var(--ink)"/>`,
+   flat:`<path class="ol" fill="${f}" d="M22 80 Q24 64 52 62 L110 60 Q138 60 142 76 Q144 88 120 88 H34 Q20 88 22 80 Z"/><path class="dt" d="M52 62 Q70 72 106 62"/><path class="ol" fill="${f}" d="M74 64 l-8 -6 l0 12 Z M74 64 l8 -6 l0 12 Z"/><path class="dt" d="M22 86 H140"/>`,
+   sling:`<path class="ol" fill="${f}" d="M30 80 Q30 66 60 64 L110 62 Q136 62 140 76 Q142 88 120 88 H40 Q28 88 30 80 Z"/><path class="ol" fill="none" d="M44 66 Q30 52 24 66" stroke-width="3"/><rect x="30" y="56" width="8" height="6" class="ol" fill="#C9A86A"/><path class="dt" d="M60 64 Q84 76 110 62"/>`,
+   mj:`<path class="ol" fill="${f}" d="M24 80 Q26 64 54 62 L108 60 Q138 60 142 76 Q144 88 120 88 H36 Q22 88 24 80 Z"/><path class="ol" fill="none" stroke-width="4" d="M76 62 Q82 44 96 50"/><g fill="var(--paper)" stroke="var(--ink)" stroke-width=".8"><circle cx="80" cy="54" r="2"/><circle cx="86" cy="49" r="2"/><circle cx="92" cy="48" r="2"/></g>`,
+   hoop:`<path class="ol" fill="none" stroke="${x.color}" stroke-width="5" d="M58 38 A20 22 0 1 0 72 40"/><path class="ol" fill="none" stroke="${x.color}" stroke-width="5" d="M100 38 A20 22 0 1 0 114 40"/><circle cx="72" cy="40" r="6" fill="#F6F2EA" class="ol"/><circle cx="114" cy="40" r="6" fill="#F6F2EA" class="ol"/>`,
+   ring:`<ellipse cx="80" cy="64" rx="30" ry="24" fill="none" stroke="${x.color}" stroke-width="9"/><ellipse cx="80" cy="64" rx="30" ry="24" fill="none" class="ol"/><path fill="var(--bg)" d="M104 48 L114 56 L112 66 L102 58 Z"/>`,
+   necklace:`<path fill="none" stroke="#C9CDD1" stroke-width="1.6" d="M34 14 Q80 104 126 14"/><path fill="none" stroke="#C9CDD1" stroke-width="1.6" d="M44 14 Q80 82 116 14"/><g class="ol" fill="${x.color}"><circle cx="80" cy="58" r="5"/><circle cx="80" cy="81" r="6"/><circle cx="66" cy="74" r="3.5"/><circle cx="94" cy="74" r="3.5"/></g><circle cx="80" cy="81" r="2.5" fill="#7FA7B8"/>`
+  };
+  return `<svg viewBox="0 0 160 120" role="img" aria-label="${x.cn} ${x.name} 款式示意">${defs}${S[x.shape]}</svg>`;
+}
+
+let cart={};try{cart=JSON.parse(localStorage.getItem("wl-cart")||"{}")}catch(e){}
+let cat="全部";
+function save(){try{localStorage.setItem("wl-cart",JSON.stringify(cart))}catch(e){}}
+function budget(){const i=+$("income").value||0,p=+$("pct").value,c=+$("carry").value||0;return{i,p,b:i*p/100+c}}
+function calc(){
+  const {i,p,b}=budget();
+  $("pctOut").textContent=p+"%";
+  $("rBudget").textContent=fmt(Math.round(b));
+  $("rYear").textContent=fmt(Math.round(i*p/100*12));
+  $("splitBar").innerHTML=SPLIT.map(s=>`<span style="width:${s[1]*100}%;background:${s[2]}"></span>`).join("");
+  $("splitLegend").innerHTML=SPLIT.map(s=>`<span><i style="background:${s[2]}"></i>${s[0]} ${fmt(Math.round(b*s[1]))}</span>`).join("");
+  updCart();
+}
+function waitText(t){
+  const left=t+48*3600e3-Date.now();
+  if(left<=0)return `<span class="wait ready">已过 48 小时，还想要就可以买了</span>`;
+  return `<span class="wait">冷静期：还剩 ${Math.ceil(left/3600e3)} 小时</span>`;
+}
+function priceBlock(x){
+  const staff=x.wes&&$("staff").checked;
+  return staff
+   ?`<div><span class="plabel">员工价</span><span class="p">${fmt(x.price*.5)}</span><span class="orig">原价 ${fmt(x.price)}</span></div>`
+   :x.orig?`<div><span class="plabel" style="color:var(--warn)">官网特价</span><span class="p">${fmt(x.price)}</span><span class="orig">原价 ${fmt(x.orig)}</span></div>`
+   :`<div>${x.wes?'<span class="plabel" style="color:var(--muted)">原价</span>':""}<span class="p">${fmt(x.price)}</span></div>`;
+}
+function render(){
+  $("filters").innerHTML=CATS.map(c=>{const n=c==="全部"?ITEMS.length:ITEMS.filter(x=>x.cat===c).length;return `<button class="chip" aria-pressed="${c===cat}" data-c="${c}">${c}<small>${n}</small></button>`}).join("");
+  const list=ITEMS.filter(x=>cat==="全部"||x.cat===cat);
+  let html=list.map(x=>{
+    const on=!!cart[x.id];
+    return `<article class="card ${on?"on":""}">
+      <a class="pic${x.img?" photo":""}" href="${x.url}" target="_blank" rel="noopener" aria-label="在官网查看 ${x.name}">${sketch(x)}${x.img?`<img src="${x.img}" alt="${x.cn} ${x.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('photo');this.remove()">`:""}${x.img&&x.stock?'<span class="ref">参考照片，非官网实物</span>':""}<span class="sw">${x.cn}</span>${x.wes&&$("staff").checked?'<span class="staff">-50%</span>':""}</a>
+      <div class="brand"><span class="b">${x.brand}</span><span class="tier">${x.cat} · ${x.tier}</span></div>
+      <div class="name">${x.name}</div>
+      <div style="display:grid;gap:4px;align-content:start"><span class="why">${x.why}</span>${x.note?`<span class="note">${x.note}</span>`:""}${on?waitText(cart[x.id]):""}</div>
+      <div style="display:grid;gap:10px">
+        <div class="price">${priceBlock(x)}<span class="cpw">预计穿 ${x.wears} 次<br>每次 <b>${fmt(pay(x)/x.wears)}</b></span></div>
+        <div class="acts"><button class="btn add" data-id="${x.id}">${on?"✓ 已加入":"加入清单"}</button><a class="btn solid" href="${x.url}" target="_blank" rel="noopener">去官网</a></div>
+      </div></article>`}).join("");
+  if(cat==="全部")html+=`<article class="card missing"><div class="brand"><span class="b">The Scene</span><span class="tier">待补充</span></div><span class="why">还没找到这个品牌的官网或 IG。把链接发过来就能加进清单。</span></article>`;
+  $("rack").innerHTML=html;
+}
+function updCart(){
+  const items=Object.keys(cart).map(id=>ITEMS.find(i=>i.id===id)).filter(Boolean);
+  const tot=items.reduce((s,x)=>s+pay(x),0), saved=items.reduce((s,x)=>s+(x.price-pay(x)),0);
+  const {b}=budget(),r=b>0?tot/b:0;
+  $("rSaved").textContent=fmt(saved);
+  $("cTotal").textContent=fmt(tot);
+  $("cFill").style.width=Math.min(r,1)*100+"%";
+  $("cFill").style.background=r>1?"var(--warn)":"var(--accent)";
+  $("cNote").textContent=items.length?`${items.length} 件 · 用掉本月预算的 ${Math.round(r*100)}%`:"还没加东西";
+  if(!$("offers").hidden)renderOffers();
+  const s=$("cStatus");
+  if(r>1){s.textContent="超出 "+fmt(tot-b);s.className="status over"}
+  else{s.textContent=items.length?"还剩 "+fmt(b-tot):"预算内";s.className="status fine"}
+}
+/* Official offers, checked 14 Oct 2026. min = minimum spend in RM; code = text to copy, or null when the offer needs no code */
+const OFFERS={
+ "Charles & Keith":{src:"charleskeith.com/my 促销页",list:[
+  {real:"Grab PayLater 10% off，最多减 RM20",min:200,code:"PAYLATER1010",d:"用 Grab PayLater 分 4、8 或 12 期付款，在 Grab 结账页的「Add Offer」输入。有效到 10 月 15 日 23:59，名额有限。",until:"2026-10-15T23:59:59+08:00"},
+  {real:"首单 10% off",min:0,code:null,d:"订阅电子报并注册账号，折扣码会发到你的邮箱，30 天内有效。不能和其他优惠叠加。"},
+  {real:"Atome 新用户 10% off，最多减 RM20",min:200,code:null,d:"结账时选 Atome 付款即可，不需要输码。旧用户满 RM300 享 8% off，最多减 RM25。有效到 12 月 31 日。"},
+  {real:"SPayLater 10% off，最多减 RM70",min:300,code:null,d:"结账选 ShopeePay / SPayLater，分 3 期免手续费。有效到 12 月 31 日，每人每月限一次。"},
+  {real:"免运费",min:300,code:null,d:"满 RM300 自动免标准运费。"}
+ ]},
+ "UNIQLO":{src:"Uniqlo MY 官方 FAQ",list:[
+  {real:"新会员 App 注册券 RM15 off",min:150,code:null,d:"第一次在 Uniqlo App 注册会员时自动发券，在购物车的「COUPON」里选用，限网购，一个月有效。"},
+  {real:"首次下载 App 欢迎券 RM15 off",min:150,code:null,d:"在一台设备上第一次下载 App 就会发券，网购和门店都能用。每单只能用一张券。"},
+  {real:"免运费",min:150,code:null,d:"满 RM150 免运费，未满要付 RM20 运费。"}
+ ]}
+};
+function renderOffers(){
+  const by={};
+  Object.keys(cart).forEach(id=>{const x=ITEMS.find(i=>i.id===id);if(x&&!x.wes){by[x.brand]=(by[x.brand]||0)+x.price}});
+  const brands=Object.keys(by);
+  if(!brands.length){$("offers").innerHTML=`<p class="note" style="margin:0">清单里还没有 Charles & Keith 或 Uniqlo 的单品。加进来后，这里会显示能用的优惠和还差多少。The WES Studio 用员工价，不另外列优惠。</p>`;return}
+  const now=Date.now();
+  $("offers").innerHTML=brands.map(b=>{
+    const o=OFFERS[b];if(!o)return"";
+    const rows=o.list.filter(f=>!f.until||Date.parse(f.until)>now).map(f=>{
+      const gap=f.min-by[b];
+      const st=f.min===0?`<span class="st m">无门槛</span>`:gap<=0?`<span class="st y">已达标</span>`:`<span class="st n">还差 ${fmt(gap)}</span>`;
+      return `<div class="off"><span class="t">${f.real}</span>${f.code?`<button class="code" data-code="${f.code}" aria-label="复制折扣码 ${f.code}">${f.code} ⧉</button>`:st}<span class="d">${f.code?st+" · ":""}${f.d}</span></div>`}).join("");
+    return `<div class="ob"><h3>${b}<span>清单小计 ${fmt(by[b])} · 来源：${o.src}</span></h3>${rows}</div>`}).join("")+`<p class="note" style="margin:0">一单通常只能用一个优惠，结账前以官网显示为准。</p>`;
+}
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".chip");if(c){cat=c.dataset.c;render();return}
+  const a=e.target.closest(".btn.add");if(a){const id=a.dataset.id;if(cart[id])delete cart[id];else cart[id]=Date.now();save();render();updCart();return}
+  if(e.target.closest("#offBtn")){const p=$("offers"),open=p.hidden;p.hidden=!open;$("offBtn").setAttribute("aria-expanded",open);$("offBtn").textContent=open?"收起优惠":"可用优惠";if(open)renderOffers();return}
+  const k=e.target.closest("[data-code]");
+  if(k){const code=k.dataset.code;try{navigator.clipboard.writeText(code).then(()=>toast("已复制 "+code),()=>toast("复制失败，请手动输入 "+code))}catch(err){toast("复制失败，请手动输入 "+code)}return}
+});
+/* remember the inputs on this device; income comes from Backstage (this month's received money) when opened from the home page */
+let saved={};try{saved=JSON.parse(localStorage.getItem("wl-inputs")||"{}")}catch(e){}
+["pct","carry"].forEach(id=>{if(saved[id]!=null)$(id).value=saved[id]});
+if(saved.staff!=null)$("staff").checked=!!saved.staff;
+const qInc=new URLSearchParams(location.search).get("income");
+if(qInc!==null&&+qInc>0){$("income").value=Math.round(+qInc);$("incomeSrc").hidden=false}
+else if(saved.income!=null)$("income").value=saved.income;
+function saveInputs(){try{localStorage.setItem("wl-inputs",JSON.stringify({income:$("income").value,pct:$("pct").value,carry:$("carry").value,staff:$("staff").checked}))}catch(e){}}
+$("staff").addEventListener("change",()=>{render();calc();saveInputs()});
+["income","pct","carry"].forEach(id=>$(id).addEventListener("input",()=>{calc();saveInputs();if(id==="income")$("incomeSrc").hidden=true}));
+render();calc();
+setInterval(render,60e3);
+</script>
+</body>
+</html>
