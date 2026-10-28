@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jl-backstage-v14';
+const CACHE_NAME = 'jl-backstage-v15';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './sparkle.png',
-  './wes-logo.png'
+  './wes-logo.png',
+  './wardrobe.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -36,11 +37,18 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
+          // cache each page under its own path (wardrobe.html must not overwrite index.html)
+          const path = new URL(req.url).pathname;
+          const key = /wardrobe\.html$/.test(path) ? './wardrobe.html' : './index.html';
           const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
+          if (res.ok) caches.open(CACHE_NAME).then((cache) => cache.put(key, copy));
           return res;
         })
-        .catch(() => caches.match('./index.html').then((c) => c || caches.match(req)))
+        .catch(() => {
+          const path = new URL(req.url).pathname;
+          const key = /wardrobe\.html$/.test(path) ? './wardrobe.html' : './index.html';
+          return caches.match(key).then((c) => c || caches.match(req));
+        })
     );
     return;
   }
