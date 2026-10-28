@@ -86,7 +86,6 @@ h2{font-family:var(--f-display);font-weight:600;font-size:20px;margin:0;text-wra
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .btn{flex:1 1 auto;font:500 13px var(--f-body);padding:8px 10px;border-radius:8px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-align:center;text-decoration:none;white-space:nowrap}
 .btn.solid{background:var(--ink);color:var(--paper)}
-.btn.wa{border-color:var(--wa);color:var(--wa)}
 .card.on .btn.add{background:var(--accent);border-color:var(--accent);color:var(--paper)}
 .note{font-size:11.5px;color:var(--muted)}
 .wait{font-size:12px;color:var(--warn)}
@@ -174,7 +173,6 @@ footer{font-size:12px;color:var(--muted);display:grid;gap:4px}
 
   <footer>
     <span>商品照片来自各品牌官网；拿不到照片的单品（Uniqlo）或照片暂时打不开时，显示按商品颜色画的款式示意。这个页面不会替你付款，选好尺码后在官网结账。</span>
-    <span>「发到群」会复制商品名称、价格和链接，再打开 WhatsApp 群，粘贴后发送。</span>
     <span>The WES Studio、Shuren Projects、Charles &amp; Keith 的价格和照片于 2026 年 10 月 28 日从官网更新；Shuren Projects 的特价随时可能结束。</span>
     <span>清单和计时只存在这台设备的浏览器里。来源：thewesstudio.com · shurenprojects.com · charleskeith.com/my · uniqlo.com/my</span>
   </footer>
@@ -192,7 +190,6 @@ footer{font-size:12px;color:var(--muted);display:grid;gap:4px}
 <div class="toast" id="toast" hidden></div>
 
 <script>
-const WA="https://chat.whatsapp.com/IZg7C3TMy0X6CMk71Rvbsh?mode=gi_t";
 const W="https://thewesstudio.com/products/";
 const S="https://www.shurenprojects.com/collections/all/products/";
 const ITEMS=[
@@ -302,7 +299,7 @@ function render(){
       <div style="display:grid;gap:4px;align-content:start"><span class="why">${x.why}</span>${x.note?`<span class="note">${x.note}</span>`:""}${on?waitText(cart[x.id]):""}</div>
       <div style="display:grid;gap:10px">
         <div class="price">${priceBlock(x)}<span class="cpw">预计穿 ${x.wears} 次<br>每次 <b>${fmt(pay(x)/x.wears)}</b></span></div>
-        <div class="acts"><button class="btn add" data-id="${x.id}">${on?"✓ 已加入":"加入清单"}</button><a class="btn solid" href="${x.url}" target="_blank" rel="noopener">去官网</a>${x.wes?`<a class="btn wa" href="${WA}" target="_blank" rel="noopener" data-share="${x.id}">发到群</a>`:""}</div>
+        <div class="acts"><button class="btn add" data-id="${x.id}">${on?"✓ 已加入":"加入清单"}</button><a class="btn solid" href="${x.url}" target="_blank" rel="noopener">去官网</a></div>
       </div></article>`}).join("");
   if(cat==="全部")html+=`<article class="card missing"><div class="brand"><span class="b">The Scene</span><span class="tier">待补充</span></div><span class="why">还没找到这个品牌的官网或 IG。把链接发过来就能加进清单。</span></article>`;
   $("rack").innerHTML=html;
@@ -357,11 +354,6 @@ document.addEventListener("click",e=>{
   if(e.target.closest("#offBtn")){const p=$("offers"),open=p.hidden;p.hidden=!open;$("offBtn").setAttribute("aria-expanded",open);$("offBtn").textContent=open?"收起优惠":"可用优惠";if(open)renderOffers();return}
   const k=e.target.closest("[data-code]");
   if(k){const code=k.dataset.code;try{navigator.clipboard.writeText(code).then(()=>toast("已复制 "+code),()=>toast("复制失败，请手动输入 "+code))}catch(err){toast("复制失败，请手动输入 "+code)}return}
-  const w=e.target.closest("[data-share]");
-  if(w){const x=ITEMS.find(i=>i.id===w.dataset.share);
-    const msg=`${x.brand}｜${x.name}（${x.cn}）\n原价 ${fmt(x.price)}\n${x.url}`;
-    try{navigator.clipboard.writeText(msg).then(()=>toast("已复制，在群里粘贴发送"),()=>toast("复制失败，请从官网复制链接"))}catch(err){toast("复制失败，请从官网复制链接")}
-  }
 });
 /* remember the inputs on this device; income comes from Backstage (this month's received money) when opened from the home page */
 let saved={};try{saved=JSON.parse(localStorage.getItem("wl-inputs")||"{}")}catch(e){}
