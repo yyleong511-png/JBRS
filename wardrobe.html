@@ -66,6 +66,8 @@ h2{font-family:var(--f-display);font-weight:600;font-size:20px;margin:0;text-wra
 .card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .pic{display:block;aspect-ratio:4/3;max-width:100%;border-radius:8px;background:var(--bg);overflow:hidden;position:relative}
 .pic svg{width:100%;height:100%;display:block}
+.pic.photo{aspect-ratio:4/5;background:#fff}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 25%;display:block}
 .pic .sw{position:absolute;left:8px;bottom:8px;font-size:11px;background:var(--paper);color:var(--muted);padding:2px 8px;border-radius:999px}
 .pic .staff{position:absolute;right:8px;top:8px;font:600 11px var(--f-num);background:var(--accent);color:var(--paper);padding:2px 8px;border-radius:999px}
 .ol{stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
@@ -164,16 +166,16 @@ footer{font-size:12px;color:var(--muted);display:grid;gap:4px}
   <section style="display:grid;gap:14px">
     <div class="rowflex" style="flex-wrap:wrap">
       <h2>推荐单品</h2>
-      <span class="note">价格于 2026 年 10 月 14 日从马来西亚官网查到，可能随时调整</span>
+      <span class="note">价格于 2026 年 10 月 28 日从马来西亚官网更新，可能随时调整</span>
     </div>
     <div class="filters" id="filters" role="group" aria-label="按类别筛选"></div>
     <div class="rack" id="rack"></div>
   </section>
 
   <footer>
-    <span>图片是按商品颜色画的款式示意，实物照片点「去官网」看。这个页面不会替你付款，选好尺码后在官网结账。</span>
+    <span>商品照片来自各品牌官网；拿不到照片的单品（Uniqlo）或照片暂时打不开时，显示按商品颜色画的款式示意。这个页面不会替你付款，选好尺码后在官网结账。</span>
     <span>「发到群」会复制商品名称、价格和链接，再打开 WhatsApp 群，粘贴后发送。</span>
-    <span>Shuren Projects 的特价是 2026 年 10 月 20 日官网显示的折扣价，随时可能结束。</span>
+    <span>The WES Studio、Shuren Projects、Charles &amp; Keith 的价格和照片于 2026 年 10 月 28 日从官网更新；Shuren Projects 的特价随时可能结束。</span>
     <span>清单和计时只存在这台设备的浏览器里。来源：thewesstudio.com · shurenprojects.com · charleskeith.com/my · uniqlo.com/my</span>
   </footer>
 </div>
@@ -194,36 +196,36 @@ const WA="https://chat.whatsapp.com/IZg7C3TMy0X6CMk71Rvbsh?mode=gi_t";
 const W="https://thewesstudio.com/products/";
 const S="https://www.shurenprojects.com/collections/all/products/";
 const ITEMS=[
- {id:"wes-tank",wes:1,cat:"上衣",shape:"tank",color:"#D9C8A9",cn:"米色",name:"Slouchy Knit Semi High Neck Tank Top",price:129,wears:60,why:"针织背心，能单穿也能叠穿。",url:W+"slouchy-knit-semi-high-neck-tank-top-beige"},
- {id:"wes-drape",wes:1,cat:"上衣",shape:"tank",color:"#7A5A44",cn:"棕色",name:"WES x GUNG x SO | Gentle Drape Neck Tank Top",price:149,wears:50,why:"垂坠领口，比普通背心正式一点。",url:W+"wes-x-gung-x-so-gentle-drape-neck-tank-top-brown"},
- {id:"wes-knit",wes:1,cat:"上衣",shape:"knit",color:"#B39B74",cn:"卡其",name:"Lazy Thin Knit Long Sleeve Button Top",price:169,wears:50,why:"薄针织长袖，冷气房和拍摄间隙都用得上。",url:W+"lazy-thin-knit-long-sleeve-button-top-khaki"},
- {id:"wes-wrap",wes:1,cat:"上衣",shape:"wrap",color:"#8C8F92",stripe:1,cn:"灰色细条纹",name:"Wrap Crop Cap Sleeve Top",price:169,wears:35,why:"有设计感，配基础款裤子就够出片。",url:W+"wrap-crop-cap-sleeve-top-grey-pinstripe"},
- {id:"wes-blouse",wes:1,cat:"上衣",shape:"blouse",color:"#A3A9AE",cn:"冷灰",name:"WES x GUNG x SO | Easy Shimmer U-Hem Blouse",price:199,wears:40,why:"微光面料加 U 形下摆，上班和活动都能穿。",url:W+"wes-x-gung-x-so-easy-shimmer-u-hem-blouse-cool-grey"},
+ {id:"wes-tank",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/Slouchy_Knit_High_Neck_Top_Beige_-1.jpg?v=1791368471&width=600",wes:1,cat:"上衣",shape:"tank",color:"#D9C8A9",cn:"米色",name:"Slouchy Knit Semi High Neck Tank Top",price:129,wears:60,why:"针织背心，能单穿也能叠穿。",url:W+"slouchy-knit-semi-high-neck-tank-top-beige"},
+ {id:"wes-drape",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/DSC01683.jpg?v=1784091467&width=600",wes:1,cat:"上衣",shape:"tank",color:"#7A5A44",cn:"棕色",name:"WES x GUNG x SO | Gentle Drape Neck Tank Top",price:149,wears:50,why:"垂坠领口，比普通背心正式一点。",url:W+"wes-x-gung-x-so-gentle-drape-neck-tank-top-brown"},
+ {id:"wes-knit",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-4__5.jpg?v=1791366819&width=600",wes:1,cat:"上衣",shape:"knit",color:"#B39B74",cn:"卡其",name:"Lazy Thin Knit Long Sleeve Button Top",price:169,wears:50,why:"薄针织长袖，冷气房和拍摄间隙都用得上。",url:W+"lazy-thin-knit-long-sleeve-button-top-khaki"},
+ {id:"wes-wrap",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026EP03ModelCatalogue-_4of37.jpg?v=1789710808&width=600",wes:1,cat:"上衣",shape:"wrap",color:"#8C8F92",stripe:1,cn:"灰色细条纹",name:"Wrap Crop Cap Sleeve Top",price:169,wears:35,why:"有设计感，配基础款裤子就够出片。",url:W+"wrap-crop-cap-sleeve-top-grey-pinstripe"},
+ {id:"wes-blouse",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/DSC01856.jpg?v=1784093113&width=600",wes:1,cat:"上衣",shape:"blouse",color:"#A3A9AE",cn:"冷灰",name:"WES x GUNG x SO | Easy Shimmer U-Hem Blouse",price:199,wears:40,why:"微光面料加 U 形下摆，上班和活动都能穿。",url:W+"wes-x-gung-x-so-easy-shimmer-u-hem-blouse-cool-grey"},
  {id:"uq-tee",brand:"UNIQLO",tier:"平价基础",cat:"上衣",shape:"tee",color:"#F4F4F2",cn:"白色",name:"SUPIMA Cotton 圆领 T 恤",price:39.9,wears:80,why:"100% Supima 棉，不易起球，白黑各一件打底。",url:"https://www.uniqlo.com/my/en/",note:"价格来自马来西亚媒体报道，买前在官网确认"},
- {id:"wes-denim",wes:1,cat:"裤子",shape:"jeans",color:"#8E7B5C",cn:"Dirty Tea",name:"Medium Rise Straight-Cut Denim Pants",price:329,wears:100,why:"直筒牛仔裤是穿得最多的单品。",url:W+"medium-rise-straight-cut-denim-pants-dirty-tea"},
- {id:"wes-pleat",wes:1,cat:"裤子",shape:"trousers",color:"#6F7377",stripe:1,cn:"灰色细条纹",name:"Triple Pleated Long Trousers",price:269,wears:70,why:"三褶西裤，配背心或衬衫都利落。",url:W+"triple-pleated-long-trousers-grey-pinstripe"},
- {id:"wes-skirt",wes:1,cat:"裙子",shape:"skirt",color:"#E8D79A",cn:"奶油黄",name:"Dual Layer Skirt w/ Braided Belt",price:249,wears:35,why:"双层半裙配编织腰带，颜色亮但不夸张。",url:W+"dual-layer-skirt-w-braided-belt-butter"},
- {id:"wes-cocoon",wes:1,cat:"裙子",shape:"dress",color:"#CDB89A",cn:"Aged Beige",name:"Front Deep-V Tank Cocoon Dress",price:289,wears:25,why:"茧型连衣裙，一件就是一套造型。",url:W+"front-deep-v-tank-cocoon-dress-aged-beige"},
- {id:"wes-kdress",wes:1,cat:"裙子",shape:"ldress",color:"#A8916B",cn:"卡其配围巾",name:"Lazy Thin Knit Long Sleeve Button Dress w/ Large Tri Scarf",price:339,wears:25,why:"附大三角围巾，冷气房或旅行很实用。",url:W+"lazy-thin-knit-long-sleeve-button-dress-w-large-tri-scarf-khaki-w-aged-beige"},
+ {id:"wes-denim",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-4__2.jpg?v=1790677960&width=600",wes:1,cat:"裤子",shape:"jeans",color:"#8E7B5C",cn:"Dirty Tea",name:"Medium Rise Straight-Cut Denim Pants",price:329,wears:100,why:"直筒牛仔裤是穿得最多的单品。",url:W+"medium-rise-straight-cut-denim-pants-dirty-tea"},
+ {id:"wes-pleat",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026EP03ModelCatalogue-_7of37.jpg?v=1789710809&width=600",wes:1,cat:"裤子",shape:"trousers",color:"#6F7377",stripe:1,cn:"灰色细条纹",name:"Triple Pleated Long Trousers",price:269,wears:70,why:"三褶西裤，配背心或衬衫都利落。",url:W+"triple-pleated-long-trousers-grey-pinstripe"},
+ {id:"wes-skirt",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-_9_of_18.jpg?v=1790737210&width=600",wes:1,cat:"裙子",shape:"skirt",color:"#E8D79A",cn:"奶油黄",name:"Dual Layer Skirt w/ Braided Belt",price:249,wears:35,why:"双层半裙配编织腰带，颜色亮但不夸张。",url:W+"dual-layer-skirt-w-braided-belt-butter"},
+ {id:"wes-cocoon",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-1__4.jpg?v=1790677612&width=600",wes:1,cat:"裙子",shape:"dress",color:"#CDB89A",cn:"Aged Beige",name:"Front Deep-V Tank Cocoon Dress",price:289,wears:25,why:"茧型连衣裙，一件就是一套造型。",url:W+"front-deep-v-tank-cocoon-dress-aged-beige"},
+ {id:"wes-kdress",img:"https://cdn.shopify.com/s/files/1/0972/3710/6969/files/2026_EP03_Model_Catalogue-8__6.jpg?v=1791366161&width=600",wes:1,cat:"裙子",shape:"ldress",color:"#A8916B",cn:"卡其配围巾",name:"Lazy Thin Knit Long Sleeve Button Dress w/ Large Tri Scarf",price:339,wears:25,why:"附大三角围巾，冷气房或旅行很实用。",url:W+"lazy-thin-knit-long-sleeve-button-dress-w-large-tri-scarf-khaki-w-aged-beige"},
  {id:"uq-cardi",brand:"UNIQLO",tier:"平价基础",cat:"外套",shape:"cardigan",color:"#E6E1D6",cn:"米白",name:"Pointelle Cardigan",price:59.9,wears:40,why:"薄开衫，室内冷气必备。",url:"https://www.uniqlo.com/my/en/",note:"RM59.90 是 App 会员价，到 10 月 15 日"},
- {id:"ck-flat",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"flat",color:"#222222",cn:"黑色",name:"Bettina Double-Bow Pointed Ballet Flats",price:219.9,wears:80,why:"尖头平底鞋，正式和休闲都能配。",url:"https://www.charleskeith.com/my/CK1-70381256_BLKBOX.html"},
- {id:"ck-sling",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"sling",color:"#4A3226",cn:"深棕",name:"Aira Buckled-Strap Slingback Flats",price:239.9,wears:60,why:"深棕比黑色好配大地色系衣服。",url:"https://www.charleskeith.com/my/CK1-70381255_DK.BRW.html"},
- {id:"ck-mj",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"mj",color:"#C9B08A",cn:"Sand",name:"Franca Faux Suede Mary Janes",price:219.9,wears:45,why:"玛丽珍鞋，适合半裙和直筒裤。",url:"https://www.charleskeith.com/my/CK1-70381259_SAND.html"},
- {id:"ck-hoop",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"hoop",color:"#C9CDD1",cn:"银色",name:"Pearl Open-Hoop Earrings",price:129.9,wears:120,why:"珍珠开口耳圈，日常和拍摄都适合。",url:"https://www.charleskeith.com/my/CK5-42120486_SILVER.html"},
- {id:"ck-ring",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"ring",color:"#C9CDD1",cn:"银色",name:"Gabine Sculptural Open Ring",price:89.9,wears:120,why:"开口戒指，尺寸可以微调。",url:"https://www.charleskeith.com/my/CK5-31470160_SILVER.html"},
- {id:"ck-neck",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"necklace",color:"#E8E2D4",cn:"白色",name:"Pearl & Gemstone Double-Chain Necklace",price:179.9,wears:80,why:"双链珍珠项链，素色上衣配它就够。",url:"https://www.charleskeith.com/my/CK5-22120476_WHITE.html"}
+ {id:"ck-flat",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw2096c94f/images/hi-res/2026-L7-CK1-70381256-J6-1.jpg",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"flat",color:"#222222",cn:"黑色",name:"Bettina Double-Bow Pointed Ballet Flats",price:219.9,wears:80,why:"尖头平底鞋，正式和休闲都能配。",url:"https://www.charleskeith.com/my/CK1-70381256_BLKBOX.html"},
+ {id:"ck-sling",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw4b15f9a7/images/hi-res/2026-L7-CK1-70381255-29-1.jpg",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"sling",color:"#4A3226",cn:"深棕",name:"Aira Buckled-Strap Slingback Flats",price:239.9,wears:60,why:"深棕比黑色好配大地色系衣服。",url:"https://www.charleskeith.com/my/CK1-70381255_DK.BRW.html"},
+ {id:"ck-mj",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw1245def5/images/hi-res/2026-L7-CK1-70381259-44-1.jpg",brand:"Charles & Keith",tier:"中价鞋包",cat:"鞋",shape:"mj",color:"#C9B08A",cn:"Sand",name:"Franca Faux Suede Mary Janes",price:219.9,wears:45,why:"玛丽珍鞋，适合半裙和直筒裤。",url:"https://www.charleskeith.com/my/CK1-70381259_SAND.html"},
+ {id:"ck-hoop",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw803b55b7/images/hi-res/2026-L6-CK5-42120486-07-1.jpg",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"hoop",color:"#C9CDD1",cn:"银色",name:"Pearl Open-Hoop Earrings",price:129.9,wears:120,why:"珍珠开口耳圈，日常和拍摄都适合。",url:"https://www.charleskeith.com/my/CK5-42120486_SILVER.html"},
+ {id:"ck-ring",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dw53fcd8e9/images/hi-res/2026-L6-CK5-31470160-07-1.jpg",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"ring",color:"#C9CDD1",cn:"银色",name:"Gabine Sculptural Open Ring",price:89.9,wears:120,why:"开口戒指，尺寸可以微调。",url:"https://www.charleskeith.com/my/CK5-31470160_SILVER.html"},
+ {id:"ck-neck",img:"https://www.charleskeith.com/on/demandware.static/-/Sites-ck-products/default/dwae58bc3f/images/hi-res/2026-L6-CK5-22120476-03-1.jpg",brand:"Charles & Keith",tier:"中价配饰",cat:"首饰",shape:"necklace",color:"#E8E2D4",cn:"白色",name:"Pearl & Gemstone Double-Chain Necklace",price:179.9,wears:80,why:"双链珍珠项链，素色上衣配它就够。",url:"https://www.charleskeith.com/my/CK5-22120476_WHITE.html"}
 ,
- {id:"sr-quiet",sr:1,cat:"上衣",shape:"tee",color:"#A9B9C8",cn:"Misty Blue",name:"Quiet Tee",price:189,wears:70,why:"雾蓝色素 T，比白 T 多一点颜色但一样好配。",url:S+"quiet-tee-misty-blue"},
- {id:"sr-mid",sr:1,cat:"上衣",shape:"tee",color:"#3A3A3C",cn:"Heather Black",name:"Mid Sleeve Tee / Rayon",price:189,wears:60,why:"中袖嫘萦面料，垂感比棉 T 好，热天也透气。",url:S+"mid-sleeve-tee-rayon-heather-black"},
- {id:"sr-polo",sr:1,cat:"上衣",shape:"polo",color:"#2B3A55",cn:"Navy",name:"3P Polo Tee / Rayon",price:202,orig:289,wears:50,why:"深蓝 Polo，配西裤或短裤都利落。",url:S+"3p-polo-tee-rayon-navy"},
- {id:"sr-sidepull",sr:1,cat:"上衣",shape:"shirt",color:"#8FA6C4",stripe:1,cn:"蓝色条纹",name:"Sidepull SL Shirt",price:289,wears:40,why:"条纹衬衫，侧边抽绳可以调松紧。",url:S+"sidepull-sl-shirt-blue-stripe"},
- {id:"sr-halfzip",sr:1,cat:"上衣",shape:"halfzip",color:"#8A8D90",cn:"灰色",name:"Pullover Halfzip / Sorona® Agile",price:203,orig:290,wears:45,why:"半拉链套头衫，冷气房当薄外层。",url:S+"pullover-halfzip-sorona%C2%AE-agile-grey"},
- {id:"sr-panel",sr:1,cat:"裤子",shape:"trousers",color:"#2A2A2A",cn:"黑色",name:"Panel Pants / Nylon",price:287,orig:319,wears:70,why:"尼龙拼接裤，耐脏快干，跑拍摄很方便。",url:S+"panel-pants-nylon-black"},
- {id:"sr-zz",sr:1,cat:"裤子",shape:"trousers",color:"#6B2E33",cn:"Maroon",name:"ZZ Side Pants",price:329,wears:45,why:"酒红色长裤，一条就能撑起整套搭配。",url:"https://www.shurenprojects.com/collections/frontpage/products/zz-side-pants-maroon"},
- {id:"sr-shorts",sr:1,cat:"裤子",shape:"shorts",color:"#C8B48E",cn:"Sand",name:"Camping Shorts 2-Tone / Nylon",price:247,orig:309,wears:45,why:"双色尼龙短裤，旅行和户外活动穿。",url:S+"camping-shorts-2-tone-nylon-sand"},
- {id:"sr-noragi",sr:1,cat:"外套",shape:"noragi",color:"#7E8285",cn:"灰色",name:"Noragi Jacket / Teflon™ Polyester",price:244,orig:349,wears:50,why:"和风系带外套，表面防泼水。",url:S+"noragi-jacket-teflon%E2%84%A2-polyester-grey"},
- {id:"sr-ot",sr:1,cat:"外套",shape:"jacket",color:"#26282A",cn:"黑色",name:"OTJacket / Teflon™",price:209,orig:299,wears:50,why:"黑色轻外套，防泼水，雨季很实用。",url:S+"otjacket-teflon%E2%84%A2-black"},
- {id:"sr-seer",sr:1,cat:"外套",shape:"jacket",color:"#9A9C9E",cn:"灰色",name:"Seersucker Shirt Jacket / Nylon",price:329,wears:40,why:"泡泡纱衬衫外套，可以当衬衫穿，也可以当外套。",url:S+"seersucker-shirt-jacket-nylon-grey"}
+ {id:"sr-quiet",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/tee_bl.jpg?v=1780219843&width=600",sr:1,cat:"上衣",shape:"tee",color:"#A9B9C8",cn:"Misty Blue",name:"Quiet Tee",price:189,wears:70,why:"雾蓝色素 T，比白 T 多一点颜色但一样好配。",url:S+"quiet-tee-misty-blue"},
+ {id:"sr-mid",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/DSCF1988.jpg?v=1791017538&width=600",sr:1,cat:"上衣",shape:"tee",color:"#3A3A3C",cn:"Heather Black",name:"Mid Sleeve Tee / Rayon",price:189,wears:60,why:"中袖嫘萦面料，垂感比棉 T 好，热天也透气。",url:S+"mid-sleeve-tee-rayon-heather-black"},
+ {id:"sr-polo",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/polo_navy.jpg?v=1749014842&width=600",sr:1,cat:"上衣",shape:"polo",color:"#2B3A55",cn:"Navy",name:"3P Polo Tee / Rayon",price:202,orig:289,wears:50,why:"深蓝 Polo，配西裤或短裤都利落。",url:S+"3p-polo-tee-rayon-navy"},
+ {id:"sr-sidepull",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/shirt.jpg?v=1780229111&width=600",sr:1,cat:"上衣",shape:"shirt",color:"#8FA6C4",stripe:1,cn:"蓝色条纹",name:"Sidepull SL Shirt",price:289,wears:40,why:"条纹衬衫，侧边抽绳可以调松紧。",url:S+"sidepull-sl-shirt-blue-stripe"},
+ {id:"sr-halfzip",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/halfzip_grey_thumb_8cff2c7a-de2a-49ef-8e99-8965bfdff979.jpg?v=1742192395&width=600",sr:1,cat:"上衣",shape:"halfzip",color:"#8A8D90",cn:"灰色",name:"Pullover Halfzip / Sorona® Agile",price:203,orig:290,wears:45,why:"半拉链套头衫，冷气房当薄外层。",url:S+"pullover-halfzip-sorona%C2%AE-agile-grey"},
+ {id:"sr-panel",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/5wxTxfr56978938723f64_1769509767.jpg?v=1769581004&width=600",sr:1,cat:"裤子",shape:"trousers",color:"#2A2A2A",cn:"黑色",name:"Panel Pants / Nylon",price:287,orig:319,wears:70,why:"尼龙拼接裤，耐脏快干，跑拍摄很方便。",url:S+"panel-pants-nylon-black"},
+ {id:"sr-zz",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/DSCF1971.jpg?v=1791025284&width=600",sr:1,cat:"裤子",shape:"trousers",color:"#6B2E33",cn:"Maroon",name:"ZZ Side Pants",price:329,wears:45,why:"酒红色长裤，一条就能撑起整套搭配。",url:"https://www.shurenprojects.com/collections/frontpage/products/zz-side-pants-maroon"},
+ {id:"sr-shorts",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/Brgy2V5N6937df3619f23_1765269302.jpg?v=1765269306&width=600",sr:1,cat:"裤子",shape:"shorts",color:"#C8B48E",cn:"Sand",name:"Camping Shorts 2-Tone / Nylon",price:309,wears:45,why:"双色尼龙短裤，旅行和户外活动穿。",url:S+"camping-shorts-2-tone-nylon-sand"},
+ {id:"sr-noragi",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/ngy1.jpg?v=1742550307&width=600",sr:1,cat:"外套",shape:"noragi",color:"#7E8285",cn:"灰色",name:"Noragi Jacket / Teflon™ Polyester",price:244,orig:349,wears:50,why:"和风系带外套，表面防泼水。",url:S+"noragi-jacket-teflon%E2%84%A2-polyester-grey"},
+ {id:"sr-ot",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/jacketlogo1.jpg?v=1729077310&width=600",sr:1,cat:"外套",shape:"jacket",color:"#26282A",cn:"黑色",name:"OTJacket / Teflon™",price:209,orig:299,wears:50,why:"黑色轻外套，防泼水，雨季很实用。",url:S+"otjacket-teflon%E2%84%A2-black"},
+ {id:"sr-seer",img:"https://cdn.shopify.com/s/files/1/2297/1219/files/DSCF2039.jpg?v=1791024235&width=600",sr:1,cat:"外套",shape:"jacket",color:"#9A9C9E",cn:"灰色",name:"Seersucker Shirt Jacket / Nylon",price:329,wears:40,why:"泡泡纱衬衫外套，可以当衬衫穿，也可以当外套。",url:S+"seersucker-shirt-jacket-nylon-grey"}
 ].map(x=>x.wes?{...x,brand:"The WES Studio",tier:"本地小众"}:x.sr?{...x,brand:"Shuren Projects 树人",tier:"本地小众"}:x);
 const CATS=["全部","上衣","裤子","裙子","外套","鞋","首饰"];
 const SPLIT=[["衣服",.6,"var(--accent)"],["鞋",.25,"var(--ink)"],["首饰",.15,"var(--warn)"]];
@@ -294,7 +296,7 @@ function render(){
   let html=list.map(x=>{
     const on=!!cart[x.id];
     return `<article class="card ${on?"on":""}">
-      <a class="pic" href="${x.url}" target="_blank" rel="noopener" aria-label="在官网查看 ${x.name}">${sketch(x)}<span class="sw">${x.cn}</span>${x.wes&&$("staff").checked?'<span class="staff">-50%</span>':""}</a>
+      <a class="pic${x.img?" photo":""}" href="${x.url}" target="_blank" rel="noopener" aria-label="在官网查看 ${x.name}">${sketch(x)}${x.img?`<img src="${x.img}" alt="${x.cn} ${x.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('photo');this.remove()">`:""}<span class="sw">${x.cn}</span>${x.wes&&$("staff").checked?'<span class="staff">-50%</span>':""}</a>
       <div class="brand"><span class="b">${x.brand}</span><span class="tier">${x.cat} · ${x.tier}</span></div>
       <div class="name">${x.name}</div>
       <div style="display:grid;gap:4px;align-content:start"><span class="why">${x.why}</span>${x.note?`<span class="note">${x.note}</span>`:""}${on?waitText(cart[x.id]):""}</div>
