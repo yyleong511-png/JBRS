@@ -598,6 +598,44 @@
   .ledger tfoot .foot-label{color:var(--ink-soft);font-weight:500;font-family:'Inter',sans-serif;}
   .ledger tfoot .total{color:var(--green);}
   .grand-total{display:flex;flex-direction:column;align-items:flex-end;margin-top:18px;}
+  /* ---------- monthly income history ---------- */
+  .mcal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px;}
+  .mcal-head span{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;}
+  .mcal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .mcal-grid button{border:1px solid var(--line);background:var(--ivory);border-radius:10px;padding:9px 2px 7px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);min-height:0;font-weight:500;}
+  .mcal-grid button b{display:block;font-size:14px;font-weight:600;}
+  .mcal-grid button small{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-mute);margin-top:2px;}
+  .mcal-grid button.in{background:#F6EEF1;border-color:#E7D3DA;}
+  .mcal-grid button.edge{background:var(--rose-deep);border-color:var(--rose-deep);color:#fff;}
+  .mcal-grid button.edge small{color:rgba(255,255,255,.8);}
+  .mcal-grid button.future{opacity:.45;}
+  .mcal-grid button.now b::after{content:' •';color:var(--rose);}
+  .mcal-grid button.edge.now b::after{color:#fff;}
+  .mc-hint{font-size:12px;color:var(--ink-soft);margin-top:10px;text-align:center;}
+  .mh-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  .mh-stats div{background:var(--ivory);border-radius:10px;padding:10px 12px;}
+  .mh-stats small{display:block;font-size:11px;color:var(--ink-soft);}
+  .mh-stats b{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;}
+  .mh-stats b.due{color:var(--amber);} .mh-stats b.pos{color:var(--green);}
+  .mh-stats div small + small{font-size:10.5px;color:var(--ink-mute);margin-top:2px;}
+  .mh-chart{display:flex;align-items:flex-end;gap:4px;height:150px;margin:6px 0 4px;padding-top:6px;border-bottom:1px solid var(--line);}
+  .mh-chart .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0;cursor:pointer;}
+  .mh-chart .stk{width:100%;max-width:34px;display:flex;flex-direction:column-reverse;border-radius:5px 5px 0 0;overflow:hidden;}
+  .mh-chart .stk i{display:block;width:100%;}
+  .mh-chart .r{background:var(--rose-deep);} .mh-chart .d{background:#E8C9A0;}
+  .mh-axis{display:flex;gap:4px;font-size:10px;color:var(--ink-mute);font-family:'IBM Plex Mono',monospace;}
+  .mh-axis span{flex:1;text-align:center;min-width:0;overflow:hidden;}
+  .mh-legend{display:flex;gap:14px;font-size:11px;color:var(--ink-soft);margin:8px 0 4px;}
+  .mh-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:middle;}
+  .mh-row{display:block;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--line-soft);padding:13px 2px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);min-height:0;font-weight:400;border-radius:0;}
+  .mh-row:last-child{border-bottom:none;}
+  .mh-row .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .mh-row .mn{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;}
+  .mh-row .mn small{font-family:'Inter',sans-serif;font-size:11px;color:var(--rose-deep);margin-left:6px;font-weight:600;}
+  .mh-row .amt{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;}
+  .mh-row .sub{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  .mh-row .sub .due{color:var(--amber);}
+  .mh-row .src{font-size:11px;color:var(--ink-mute);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
   .grand-total small{font-size:11.5px;color:var(--ink-soft);}
   .grand-total span{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--green);}
 
@@ -801,6 +839,13 @@
         <div>
           <div class="hc-title" data-t="cardDocsTitle">单据记录</div>
           <div class="hc-desc" data-t="cardDocsDesc">发票与收据分开管理，可筛选日期与类别</div>
+        </div>
+      </button>
+      <button class="home-card wide" data-nav="months">
+        <div class="hc-icon">🗓️</div>
+        <div>
+          <div class="hc-title" data-t="cardMonTitle">每月收入记录</div>
+          <div class="hc-desc" data-t="cardMonDesc">一个月一个月看收入，也可以在日历上选几个月，例如五月到九月的总收入</div>
         </div>
       </button>
       <button class="home-card" data-nav="income">
@@ -1025,6 +1070,48 @@
   </section>
 
   <!-- ============ INCOME ============ -->
+  <section id="view-months" class="view">
+    <div class="panel">
+      <div class="preset-row" id="mhPresets">
+        <button type="button" class="preset-btn" data-mp="3" data-t="mh_p3">最近 3 个月</button>
+        <button type="button" class="preset-btn" data-mp="6" data-t="mh_p6">最近 6 个月</button>
+        <button type="button" class="preset-btn" data-mp="12" data-t="mh_p12">最近 12 个月</button>
+        <button type="button" class="preset-btn" data-mp="year" data-t="mh_pyear">今年</button>
+        <button type="button" class="preset-btn" data-mp="last" data-t="mh_plast">去年</button>
+      </div>
+      <div class="mcal-head">
+        <button type="button" class="cal-nav" id="mcPrev">‹</button>
+        <span id="mcYear"></span>
+        <button type="button" class="cal-nav" id="mcNext">›</button>
+      </div>
+      <div class="mcal-grid" id="mcGrid"></div>
+      <div class="mc-hint" id="mcHint"></div>
+    </div>
+
+    <div class="panel">
+      <h2 id="mhTitle"></h2>
+      <div class="grand-total" style="margin-top:8px;">
+        <small data-t="allGrandLabel">总收入（已收 + 未收）</small>
+        <span id="mhTotal">RM 0.00</span>
+      </div>
+      <div class="mh-stats">
+        <div><small data-t="mh_recv">已收</small><b class="pos" id="mhRecv">RM 0</b></div>
+        <div><small data-t="mh_due">未收</small><b class="due" id="mhDue">RM 0</b></div>
+        <div><small data-t="mh_avg">每月平均</small><b id="mhAvg">RM 0</b></div>
+        <div><small data-t="mh_best">收入最高的月份</small><b id="mhBest">—</b><small id="mhBestAmt"></small></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="mh_h_list">每月明细</h2>
+      <p class="hint" data-t="mh_hint">点任何一个月，可以看那个月的每一笔收入</p>
+      <div class="mh-legend"><span><i style="background:var(--rose-deep)"></i><span data-t="mh_recv">已收</span></span><span><i style="background:#E8C9A0"></i><span data-t="mh_due">未收</span></span></div>
+      <div class="mh-chart" id="mhChart"></div>
+      <div class="mh-axis" id="mhAxis"></div>
+      <div id="mhList" style="margin-top:10px;"></div>
+    </div>
+  </section>
+
   <section id="view-income" class="view">
     <div class="panel">
       <div class="preset-row" id="incPresets">
@@ -1640,6 +1727,12 @@
       title_invoice:'开立发票', title_receipt:'开立收据',
       homeSubtitle:'私人单据与收入记录系统',
       hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', hsMonth:'本月总收入',
+      cardMonTitle:'每月收入记录', cardMonDesc:'一个月一个月看收入，也可以在日历上选几个月，例如五月到九月的总收入',
+      title_months:'每月收入记录', mh_p3:'最近 3 个月', mh_p6:'最近 6 个月', mh_p12:'最近 12 个月', mh_pyear:'今年', mh_plast:'去年',
+      mh_recv:'已收', mh_due:'未收', mh_avg:'每月平均', mh_best:'收入最高的月份', mh_h_list:'每月明细',
+      mh_hint:'点任何一个月，可以看那个月的每一笔收入', mh_pick1:'点开始月份，再点结束月份', mh_pick2:'已选 {m}，再点结束月份（同一个月就再点一次）',
+      mh_range:'{a} – {b}', mh_one:'{a}', mh_months:'共 {n} 个月', mh_now:'本月', mh_srcD:'单据', mh_srcW:'Wes', mh_srcP:'Part Time',
+      mh_empty:'这段时间没有收入记录', mh_mon:'{y} 年 {m} 月', mh_monS:'{m}月',
       cardWardTitle:'衣橱预算账本', cardWardDesc:'按这个月收入算出能花在衣服首饰上的钱，加入清单看会不会超支',
       hl_recv:'本月已收', hl_due:'未收款', hl_month:'本月总收入', hl_empty:'这里还没有记录',
       hl_wesMonth:'Wes 兼职 · {m}', hl_wesSub:'{n} 天 · {h}', hl_pt:'外接 Part Time', hl_noClient:'（没有客户名）',
@@ -1900,6 +1993,12 @@
       title_invoice:'New Invoice', title_receipt:'New Receipt',
       homeSubtitle:'Private billing and income records',
       hsReceived:'This month · all', hsDue:'Outstanding · all', hsMonth:'Total this month',
+      cardMonTitle:'Monthly Income', cardMonDesc:'See income month by month, or pick months on the calendar — e.g. May to September',
+      title_months:'Monthly Income', mh_p3:'Last 3 months', mh_p6:'Last 6 months', mh_p12:'Last 12 months', mh_pyear:'This year', mh_plast:'Last year',
+      mh_recv:'Received', mh_due:'Outstanding', mh_avg:'Monthly average', mh_best:'Best month', mh_h_list:'Month by month',
+      mh_hint:'Tap a month to see every item in it', mh_pick1:'Tap a start month, then an end month', mh_pick2:'{m} selected — tap an end month (tap it again for one month)',
+      mh_range:'{a} – {b}', mh_one:'{a}', mh_months:'{n} months', mh_now:'This month', mh_srcD:'Docs', mh_srcW:'Wes', mh_srcP:'Part time',
+      mh_empty:'No income in this period', mh_mon:'{M} {y}', mh_monS:'{M}',
       cardWardTitle:'Wardrobe Ledger', cardWardDesc:'Turn this month\'s income into a clothes & jewellery budget and check your wishlist',
       hl_recv:'Received this month', hl_due:'Outstanding', hl_month:'Total income this month', hl_empty:'Nothing here yet',
       hl_wesMonth:'Wes Part Time · {m}', hl_wesSub:'{n} days · {h}', hl_pt:'Outside Part Time', hl_noClient:'(no client name)',
@@ -4950,10 +5049,10 @@
     $('hsMonth').textContent = fmtShort(m.recv + m.due);
   }
   // tap a home figure → the list behind it (documents, Wes months, outside part time)
-  function homeList(kind){
+  function homeList(kind, opt){
     const now = new Date();
-    const mStart = toStr(new Date(now.getFullYear(), now.getMonth(), 1));
-    const mEnd = toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
+    const mStart = opt ? opt.start : toStr(new Date(now.getFullYear(), now.getMonth(), 1));
+    const mEnd = opt ? opt.end : toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
     const inWin = kind === 'due' ? (() => true) : (ds => inRange(ds, mStart, mEnd));
     // recv = money in, due = still owed, month = both (this month's total income)
     const want = paid => kind === 'month' || (kind === 'recv' ? paid : !paid);
@@ -4987,7 +5086,7 @@
     }
     rows.sort((a, b) => b.date.localeCompare(a.date));
     const total = rows.filter(r => r.cls !== 'void').reduce((a, r) => a + r.amt, 0);
-    const title = `${T()['hl_' + kind]} · ${fmt(total)}`;
+    const title = `${opt ? opt.title : T()['hl_' + kind]} · ${fmt(total)}`;
     $('sheetTitle').textContent = title;
     $('sheetBody').innerHTML = rows.length ? rows.map(r =>
       `<button type="button" class="sheet-opt" data-value="${esc(r.value)}">
@@ -5010,6 +5109,87 @@
   });
   document.querySelectorAll('[data-hs]').forEach(b => b.addEventListener('click', () => homeList(b.dataset.hs)));
 
+  // ============================================================
+  // monthly income history — month calendar + range totals
+  // ============================================================
+  const mhYm = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
+  const ymAdd = (ym, n) => { const [y, m] = ym.split('-').map(Number); return mhYm(new Date(y, m-1+n, 1)); };
+  const ymEnd = ym => { const [y, m] = ym.split('-').map(Number); return toStr(new Date(y, m, 0)); };
+  const MH = { year: new Date().getFullYear(), start: ymAdd(mhYm(new Date()), -5), end: mhYm(new Date()), picking: false };
+  function mhName(ym, short){
+    const [y, m] = ym.split('-').map(Number);
+    if(lang === 'zh') return (short ? T().mh_monS : T().mh_mon).replace('{y}', y).replace('{m}', m);
+    const M = new Date(y, m-1, 1).toLocaleDateString('en-GB', {month: short ? 'short' : 'long'});
+    return (short ? T().mh_monS : T().mh_mon).replace('{M}', M).replace('{y}', y);
+  }
+  const mhTotals = ym => sourceTotals(ds => String(ds || '').startsWith(ym));
+  function renderMonths(){
+    const cur = mhYm(new Date());
+    // calendar
+    $('mcYear').textContent = MH.year;
+    let g = '';
+    for(let m = 1; m <= 12; m++){
+      const ym = `${MH.year}-${pad2(m)}`, t = mhTotals(ym), tot = t.recv + t.due;
+      const cls = [ym === MH.start || ym === MH.end ? 'edge' : (ym > MH.start && ym < MH.end ? 'in' : ''), ym > cur ? 'future' : '', ym === cur ? 'now' : ''].join(' ');
+      g += `<button type="button" class="${cls}" data-ym="${ym}"><b>${esc(mhName(ym, true))}</b><small>${tot ? fmtShort(tot).replace('RM ', '') : '–'}</small></button>`;
+    }
+    $('mcGrid').innerHTML = g;
+    $('mcHint').textContent = MH.picking ? T().mh_pick2.replace('{m}', mhName(MH.start)) : T().mh_pick1;
+    // months in range
+    const months = []; for(let ym = MH.start; ym <= MH.end; ym = ymAdd(ym, 1)) months.push(ym);
+    const rows = months.map(ym => ({ ym, t: mhTotals(ym) }));
+    const recv = rows.reduce((a, r) => a + r.t.recv, 0), due = rows.reduce((a, r) => a + r.t.due, 0);
+    $('mhTitle').textContent = (MH.start === MH.end ? T().mh_one : T().mh_range).replace('{a}', mhName(MH.start)).replace('{b}', mhName(MH.end)) + ' · ' + T().mh_months.replace('{n}', months.length);
+    $('mhTotal').textContent = fmt(recv + due);
+    $('mhRecv').textContent = fmt(recv);
+    $('mhDue').textContent = fmt(due);
+    $('mhAvg').textContent = fmt((recv + due) / months.length);
+    const best = rows.slice().sort((a, b) => (b.t.recv + b.t.due) - (a.t.recv + a.t.due))[0];
+    const bestAmt = best ? best.t.recv + best.t.due : 0;
+    $('mhBest').textContent = bestAmt > 0 ? mhName(best.ym) : '—';
+    $('mhBestAmt').textContent = bestAmt > 0 ? fmt(bestAmt) : '';
+    // chart (oldest → newest)
+    const max = Math.max(1, ...rows.map(r => r.t.recv + r.t.due));
+    $('mhChart').innerHTML = rows.map(r => `<div class="col" data-mrow="${r.ym}" title="${esc(mhName(r.ym))} ${fmt(r.t.recv + r.t.due)}"><div class="stk" style="height:${(r.t.recv + r.t.due) / max * 100}%"><i class="r" style="flex:${r.t.recv}"></i><i class="d" style="flex:${r.t.due}"></i></div></div>`).join('');
+    $('mhAxis').innerHTML = rows.map(r => `<span>${esc(rows.length > 12 ? r.ym.slice(5) : mhName(r.ym, true))}</span>`).join('');
+    // list (newest first)
+    $('mhList').innerHTML = recv + due > 0 ? rows.slice().reverse().map(r => {
+      const t = r.t, tot = t.recv + t.due;
+      const src = [[T().mh_srcD, t.dRecv + t.dDue], [T().mh_srcW, t.wRecv + t.wDue], [T().mh_srcP, t.pRecv + t.pDue]].filter(x => x[1] > 0).map(x => `${x[0]} ${fmtShort(x[1])}`).join(' · ');
+      return `<button type="button" class="mh-row" data-mrow="${r.ym}">
+        <div class="top"><span class="mn">${esc(mhName(r.ym))}${r.ym === cur ? `<small>${esc(T().mh_now)}</small>` : ''}</span><span class="amt">${fmt(tot)}</span></div>
+        <div class="sub">${esc(T().mh_recv)} ${fmt(t.recv)}${t.due > 0 ? ` · <span class="due">${esc(T().mh_due)} ${fmt(t.due)}</span>` : ''}</div>
+        ${src ? `<div class="src">${esc(src)}</div>` : ''}
+      </button>`;
+    }).join('') : `<div class="empty-hint">${esc(T().mh_empty)}</div>`;
+    document.querySelectorAll('#mhPresets .preset-btn').forEach(b => b.classList.toggle('active', mhPresetRange(b.dataset.mp).join() === [MH.start, MH.end].join()));
+  }
+  function mhPresetRange(k){
+    const cur = mhYm(new Date()), y = new Date().getFullYear();
+    if(k === 'year') return [`${y}-01`, cur];
+    if(k === 'last') return [`${y-1}-01`, `${y-1}-12`];
+    return [ymAdd(cur, 1 - Number(k)), cur];
+  }
+  $('mhPresets').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-mp]'); if(!b) return;
+    [MH.start, MH.end] = mhPresetRange(b.dataset.mp); MH.picking = false; MH.year = Number(MH.end.slice(0, 4));
+    renderMonths();
+  });
+  $('mcPrev').addEventListener('click', () => { MH.year--; renderMonths(); });
+  $('mcNext').addEventListener('click', () => { MH.year++; renderMonths(); });
+  $('mcGrid').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-ym]'); if(!b) return;
+    const ym = b.dataset.ym;
+    if(!MH.picking){ MH.start = MH.end = ym; MH.picking = true; }
+    else { if(ym < MH.start){ MH.end = MH.start; MH.start = ym; } else MH.end = ym; MH.picking = false; }
+    renderMonths();
+  });
+  $('view-months').addEventListener('click', ev => {
+    const r = ev.target.closest('[data-mrow]'); if(!r) return;
+    const ym = r.dataset.mrow;
+    homeList('month', { start: ym + '-01', end: ymEnd(ym), title: mhName(ym) });
+  });
+
   let currentView = 'home';
   function setTopbarTitle(){
     let title = T()['title_' + currentView] || '';
@@ -5028,6 +5208,7 @@
     if(name === 'home') refreshHome();
     if(name === 'docs') renderDocs();
     if(name === 'income') renderIncome();
+    if(name === 'months') renderMonths();
     if(name === 'wes'){ renderWes(); if(!W.editId) wRenderPunch(); }
     if(name === 'pt') renderPt();
     if(name === 'quote'){ qFillForm(); renderQuote(); }
@@ -5066,6 +5247,7 @@
     setTopbarTitle(); renderCompliance();
     if(currentView === 'docs') renderDocs();
     if(currentView === 'income') renderIncome();
+    if(currentView === 'months') renderMonths();
     $('wesFormTitle').textContent = W.editId ? T().wesEdit : T().wesNew;
     $('wSave').textContent = W.editId ? T().wesUpdate : T().wesSave;
     wUpdateCalc(); renderWes(); wRenderPunch();
