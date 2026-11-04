@@ -1612,7 +1612,7 @@
         <div class="field"><label data-t="x_l_amt">金额 (RM)</label><input type="text" inputmode="decimal" id="xAmt" placeholder="0.00"></div>
       </div>
       <div class="field">
-        <label data-t="x_l_wallet">用哪个钱包付（选填）</label>
+        <label data-t="x_l_wallet">用哪个钱包付</label>
         <div class="pt-cats" id="xWallets"></div>
         <div class="sub" data-t="x_wallet_sub">选了就会从那个钱包的余额扣掉</div>
       </div>
@@ -1952,6 +1952,8 @@
       l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语',
       h_internal:'内部记录（不会印在单据上）', l_cost:'支出 / 车费 (RM)', l_costNote:'支出说明',
       costNotePh:'例如：Grab 车费、化妆品材料',
+      dc_ask:'这笔支出 {a} 是从哪里付的？', dc_fromWallet:'从这个钱包扣，同时记进支出', dc_noWallet:'只记进支出，不扣钱包', dc_noWalletSub:'例如用现金付',
+      dc_skip:'不用记', dc_skipSub:'这张单据的支出不记进「投资 / 支出」', dc_saved:'已记进支出，并从 {w} 扣掉', dc_savedNoWallet:'已记进支出', dc_fromDoc:'来自单据',
       l_subtotal:'小计', l_discountShort:'折扣', l_depositShort:'订金',
       l_totalInvoice:'应付余额', l_totalReceipt:'已收金额', l_profit:'净利润',
       btnSave:'保存单据', btnPrint:'存为 PDF', btnNew:'开新单据', btnNewShort:'新单',
@@ -2143,7 +2145,7 @@
       xt_grab:'Grab 车费', xt_wardrobe:'服装 / 配饰', xt_food:'餐饮', xt_bills:'账单 / 订阅', xt_fun:'娱乐 / 社交',
       xg_l_purpose:'这趟车是为了', xg_tfpmua:'互惠化妆', xg_tfpshoot:'互惠拍摄', xg_paid:'付费工作', xg_wes:'Wes 上班', xg_personal:'私人',
       xg_l_role:'我的角色', xg_role_mua:'我是化妆师', xg_role_model:'我是被化妆的模特', xg_l_trip:'行程', xg_one:'单程', xg_round:'来回',
-      xg_l_go:'去程', xg_l_back:'回程', x_l_wallet:'用哪个钱包付（选填）', x_wallet_sub:'选了就会从那个钱包的余额扣掉', x_wallet_none:'不记钱包',
+      xg_l_go:'去程', xg_l_back:'回程', x_l_wallet:'用哪个钱包付', x_wallet_sub:'选了就会从那个钱包的余额扣掉', x_wallet_none:'不记钱包',
       cardWalTitle:'钱包对账', cardWalDesc:'CIMB、Touch \'n Go、Atome 的余额放在一起看，记一笔就自动加减', title_wallet:'钱包对账',
       wl_total:'总余额（扣掉欠款）', wl_edit:'设定余额 / 钱包', wl_edit_h:'设定现在的余额',
       wl_edit_hint:'打开每个银行 / 电子钱包的 app，把现在剩下的钱填进来。保存后，之后记的收入和支出会在这个基础上加减。',
@@ -2250,6 +2252,8 @@
       l_notes:'Notes', notesPh:'e.g. shoot location, terms of use, thank-you note',
       h_internal:'Internal Notes (not printed)', l_cost:'Cost / Transport (RM)', l_costNote:'Expense Note',
       costNotePh:'e.g. Grab fare, makeup supplies',
+      dc_ask:'Where was this {a} paid from?', dc_fromWallet:'Take it off this wallet and log the expense', dc_noWallet:'Log the expense only', dc_noWalletSub:'e.g. paid in cash',
+      dc_skip:'Don\'t log it', dc_skipSub:'Keep this cost out of Investments', dc_saved:'Logged as an expense and taken off {w}', dc_savedNoWallet:'Logged as an expense', dc_fromDoc:'from a document',
       l_subtotal:'Subtotal', l_discountShort:'Discount', l_depositShort:'Deposit',
       l_totalInvoice:'Balance Due', l_totalReceipt:'Amount Paid', l_profit:'Net Profit',
       btnSave:'Save Document', btnPrint:'Save as PDF', btnNew:'New Document', btnNewShort:'New',
@@ -2441,7 +2445,7 @@
       xt_grab:'Grab fare', xt_wardrobe:'Clothes / accessories', xt_food:'Food', xt_bills:'Bills / subscriptions', xt_fun:'Fun / social',
       xg_l_purpose:'This ride was for', xg_tfpmua:'TFP makeup', xg_tfpshoot:'TFP shoot', xg_paid:'Paid job', xg_wes:'Wes shift', xg_personal:'Personal',
       xg_l_role:'My role', xg_role_mua:'I was the makeup artist', xg_role_model:'I was the model', xg_l_trip:'Trip', xg_one:'One way', xg_round:'Return',
-      xg_l_go:'Going', xg_l_back:'Coming back', x_l_wallet:'Paid from (optional)', x_wallet_sub:'Picking a wallet takes it off that balance', x_wallet_none:'No wallet',
+      xg_l_go:'Going', xg_l_back:'Coming back', x_l_wallet:'Paid from', x_wallet_sub:'Picking a wallet takes it off that balance', x_wallet_none:'No wallet',
       cardWalTitle:'Wallets', cardWalDesc:'CIMB, Touch \'n Go and Atome balances in one place — log a spend and it updates', title_wallet:'Wallets',
       wl_total:'Total (after amounts owed)', wl_edit:'Set balances / wallets', wl_edit_h:'Set current balances',
       wl_edit_hint:'Open each bank / e-wallet app and type what is left. After saving, everything you log is added to or taken off these figures.',
@@ -3244,6 +3248,7 @@
       rec.createdAt = prev.createdAt || Date.now();
       rec.convertedToId = prev.convertedToId;
       rec.convertedToNo = prev.convertedToNo;
+      rec.costExp = prev.costExp;
       if(prev.status === 'void') rec.status = 'void';
       docs[idx] = rec;
     } else {
@@ -3260,7 +3265,32 @@
     $('btnVoid').style.display = rec.status === 'void' ? 'none' : '';
     renderPreview();
     if(!silent) toast(T().savedDoc + rec.no);
+    docCostSync(rec, silent);
     return rec;
+  }
+  // The document's 支出 / 车费 becomes a real expense: ask once which wallet paid, then keep it in step
+  function docCostSync(rec, silent){
+    const linked = rec.costExp && rec.costExp !== 'none' ? invEntries.find(x => x.id === rec.costExp) : null;
+    const cost = Math.round(num(rec.cost) * 100) / 100;
+    const note = [rec.costNote || T().l_cost, rec.client].filter(Boolean).join(' · ');
+    if(!(cost > 0)){
+      if(linked && !docs.some(d => d.id !== rec.id && d.costExp === linked.id)){ invEntries = invEntries.filter(x => x.id !== linked.id); saveInv(); }
+      if(rec.costExp){ rec.costExp = ''; saveDocs(); }
+      return;
+    }
+    if(linked){ linked.amount = cost; linked.note = note; saveInv(); return; }
+    if(rec.costExp === 'none') return;
+    const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().dc_fromWallet }))
+      .concat([{ value:'__nowallet', label:T().dc_noWallet, sub:T().dc_noWalletSub }, { value:'__skip', label:T().dc_skip, sub:T().dc_skipSub }]);
+    openSheet(T().dc_ask.replace('{a}', fmt(cost)), opts, '', v => {
+      const d = docs.find(x => x.id === rec.id); if(!d) return;
+      if(v === '__skip'){ d.costExp = 'none'; saveDocs(); return; }
+      const tag = /grab|车|taxi|transport|交通|parking|停车|lrt|mrt/i.test(rec.costNote || '') ? 'grab' : 'equipment';
+      const x = { id:uid(), createdAt:Date.now(), date:d.date || todayStr(), amount:cost, note, tag, src:'', wallet: v === '__nowallet' ? '' : v, docId:d.id };
+      invEntries.push(x); saveInv();
+      d.costExp = x.id; saveDocs();
+      toast(v === '__nowallet' ? T().dc_savedNoWallet : T().dc_saved.replace('{w}', (wallets.find(w => w.id === v) || {}).name || ''));
+    });
   }
   function bindBoth(a, b, fn){ $(a).addEventListener('click', fn); if($(b)) $(b).addEventListener('click', fn); }
   bindBoth('btnSave','btnSaveM', () => saveDoc());
@@ -3291,7 +3321,7 @@
       items:(inv.items||[]).map(it => ({id:uid(), desc:it.desc, qty:it.qty, price:it.price})),
       discount:inv.discount, deposit:inv.deposit, subtotal:inv.subtotal,
       taxRate:inv.taxRate||0, tax:inv.tax||0, total:inv.total,
-      cost:inv.cost, costNote:inv.costNote, notes:inv.notes,
+      cost:inv.cost, costNote:inv.costNote, costExp:inv.costExp, notes:inv.notes,
       bizSnapshot:inv.bizSnapshot, createdAt:Date.now()
     };
     docs.unshift(receipt);
@@ -3411,6 +3441,7 @@
     if(!confirm(T().confirmDeleteDoc.replace('{no}', rec.no))) return;
     docs = docs.filter(d => d.id !== id);
     saveDocs();
+    if(rec.costExp && rec.costExp !== 'none' && !docs.some(d => d.costExp === rec.costExp)){ invEntries = invEntries.filter(x => x.id !== rec.costExp); saveInv(); }
     if(S.editingId === id) newDoc(S.docType);
     renderDocs(); refreshHome();
     toast(T().deletedDoc + rec.no);
@@ -5207,7 +5238,7 @@
   const pct = n => (n >= 0 ? '+' : '') + Math.round(n) + '%';
   function xSetTag(t){ X.tag = t; document.querySelectorAll('#xTags button').forEach(b => b.classList.toggle('on', b.dataset.xtag === t)); xGrabSync(); }
   function xReset(){
-    X.editId = null; X.src = ''; X.wallet = ''; X.gp = 'tfpmua'; X.gr = 'mua'; X.gt = 'round';
+    X.editId = null; X.src = ''; X.wallet = null; X.gp = 'tfpmua'; X.gr = 'mua'; X.gt = 'round';
     $('xgGo').value = ''; $('xgBack').value = '';
     xSetTag('grab'); xRenderWallets();
     $('xDate').value = todayStr(); $('xAmt').value = ''; $('xNote').value = '';
@@ -5227,7 +5258,15 @@
     if(X.tag === 'grab') rec.grab = { purpose:X.gp, role:X.gp === 'tfpmua' ? X.gr : '', trip:X.gt, go: X.gt === 'round' ? num($('xgGo').value) : 0, back: X.gt === 'round' ? num($('xgBack').value) : 0 };
     if(!(rec.amount > 0)){ toast(T().xNeedAmt); return; }
     if(!rec.note && X.tag !== 'grab'){ toast(T().xNeedNote); return; }
-    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId, createdAt:x.createdAt || 0}) : x); toast(T().xUpdated); }
+    // every spend goes through the wallet ledger: ask which wallet paid if it was not picked
+    if(X.wallet === null){
+      const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().x_wallet_sub }))
+        .concat([{ value:'__nowallet', label:T().dc_noWallet, sub:T().dc_noWalletSub }]);
+      openSheet(T().dc_ask.replace('{a}', fmt(rec.amount)), opts, '', v => { X.wallet = v === '__nowallet' ? '' : v; xRenderWallets(); $('xSave').click(); });
+      return;
+    }
+    // a wallet picked now for an older expense starts counting from now
+    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId, createdAt: rec.wallet && rec.wallet !== x.wallet ? Date.now() : (x.createdAt || 0), docId:x.docId}) : x); toast(T().xUpdated); }
     else { invEntries.push(Object.assign({}, rec, {id:uid(), createdAt:Date.now()})); toast(T().xSaved); }
     saveInv(); xReset(); renderInv(); renderSpend();
   });
@@ -5246,7 +5285,7 @@
       return `<div class="pt-row">
         <div class="pt-top"><span class="pt-date">${esc(x.date)}</span><span class="pt-amt">${fmt(x.amount)}</span></div>
         <div class="pt-note">${esc([grabLine(x.grab), x.note].filter(Boolean).join(' — '))}${x.grab && x.grab.trip === 'round' && (x.grab.go || x.grab.back) ? `<div class="sub-line" style="font-size:12px;color:var(--ink-soft);">${esc(T().xg_l_go)} ${fmt(x.grab.go)} · ${esc(T().xg_l_back)} ${fmt(x.grab.back)}</div>` : ''}</div>
-        <div class="pt-meta"><span class="pill cat">${esc(xTagLabel(x.tag))}</span>${x.wallet ? `<span class="pill">${esc((wallets.find(w => w.id === x.wallet) || {}).name || '')}</span>` : ''}${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
+        <div class="pt-meta"><span class="pill cat">${esc(xTagLabel(x.tag))}</span>${x.wallet ? `<span class="pill">${esc((wallets.find(w => w.id === x.wallet) || {}).name || '')}</span>` : ''}${x.docId ? `<span class="pill">📄 ${esc(T().dc_fromDoc)}</span>` : ''}${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
         ${roi}
         <div class="row-btns"><button type="button" data-xedit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-xdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
       </div>`;
