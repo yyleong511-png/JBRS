@@ -1612,7 +1612,7 @@
         <div class="field"><label data-t="x_l_amt">金额 (RM)</label><input type="text" inputmode="decimal" id="xAmt" placeholder="0.00"></div>
       </div>
       <div class="field">
-        <label data-t="x_l_wallet">用哪个钱包付（选填）</label>
+        <label data-t="x_l_wallet">用哪个钱包付</label>
         <div class="pt-cats" id="xWallets"></div>
         <div class="sub" data-t="x_wallet_sub">选了就会从那个钱包的余额扣掉</div>
       </div>
@@ -2145,7 +2145,7 @@
       xt_grab:'Grab 车费', xt_wardrobe:'服装 / 配饰', xt_food:'餐饮', xt_bills:'账单 / 订阅', xt_fun:'娱乐 / 社交',
       xg_l_purpose:'这趟车是为了', xg_tfpmua:'互惠化妆', xg_tfpshoot:'互惠拍摄', xg_paid:'付费工作', xg_wes:'Wes 上班', xg_personal:'私人',
       xg_l_role:'我的角色', xg_role_mua:'我是化妆师', xg_role_model:'我是被化妆的模特', xg_l_trip:'行程', xg_one:'单程', xg_round:'来回',
-      xg_l_go:'去程', xg_l_back:'回程', x_l_wallet:'用哪个钱包付（选填）', x_wallet_sub:'选了就会从那个钱包的余额扣掉', x_wallet_none:'不记钱包',
+      xg_l_go:'去程', xg_l_back:'回程', x_l_wallet:'用哪个钱包付', x_wallet_sub:'选了就会从那个钱包的余额扣掉', x_wallet_none:'不记钱包',
       cardWalTitle:'钱包对账', cardWalDesc:'CIMB、Touch \'n Go、Atome 的余额放在一起看，记一笔就自动加减', title_wallet:'钱包对账',
       wl_total:'总余额（扣掉欠款）', wl_edit:'设定余额 / 钱包', wl_edit_h:'设定现在的余额',
       wl_edit_hint:'打开每个银行 / 电子钱包的 app，把现在剩下的钱填进来。保存后，之后记的收入和支出会在这个基础上加减。',
@@ -2445,7 +2445,7 @@
       xt_grab:'Grab fare', xt_wardrobe:'Clothes / accessories', xt_food:'Food', xt_bills:'Bills / subscriptions', xt_fun:'Fun / social',
       xg_l_purpose:'This ride was for', xg_tfpmua:'TFP makeup', xg_tfpshoot:'TFP shoot', xg_paid:'Paid job', xg_wes:'Wes shift', xg_personal:'Personal',
       xg_l_role:'My role', xg_role_mua:'I was the makeup artist', xg_role_model:'I was the model', xg_l_trip:'Trip', xg_one:'One way', xg_round:'Return',
-      xg_l_go:'Going', xg_l_back:'Coming back', x_l_wallet:'Paid from (optional)', x_wallet_sub:'Picking a wallet takes it off that balance', x_wallet_none:'No wallet',
+      xg_l_go:'Going', xg_l_back:'Coming back', x_l_wallet:'Paid from', x_wallet_sub:'Picking a wallet takes it off that balance', x_wallet_none:'No wallet',
       cardWalTitle:'Wallets', cardWalDesc:'CIMB, Touch \'n Go and Atome balances in one place — log a spend and it updates', title_wallet:'Wallets',
       wl_total:'Total (after amounts owed)', wl_edit:'Set balances / wallets', wl_edit_h:'Set current balances',
       wl_edit_hint:'Open each bank / e-wallet app and type what is left. After saving, everything you log is added to or taken off these figures.',
@@ -5238,7 +5238,7 @@
   const pct = n => (n >= 0 ? '+' : '') + Math.round(n) + '%';
   function xSetTag(t){ X.tag = t; document.querySelectorAll('#xTags button').forEach(b => b.classList.toggle('on', b.dataset.xtag === t)); xGrabSync(); }
   function xReset(){
-    X.editId = null; X.src = ''; X.wallet = ''; X.gp = 'tfpmua'; X.gr = 'mua'; X.gt = 'round';
+    X.editId = null; X.src = ''; X.wallet = null; X.gp = 'tfpmua'; X.gr = 'mua'; X.gt = 'round';
     $('xgGo').value = ''; $('xgBack').value = '';
     xSetTag('grab'); xRenderWallets();
     $('xDate').value = todayStr(); $('xAmt').value = ''; $('xNote').value = '';
@@ -5258,7 +5258,15 @@
     if(X.tag === 'grab') rec.grab = { purpose:X.gp, role:X.gp === 'tfpmua' ? X.gr : '', trip:X.gt, go: X.gt === 'round' ? num($('xgGo').value) : 0, back: X.gt === 'round' ? num($('xgBack').value) : 0 };
     if(!(rec.amount > 0)){ toast(T().xNeedAmt); return; }
     if(!rec.note && X.tag !== 'grab'){ toast(T().xNeedNote); return; }
-    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId, createdAt:x.createdAt || 0}) : x); toast(T().xUpdated); }
+    // every spend goes through the wallet ledger: ask which wallet paid if it was not picked
+    if(X.wallet === null){
+      const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().x_wallet_sub }))
+        .concat([{ value:'__nowallet', label:T().dc_noWallet, sub:T().dc_noWalletSub }]);
+      openSheet(T().dc_ask.replace('{a}', fmt(rec.amount)), opts, '', v => { X.wallet = v === '__nowallet' ? '' : v; xRenderWallets(); $('xSave').click(); });
+      return;
+    }
+    // a wallet picked now for an older expense starts counting from now
+    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId, createdAt: rec.wallet && rec.wallet !== x.wallet ? Date.now() : (x.createdAt || 0), docId:x.docId}) : x); toast(T().xUpdated); }
     else { invEntries.push(Object.assign({}, rec, {id:uid(), createdAt:Date.now()})); toast(T().xSaved); }
     saveInv(); xReset(); renderInv(); renderSpend();
   });
