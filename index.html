@@ -640,6 +640,23 @@
   .grand-total span{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:var(--green);}
 
   /* ---------- Outside part time + all-source totals ---------- */
+  .pt-cats{display:flex;flex-wrap:wrap;gap:7px;}
+  .pt-cats button{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:7px 12px;border-radius:18px;border:1px solid var(--line);background:var(--ivory);color:var(--ink-soft);cursor:pointer;min-height:0;}
+  .pt-cats button.on{background:var(--rose-deep);border-color:var(--rose-deep);color:#fff;}
+  .pt-cats button.add{border-style:dashed;color:var(--rose-deep);background:none;}
+  /* part-time month calendar + recent months */
+  .ptcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;}
+  .ptcal .wd{font-size:10.5px;color:var(--ink-mute);text-align:center;padding-bottom:2px;}
+  .ptcal button{aspect-ratio:1/1.05;border:1px solid transparent;border-radius:9px;background:none;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;min-height:0;font-weight:500;}
+  .ptcal button small{font-size:8.5px;color:var(--green);font-weight:600;line-height:1;}
+  .ptcal button.has{background:#F6EEF1;border-color:#E7D3DA;}
+  .ptcal button.has.due small{color:var(--amber);}
+  .ptcal button.today{border-color:var(--rose);}
+  .ptcal button.sel{background:var(--rose-deep);border-color:var(--rose-deep);color:#fff;}
+  .ptcal button.sel small{color:#fff;}
+  .ptcal button:disabled{visibility:hidden;}
+  .pt-dayfilter{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--rose-deep);background:#F6EEF1;border-radius:10px;padding:8px 12px;margin-bottom:10px;}
+  .pt-dayfilter button{background:none;border:none;color:var(--rose-deep);text-decoration:underline;cursor:pointer;font-size:12.5px;min-height:0;padding:0;}
   .pt-detect{
     font-size:12.5px;color:var(--ink-soft);background:var(--ivory);border:1px dashed var(--line);
     border-radius:10px;padding:10px 12px;margin:-4px 0 6px;line-height:1.5;
@@ -1327,7 +1344,11 @@
         <label data-t="pt_l_note">备注</label>
         <textarea id="ptNote" data-tp="ptNotePh" placeholder="例如：Usher @ Pavilion 新车发布会 / XX 品牌 TVC 拍摄 / 短片演员"></textarea>
       </div>
-      <div class="pt-detect" id="ptDetect"></div>
+      <div class="field" style="margin-bottom:6px;">
+        <label data-t="pt_l_cat">分类</label>
+        <div class="pt-cats" id="ptCats"></div>
+        <div class="sub" id="ptCatHint"></div>
+      </div>
       <div class="switch-row">
         <div class="lab"><span data-t="pt_l_paid">已经收到钱</span><small data-t="ptPaidNote">还没收到就关掉，会算进「未收款」</small></div>
         <button type="button" class="switch on" id="ptPaid" aria-label="paid"></button>
@@ -1349,6 +1370,7 @@
         <span class="mn-title" id="ptMonthTitle"></span>
         <button type="button" class="cal-nav" id="ptNextM">›</button>
       </div>
+      <div class="ptcal" id="ptCal"></div>
     </div>
     <div class="stats-bar">
       <div class="stat-box"><div class="sl" data-t="pt_s_count">工作份数</div><div class="sv" id="ptCount">0</div></div>
@@ -1356,7 +1378,16 @@
       <div class="stat-box"><div class="sl" data-t="pt_s_due">未收</div><div class="sv due" id="ptDue">RM 0.00</div></div>
     </div>
     <div class="panel">
+      <div id="ptDayFilter"></div>
       <div id="ptList"></div>
+    </div>
+    <div class="panel">
+      <h2 data-t="pt_h_recent">近 6 个月收入</h2>
+      <p class="hint" data-t="pt_recent_hint">已收按收到钱的日期算；点柱子可以跳到那个月</p>
+      <div class="mh-legend"><span><i style="background:var(--rose-deep)"></i><span data-t="mh_recv">已收</span></span><span><i style="background:#E8C9A0"></i><span data-t="mh_due">未收</span></span></div>
+      <div class="mh-chart" id="ptChart" style="height:120px;"></div>
+      <div class="mh-axis" id="ptAxis"></div>
+      <div class="mh-axis" id="ptAxisAmt" style="margin-top:2px;"></div>
     </div>
     <div class="panel">
       <div class="grand-total" style="margin-top:0;">
@@ -1886,9 +1917,11 @@
       wesPaidLabel:'这个月的工资已收到', wesPaidNote:'还没发薪就保持关闭，会算进「未收款」；收到后按收款日期算进那个月的收入',
       title_pt:'外接 Part Time',
       cardPtTitle:'外接 Part Time', cardPtDesc:'Usher、TVC、演员等外接工作，写备注就会自动分类分析',
-      ptHint:'Usher、TVC、演员、活动等外接工作。备注写清楚是什么工作，收入分析会自动帮你分类。',
+      ptHint:'Usher、TVC、演员、化妆、活动等外接工作。选好分类，收入分析会按分类帮你统计。',
       ptNew:'新增 Part Time', ptEdit:'编辑 Part Time',
-      pt_l_date:'日期', pt_l_amt:'收入 (RM)', pt_l_note:'备注',
+      pt_l_date:'日期', pt_l_amt:'收入 (RM)', pt_l_note:'备注', pt_l_cat:'分类',
+      ptCatAdd:'＋ 新增分类', ptCatAddAsk:'新分类的名字（例如：品牌活动）', ptCatPick:'点一个分类', ptCatGuess:'✦ 根据备注先帮你选了「{c}」，可以改',
+      ptDayOnly:'只显示 {d} 的工作', ptDayAll:'显示整个月', pt_h_recent:'近 6 个月收入', pt_recent_hint:'已收按收到钱的日期算；点柱子可以跳到那个月',
       ptNotePh:'例如：Usher @ Pavilion 新车发布会 / XX 品牌 TVC 拍摄 / 短片演员',
       pt_l_paid:'已经收到钱', ptPaidNote:'还没收到就关掉，会算进「未收款」；收到后按收款日期算进那个月的收入',
       ptSave:'保存记录', ptUpdate:'更新记录', ptCancel:'取消编辑',
@@ -2155,9 +2188,11 @@
       wesPaidLabel:'Salary for this month received', wesPaidNote:'Leave off until you are paid — this month\'s Wes pay counts as outstanding',
       title_pt:'Outside Part Time',
       cardPtTitle:'Outside Part Time', cardPtDesc:'Usher, TVC, acting and other gigs — just write a note and it sorts itself',
-      ptHint:'Usher, TVC, acting, events and other outside gigs. Describe the job in the note and Income sorts it for you.',
+      ptHint:'Usher, TVC, acting, makeup, events and other outside gigs. Pick a category and Income adds them up for you.',
       ptNew:'New Part Time', ptEdit:'Edit Part Time',
-      pt_l_date:'Date', pt_l_amt:'Pay (RM)', pt_l_note:'Note',
+      pt_l_date:'Date', pt_l_amt:'Pay (RM)', pt_l_note:'Note', pt_l_cat:'Category',
+      ptCatAdd:'+ New category', ptCatAddAsk:'Name of the new category (e.g. Brand event)', ptCatPick:'Pick a category', ptCatGuess:'✦ Suggested "{c}" from the note — change it if needed',
+      ptDayOnly:'Showing {d} only', ptDayAll:'Show whole month', pt_h_recent:'Last 6 months', pt_recent_hint:'Received counts by payment date; tap a bar to open that month',
       ptNotePh:'e.g. Usher @ Pavilion car launch / XX brand TVC shoot / short film actor',
       pt_l_paid:'Money received', ptPaidNote:'Switch off if not paid yet — it counts as outstanding',
       ptSave:'Save Entry', ptUpdate:'Update Entry', ptCancel:'Cancel Edit',
@@ -2366,7 +2401,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, rates, invest: invEntries, fin});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -3518,7 +3553,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, rates, invest: invEntries, fin}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -3549,6 +3584,7 @@
         if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
         if(Array.isArray(data.wes)){ wesEntries = data.wes; saveWes(); }
         if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; wesPaidDates = data.wesPaidDates || {}; saveWesPaid(); }
+        if(Array.isArray(data.ptCats)){ ptCustomCats = data.ptCats; savePtCats(); }
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
         if(Array.isArray(data.invest)){ invEntries = data.invest; saveInv(); }
@@ -4230,6 +4266,7 @@
   // and puts each gig in a project type. Runs entirely on the device.
   const PT_CATS = [
     {k:'usher',   zh:'Usher / 礼仪接待', en:'Usher / Hostess',     w:['usher','ushers','礼仪','接待','迎宾','礼宾','hostess','brand ambassador','ambassador','sambut tetamu']},
+    {k:'mua',     zh:'化妆 / 新娘妆',    en:'Makeup / Bridal',     w:['化妆','新娘','妆','makeup','make up','mua','bridal','bride','solek']},
     {k:'mc',      zh:'主持 / MC',        en:'MC / Host',           w:['mc','emcee','主持','司仪','host','hosting','pengacara']},
     {k:'extra',   zh:'临演 / 群演',      en:'Extra / Background',  w:['临演','群演','临时演员','背景演员','extra','extras','background talent','background actor']},
     {k:'tvc',     zh:'TVC / 广告',       en:'TVC / Commercial',    w:['tvc','dvc','广告','commercial','iklan','tv ad','video ad','ad shoot','advert']},
@@ -4253,22 +4290,53 @@
     return first ? { key:'x:' + first.toLowerCase(), label:first, known:false } : { key:'other', label:T().ptOther, known:false };
   }
 
-  const P = { editId:null, month: todayStr().slice(0,7) };
+  // categories the user added; gigs keep the category picked when saving (e.cat)
+  let ptCustomCats = readJSON('jl.ptcats', null) || [];
+  const savePtCats = () => { localStorage.setItem('jl.ptcats', JSON.stringify(ptCustomCats)); saveBackup(); };
+  function ptCatLabel(k){
+    const c = PT_CATS.find(x => x.k === k); if(c) return lang === 'zh' ? c.zh : c.en;
+    const u = ptCustomCats.find(x => x.k === k); if(u) return u.label;
+    return T().ptOther;
+  }
+  // chosen category; older gigs without one fall back to the note-based guess
+  function ptCatOf(e){
+    if(e.cat && (e.cat === 'other' || PT_CATS.some(x => x.k === e.cat) || ptCustomCats.some(x => x.k === e.cat))) return { key:e.cat, label:ptCatLabel(e.cat) };
+    return ptCategory(e.note);
+  }
+
+  const P = { editId:null, month: todayStr().slice(0,7), cat:'', catManual:false, day:'' };
   function ptSetPaid(on, date){
     $('ptPaid').classList.toggle('on', !!on);
     $('ptPaidDateRow').style.display = on ? '' : 'none';
     if(on && (date || !$('ptPaidDate').value)) $('ptPaidDate').value = date || todayStr();
   }
+  // category chips: suggest one from the note until the user picks one themselves
   function ptUpdateDetect(){
-    const note = $('ptNote').value;
-    if(!note.trim()){ $('ptDetect').textContent = T().ptDetectEmpty; return; }
-    const c = ptCategory(note);
-    $('ptDetect').innerHTML = (c.known ? T().ptDetectHit : T().ptDetectNew).replace('{c}', esc(c.label));
+    if(!P.catManual){
+      const g = ptCategory($('ptNote').value);
+      P.cat = g.known ? g.key : '';
+    }
+    const opts = PT_CATS.map(c => c.k).concat(ptCustomCats.map(c => c.k), ['other']);
+    $('ptCats').innerHTML = opts.map(k => `<button type="button" class="${P.cat === k ? 'on' : ''}" data-ptcat="${esc(k)}">${esc(ptCatLabel(k))}</button>`).join('')
+      + `<button type="button" class="add" data-ptcat="__add">${esc(T().ptCatAdd)}</button>`;
+    $('ptCatHint').textContent = !P.cat ? T().ptCatPick : (!P.catManual ? T().ptCatGuess.replace('{c}', ptCatLabel(P.cat)) : '');
   }
+  $('ptCats').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-ptcat]'); if(!b) return;
+    let k = b.dataset.ptcat;
+    if(k === '__add'){
+      const name = (prompt(T().ptCatAddAsk) || '').trim(); if(!name) return;
+      const hit = ptCustomCats.find(c => c.label.toLowerCase() === name.toLowerCase()) || PT_CATS.find(c => c.zh === name || c.en.toLowerCase() === name.toLowerCase());
+      if(hit) k = hit.k;
+      else { k = 'u:' + uid(); ptCustomCats.push({ k, label:name }); savePtCats(); }
+    }
+    P.cat = k; P.catManual = true; ptUpdateDetect();
+  });
   function ptReset(){
     P.editId = null;
     $('ptDate').value = todayStr(); $('ptAmt').value = ''; $('ptNote').value = '';
     $('ptPaidDate').value = ''; ptSetPaid(true);
+    P.cat = ''; P.catManual = false;
     $('ptFormTitle').textContent = T().ptNew;
     $('ptSave').textContent = T().ptSave;
     $('ptCancel').style.display = 'none';
@@ -4280,6 +4348,7 @@
   $('ptSave').addEventListener('click', () => {
     const rec = { date:$('ptDate').value, amount: Math.round(num($('ptAmt').value)*100)/100, note:$('ptNote').value.trim(), paid:$('ptPaid').classList.contains('on') };
     rec.paidDate = rec.paid ? ($('ptPaidDate').value || todayStr()) : '';
+    rec.cat = P.cat || 'other';
     if(!rec.date){ toast(T().ptNeedDate); return; }
     if(!(rec.amount > 0)){ toast(T().ptNeedAmt); return; }
     if(!rec.note){ toast(T().ptNeedNote); return; }
@@ -4308,11 +4377,24 @@
   }
   function renderPt(){
     $('ptMonthTitle').textContent = monthTitle(P.month);
-    const list = ptEntries.filter(e => (e.date||'').startsWith(P.month)).sort((a,b) => (a.date||'').localeCompare(b.date||''));
-    let recv = 0, due = 0;
+    if(P.day && !P.day.startsWith(P.month)) P.day = '';
+    const monthList = ptEntries.filter(e => (e.date||'').startsWith(P.month)).sort((a,b) => (a.date||'').localeCompare(b.date||''));
+    // month calendar: each day shows what that day's gigs pay
+    const [cy, cm] = P.month.split('-').map(Number);
+    const first = new Date(cy, cm-1, 1).getDay(), days = new Date(cy, cm, 0).getDate(), today = todayStr();
+    let cal = T().weekdays.map(w => `<span class="wd">${esc(w)}</span>`).join('');
+    for(let i = 0; i < first; i++) cal += '<button type="button" disabled></button>';
+    for(let d = 1; d <= days; d++){
+      const ds = `${P.month}-${pad2(d)}`, es = monthList.filter(e => e.date === ds);
+      const amt = es.reduce((a,e) => a+(e.amount||0), 0), anyDue = es.some(e => !e.paid);
+      const cls = [es.length ? 'has' : '', anyDue ? 'due' : '', ds === today ? 'today' : '', ds === P.day ? 'sel' : ''].join(' ');
+      cal += `<button type="button" class="${cls}" data-ptday="${ds}">${d}${es.length ? `<small>${esc(fmtShort(amt).replace('RM ', ''))}</small>` : ''}</button>`;
+    }
+    $('ptCal').innerHTML = cal;
+    const list = P.day ? monthList.filter(e => e.date === P.day) : monthList;
+    $('ptDayFilter').innerHTML = P.day ? `<div class="pt-dayfilter"><span>${esc(T().ptDayOnly.replace('{d}', P.day))}</span><button type="button" data-ptday="${P.day}">${esc(T().ptDayAll)}</button></div>` : '';
     $('ptList').innerHTML = list.length ? list.map(e => {
-      const c = ptCategory(e.note);
-      if(e.paid) recv += e.amount||0; else due += e.amount||0;
+      const c = ptCatOf(e);
       const wd = T().weekdays[new Date(e.date + 'T00:00:00').getDay()];
       return `<div class="pt-row">
         <div class="pt-top">
@@ -4331,21 +4413,34 @@
         </div>
       </div>`;
     }).join('') : `<div class="empty-hint">${esc(T().ptMonthEmpty)}</div>`;
-    $('ptCount').textContent = list.length;
-    $('ptRecv').textContent = fmt(recv);
-    $('ptDue').textContent = fmt(due);
+    // month figures: received by the date the money came in, owed by the work date
+    const mt = sourceTotals(ds => String(ds || '').startsWith(P.month));
+    $('ptCount').textContent = monthList.length;
+    $('ptRecv').textContent = fmt(mt.pRecv);
+    $('ptDue').textContent = fmt(mt.pDue);
+    // last 6 months up to the month shown
+    const ms = []; for(let i = 5; i >= 0; i--){ const d = new Date(cy, cm-1-i, 1); ms.push(`${d.getFullYear()}-${pad2(d.getMonth()+1)}`); }
+    const mv = ms.map(ym => { const t = sourceTotals(ds => String(ds || '').startsWith(ym)); return { ym, r:t.pRecv, d:t.pDue }; });
+    const mx = Math.max(1, ...mv.map(x => x.r + x.d));
+    $('ptChart').innerHTML = mv.map(x => `<div class="col" data-ptmonth="${x.ym}"><div class="stk" style="height:${(x.r + x.d) / mx * 100}%;${x.ym === P.month ? 'outline:2px solid var(--rose);outline-offset:1px;' : ''}"><i class="r" style="flex:${x.r}"></i><i class="d" style="flex:${x.d}"></i></div></div>`).join('');
+    $('ptAxis').innerHTML = mv.map(x => { const [y, m] = x.ym.split('-').map(Number); return `<span${x.ym === P.month ? ' style="color:var(--rose-deep);font-weight:600"' : ''}>${esc(lang === 'zh' ? m + '月' : new Date(y, m-1, 1).toLocaleDateString('en-GB', {month:'short'}))}</span>`; }).join('');
+    $('ptAxisAmt').innerHTML = mv.map(x => `<span>${x.r ? esc(fmtShort(x.r).replace('RM ', '')) : '–'}</span>`).join('');
     const allRecv = ptEntries.filter(e => e.paid).reduce((a,e) => a+(e.amount||0), 0);
     const allDue = ptEntries.filter(e => !e.paid).reduce((a,e) => a+(e.amount||0), 0);
     $('ptGrand').textContent = fmt(allRecv + allDue);
     $('ptGrandSub').textContent = T().ptGrandSub.replace('{n}', ptEntries.length).replace('{r}', fmt(allRecv)).replace('{d}', fmt(allDue));
   }
   $('view-pt').addEventListener('click', ev => {
+    const dy = ev.target.closest('[data-ptday]'), pm = ev.target.closest('[data-ptmonth]');
+    if(dy){ P.day = P.day === dy.dataset.ptday ? '' : dy.dataset.ptday; renderPt(); return; }
+    if(pm){ P.month = pm.dataset.ptmonth; P.day = ''; renderPt(); return; }
     const ed = ev.target.closest('[data-ptedit]'), dl = ev.target.closest('[data-ptdel]'), py = ev.target.closest('[data-ptpay]');
     if(ed){
       const e = ptEntries.find(x => x.id === ed.dataset.ptedit); if(!e) return;
       P.editId = e.id;
       $('ptDate').value = e.date; $('ptAmt').value = e.amount; $('ptNote').value = e.note || '';
       ptSetPaid(e.paid, e.paid ? ptPayDate(e) : '');
+      { const c = ptCatOf(e); P.cat = c.key.startsWith('x:') ? 'other' : c.key; P.catManual = true; }
       $('ptFormTitle').textContent = T().ptEdit;
       $('ptSave').textContent = T().ptUpdate;
       $('ptCancel').style.display = '';
@@ -4368,7 +4463,7 @@
     if(!ptEntries.length){ toast(T().wesNoRecords); return; }
     const q = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
     const rows = ptEntries.slice().sort((a,b) => (a.date||'').localeCompare(b.date||'')).map(e =>
-      [e.date, ptCategory(e.note).label, e.note, (e.amount||0).toFixed(2), e.paid ? 'paid' : 'unpaid'].map(q).join(','));
+      [e.date, ptCatOf(e).label, e.note, (e.amount||0).toFixed(2), e.paid ? 'paid' : 'unpaid'].map(q).join(','));
     const total = ptEntries.reduce((a,e) => a+(e.amount||0), 0);
     download(`outside-part-time-${todayStr()}.csv`,
       '﻿' + [['Date','Category','Note','Amount (RM)','Status'].map(q).join(','), ...rows, ['Total','','',total.toFixed(2),''].map(q).join(',')].join('\r\n'), 'text/csv');
@@ -4423,7 +4518,7 @@
     }
     const groups = {};
     list.forEach(x => {
-      const c = ptCategory(x.note);
+      const c = ptCatOf(x);
       if(!groups[c.key]) groups[c.key] = { label:c.label, total:0, due:0, count:0, notes:[] };
       const g = groups[c.key];
       g.total += x.amount||0; g.count++; if(!x.paid) g.due += x.amount||0;
@@ -5002,7 +5097,7 @@
     if(jobs || wDays){
       const cats = {};
       dj.forEach(d => { const k = d.service || 'Other'; (cats[k] = cats[k] || {s:0,n:0}); cats[k].s += d.total||0; cats[k].n++; });
-      pj.forEach(x => { const k = ptCategory(x.note).label; (cats[k] = cats[k] || {s:0,n:0}); cats[k].s += x.amount||0; cats[k].n++; });
+      pj.forEach(x => { const k = ptCatOf(x).label; (cats[k] = cats[k] || {s:0,n:0}); cats[k].s += x.amount||0; cats[k].n++; });
       const best = Object.entries(cats).map(([k,v]) => ({k, a:v.s/v.n})).sort((a,b) => b.a - a.a)[0];
       kpi(T().k_aov, 'AOV', jobs ? fmt((dSum + pSum) / jobs) : fmt(wSum / wDays), '', [
         T().k_aov_sub.replace('{d}', dj.length ? fmt(dSum/dj.length) : '—').replace('{p}', pj.length ? fmt(pSum/pj.length) : '—').replace('{w}', wDays ? fmt(wSum/wDays) : '—'),
