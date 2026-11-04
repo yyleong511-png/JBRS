@@ -1952,6 +1952,7 @@
       l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语',
       h_internal:'内部记录（不会印在单据上）', l_cost:'支出 / 车费 (RM)', l_costNote:'支出说明',
       costNotePh:'例如：Grab 车费、化妆品材料',
+      inc_ask:'这笔收入 {a} 进了哪个钱包？', inc_toWallet:'加进这个钱包的余额', inc_none:'不记钱包', inc_noneSub:'例如收现金', inc_saved:'已加进 {w} 的余额',
       dc_ask:'这笔支出 {a} 是从哪里付的？', dc_fromWallet:'从这个钱包扣，同时记进支出', dc_noWallet:'只记进支出，不扣钱包', dc_noWalletSub:'例如用现金付',
       dc_skip:'不用记', dc_skipSub:'这张单据的支出不记进「投资 / 支出」', dc_saved:'已记进支出，并从 {w} 扣掉', dc_savedNoWallet:'已记进支出', dc_fromDoc:'来自单据',
       l_subtotal:'小计', l_discountShort:'折扣', l_depositShort:'订金',
@@ -2252,6 +2253,7 @@
       l_notes:'Notes', notesPh:'e.g. shoot location, terms of use, thank-you note',
       h_internal:'Internal Notes (not printed)', l_cost:'Cost / Transport (RM)', l_costNote:'Expense Note',
       costNotePh:'e.g. Grab fare, makeup supplies',
+      inc_ask:'Which wallet did this {a} go into?', inc_toWallet:'Add it to this balance', inc_none:'No wallet', inc_noneSub:'e.g. paid in cash', inc_saved:'Added to {w}',
       dc_ask:'Where was this {a} paid from?', dc_fromWallet:'Take it off this wallet and log the expense', dc_noWallet:'Log the expense only', dc_noWalletSub:'e.g. paid in cash',
       dc_skip:'Don\'t log it', dc_skipSub:'Keep this cost out of Investments', dc_saved:'Logged as an expense and taken off {w}', dc_savedNoWallet:'Logged as an expense', dc_fromDoc:'from a document',
       l_subtotal:'Subtotal', l_discountShort:'Discount', l_depositShort:'Deposit',
@@ -2607,7 +2609,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -2655,6 +2657,8 @@
   let wesPaidMonths = readJSON('wes-paid-months', null);
   // month (YYYY-MM) → date the salary actually came in; income is counted in that month
   let wesPaidDates = readJSON('wes-paid-dates', null);
+  // month → {w: wallet id, at: time linked}; that month's salary is added to the wallet
+  let wesPaidWallets = readJSON('wes-paid-wallets', null) || {};
   // outside part time gigs: {id, date, amount, note, paid}
   let ptEntries = readJSON('jl.parttime', null);
   {
@@ -2697,7 +2701,7 @@
     { id:'atome', name:'Atome', balance:0, setAt:0, credit:true }];
   function saveWallets(){ localStorage.setItem('jl.wallets', JSON.stringify(wallets)); localStorage.setItem('jl.wallettx', JSON.stringify(walletTx)); saveBackup(); }
   function saveFin(){ localStorage.setItem('jl.fin', JSON.stringify(fin)); saveBackup(); }
-  function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); localStorage.setItem('wes-paid-dates', JSON.stringify(wesPaidDates)); saveBackup(); }
+  function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); localStorage.setItem('wes-paid-dates', JSON.stringify(wesPaidDates)); localStorage.setItem('wes-paid-wallets', JSON.stringify(wesPaidWallets)); saveBackup(); }
   function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
 
   saveBiz(); saveDocs(); saveProfessions(); saveWes(); saveWesPaid(); savePt();
@@ -2723,7 +2727,13 @@
     sheetHandler = onPick;
     $('sheetWrap').hidden = false;
   }
-  function closeSheet(){ $('sheetWrap').hidden = true; sheetHandler = null; }
+  function closeSheet(){ $('sheetWrap').hidden = true; sheetHandler = null; const n = sheetQueue.shift(); if(n) setTimeout(n, 120); }
+  const sheetQueue = [];
+  // ask after whatever is open now (e.g. the cost question, then the income question)
+  function askSheet(title, options, onPick){
+    const go = () => openSheet(title, options, '', onPick);
+    if($('sheetWrap').hidden) go(); else sheetQueue.push(go);
+  }
   $('sheetBody').addEventListener('click', e => {
     const btn = e.target.closest('.sheet-opt');
     if(!btn) return;
@@ -3249,6 +3259,7 @@
       rec.convertedToId = prev.convertedToId;
       rec.convertedToNo = prev.convertedToNo;
       rec.costExp = prev.costExp;
+      if(prev.incWallet !== undefined){ rec.incWallet = prev.incWallet; rec.incAt = prev.incAt; }
       if(prev.status === 'void') rec.status = 'void';
       docs[idx] = rec;
     } else {
@@ -3266,7 +3277,23 @@
     renderPreview();
     if(!silent) toast(T().savedDoc + rec.no);
     docCostSync(rec, silent);
+    docIncomeSync(rec);
     return rec;
+  }
+  // Money coming in: ask which wallet it landed in. onPick gets a wallet id, or '' for none.
+  function askIncomeWallet(amount, onPick){
+    if(!wallets.length) return;
+    const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().inc_toWallet }))
+      .concat([{ value:'__none', label:T().inc_none, sub:T().inc_noneSub }]);
+    askSheet(T().inc_ask.replace('{a}', fmt(amount)), opts, v => {
+      const w = v === '__none' ? '' : v;
+      onPick(w);
+      if(w) toast(T().inc_saved.replace('{w}', (wallets.find(x => x.id === w) || {}).name || ''));
+    });
+  }
+  function docIncomeSync(rec){
+    if(!isIncome(rec) || rec.incWallet !== undefined || !(rec.total > 0)) return;
+    askIncomeWallet(rec.total, w => { const d = docs.find(x => x.id === rec.id); if(!d) return; d.incWallet = w; d.incAt = Date.now(); saveDocs(); });
   }
   // The document's 支出 / 车费 becomes a real expense: ask once which wallet paid, then keep it in step
   function docCostSync(rec, silent){
@@ -3282,7 +3309,7 @@
     if(rec.costExp === 'none') return;
     const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().dc_fromWallet }))
       .concat([{ value:'__nowallet', label:T().dc_noWallet, sub:T().dc_noWalletSub }, { value:'__skip', label:T().dc_skip, sub:T().dc_skipSub }]);
-    openSheet(T().dc_ask.replace('{a}', fmt(cost)), opts, '', v => {
+    askSheet(T().dc_ask.replace('{a}', fmt(cost)), opts, v => {
       const d = docs.find(x => x.id === rec.id); if(!d) return;
       if(v === '__skip'){ d.costExp = 'none'; saveDocs(); return; }
       const tag = /grab|车|taxi|transport|交通|parking|停车|lrt|mrt/i.test(rec.costNote || '') ? 'grab' : 'equipment';
@@ -3330,6 +3357,7 @@
     saveBiz(); saveDocs();
     toast(T().convertDone + receipt.no);
     loadDoc(receipt);
+    docIncomeSync(receipt);
   });
 
   // ============================================================
@@ -3794,7 +3822,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -3824,7 +3852,7 @@
         docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
         if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
         if(Array.isArray(data.wes)){ wesEntries = data.wes; saveWes(); }
-        if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; wesPaidDates = data.wesPaidDates || {}; saveWesPaid(); }
+        if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; wesPaidDates = data.wesPaidDates || {}; wesPaidWallets = data.wesPaidWallets || {}; saveWesPaid(); }
         if(Array.isArray(data.ptCats)){ ptCustomCats = data.ptCats; savePtCats(); }
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
@@ -4337,7 +4365,12 @@
   }
   $('wPaidSw').addEventListener('click', () => {
     if(wesPaidMonths.includes(W.month)){ wesPaidMonths = wesPaidMonths.filter(m => m !== W.month); delete wesPaidDates[W.month]; }
-    else { wesPaidMonths.push(W.month); wesPaidDates[W.month] = todayStr(); }
+    else {
+      wesPaidMonths.push(W.month); wesPaidDates[W.month] = todayStr();
+      const ym = W.month, pay = wesMonthPay(ym);
+      if(pay > 0) askIncomeWallet(pay, w => { if(w) wesPaidWallets[ym] = { w, at:Date.now() }; else delete wesPaidWallets[ym]; saveWesPaid(); });
+    }
+    if(!wesPaidMonths.includes(W.month)) delete wesPaidWallets[W.month];
     saveWesPaid(); renderWes();
   });
   $('wPaidDate').addEventListener('input', () => {
@@ -4594,14 +4627,19 @@
     if(!rec.date){ toast(T().ptNeedDate); return; }
     if(!(rec.amount > 0)){ toast(T().ptNeedAmt); return; }
     if(!rec.note){ toast(T().ptNeedNote); return; }
+    let saved;
     if(P.editId){
-      ptEntries = ptEntries.map(x => x.id === P.editId ? Object.assign({}, rec, {id:P.editId}) : x);
+      const prev = ptEntries.find(x => x.id === P.editId) || {};
+      saved = Object.assign({}, rec, {id:P.editId}, prev.wallet !== undefined ? {wallet:prev.wallet, walletAt:prev.walletAt} : {});
+      ptEntries = ptEntries.map(x => x.id === P.editId ? saved : x);
       toast(T().ptUpdated);
     } else {
-      ptEntries.push(Object.assign({}, rec, {id: uid()}));
+      saved = Object.assign({}, rec, {id: uid()});
+      ptEntries.push(saved);
       toast(T().ptSaved);
     }
     savePt();
+    if(saved.paid) ptIncomeSync(saved.id);
     P.month = rec.date.slice(0,7);
     ptReset(); renderPt();
   });
@@ -4699,8 +4737,14 @@
     if(py){
       ptEntries = ptEntries.map(x => x.id === py.dataset.ptpay ? Object.assign({}, x, {paid:true, paidDate:todayStr()}) : x);
       savePt(); renderPt(); toast(T().ptMarked);
+      ptIncomeSync(py.dataset.ptpay);
     }
   });
+  function ptIncomeSync(id){
+    const e = ptEntries.find(x => x.id === id);
+    if(!e || !e.paid || e.wallet !== undefined) return;
+    askIncomeWallet(e.amount, w => { const x = ptEntries.find(y => y.id === id); if(!x) return; x.wallet = w; x.walletAt = Date.now(); savePt(); });
+  }
   $('ptCsv').addEventListener('click', () => {
     if(!ptEntries.length){ toast(T().wesNoRecords); return; }
     const q = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
@@ -5317,8 +5361,18 @@
   // ============================================================
   const WL = { editing:false, type:'out', from:'', to:'', cat:'grab' };
   // signed: positive = money you have; a credit wallet's balance is stored negative (what you owe)
+  const wesMonthPay = ym => Math.round(wesEntries.filter(e => String(e.date || '').startsWith(ym)).reduce((a,e) => { const r = wesCalc(e); return a + (r ? r.pay : 0); }, 0) * 100) / 100;
+  // money in that is linked to a wallet (follows later edits of the record itself)
+  function walletIncomes(){
+    const out = [];
+    docs.forEach(d => { if(d.incWallet && isIncome(d)) out.push({ id:'d:' + d.id, w:d.incWallet, at:d.incAt || 0, a:d.total || 0, t:`${d.client || T().hl_noClient} · ${d.no}`, date:docPayDate(d) }); });
+    ptEntries.forEach(e => { if(e.wallet && e.paid) out.push({ id:'p:' + e.id, w:e.wallet, at:e.walletAt || 0, a:e.amount || 0, t:(e.note || T().hl_pt).split('\n')[0].slice(0, 40), date:ptPayDate(e) }); });
+    Object.keys(wesPaidWallets).forEach(ym => { const l = wesPaidWallets[ym]; if(l && wesPaidMonths.includes(ym)) out.push({ id:'w:' + ym, w:l.w, at:l.at || 0, a:wesMonthPay(ym), t:T().hl_wesMonth.replace('{m}', monthTitle(ym)), date:wesPayDate(ym) }); });
+    return out;
+  }
   function walletBal(w){
     let b = w.credit ? -Math.abs(w.balance || 0) : (w.balance || 0);
+    walletIncomes().forEach(i => { if(i.w === w.id && i.at > (w.setAt || 0)) b += i.a; });
     invEntries.forEach(x => { if(x.wallet === w.id && (x.createdAt || 0) > (w.setAt || 0)) b -= x.amount || 0; });
     walletTx.forEach(t => {
       if((t.at || 0) <= (w.setAt || 0)) return;
@@ -5369,6 +5423,7 @@
     const rows = [];
     invEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind:'out', id:'x:' + x.id,
       t:[grabLine(x.grab), x.note].filter(Boolean).join(' — ') || T()['xt_' + x.tag], sub:`${name(x.wallet)} · ${x.date} · ${xTagLabel(x.tag)}`, a:x.amount }));
+    walletIncomes().filter(i => i.at > since(i.w)).forEach(i => rows.push({ at:i.at, kind:'in', id:i.id, t:i.t, sub:`${name(i.w)} · ${i.date}`, a:i.a }));
     walletTx.filter(t => (t.at || 0) > since(t.wallet) || (t.to && (t.at || 0) > since(t.to))).forEach(t => rows.push({ at:t.at, kind:t.type, id:'t:' + t.id,
       t:t.note || (t.type === 'in' ? T().wl_in : T().wl_move), sub: t.type === 'move' ? `${name(t.wallet)} → ${name(t.to)} · ${t.date}` : `${name(t.wallet)} · ${t.date}`, a:t.amount }));
     rows.sort((a,b) => b.at - a.at);
@@ -5415,6 +5470,10 @@
       if(!confirm(T().wl_txDelAsk)) return;
       const [k, id] = [del.dataset.wltxdel.slice(0,1), del.dataset.wltxdel.slice(2)];
       if(k === 'x'){ invEntries = invEntries.filter(x => x.id !== id); saveInv(); }
+      // linked incomes: only unlink from the wallet, the income record itself stays
+      else if(k === 'd'){ const d = docs.find(x => x.id === id); if(d){ d.incWallet = ''; saveDocs(); } }
+      else if(k === 'p'){ const e = ptEntries.find(x => x.id === id); if(e){ e.wallet = ''; savePt(); } }
+      else if(k === 'w'){ delete wesPaidWallets[id]; saveWesPaid(); }
       else walletTx = walletTx.filter(x => x.id !== id);
       saveWallets(); renderWallet();
     }
