@@ -1952,6 +1952,8 @@
       l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语',
       h_internal:'内部记录（不会印在单据上）', l_cost:'支出 / 车费 (RM)', l_costNote:'支出说明',
       costNotePh:'例如：Grab 车费、化妆品材料',
+      dc_ask:'这笔支出 {a} 是从哪里付的？', dc_fromWallet:'从这个钱包扣，同时记进支出', dc_noWallet:'只记进支出，不扣钱包', dc_noWalletSub:'例如用现金付',
+      dc_skip:'不用记', dc_skipSub:'这张单据的支出不记进「投资 / 支出」', dc_saved:'已记进支出，并从 {w} 扣掉', dc_savedNoWallet:'已记进支出', dc_fromDoc:'来自单据',
       l_subtotal:'小计', l_discountShort:'折扣', l_depositShort:'订金',
       l_totalInvoice:'应付余额', l_totalReceipt:'已收金额', l_profit:'净利润',
       btnSave:'保存单据', btnPrint:'存为 PDF', btnNew:'开新单据', btnNewShort:'新单',
@@ -2250,6 +2252,8 @@
       l_notes:'Notes', notesPh:'e.g. shoot location, terms of use, thank-you note',
       h_internal:'Internal Notes (not printed)', l_cost:'Cost / Transport (RM)', l_costNote:'Expense Note',
       costNotePh:'e.g. Grab fare, makeup supplies',
+      dc_ask:'Where was this {a} paid from?', dc_fromWallet:'Take it off this wallet and log the expense', dc_noWallet:'Log the expense only', dc_noWalletSub:'e.g. paid in cash',
+      dc_skip:'Don\'t log it', dc_skipSub:'Keep this cost out of Investments', dc_saved:'Logged as an expense and taken off {w}', dc_savedNoWallet:'Logged as an expense', dc_fromDoc:'from a document',
       l_subtotal:'Subtotal', l_discountShort:'Discount', l_depositShort:'Deposit',
       l_totalInvoice:'Balance Due', l_totalReceipt:'Amount Paid', l_profit:'Net Profit',
       btnSave:'Save Document', btnPrint:'Save as PDF', btnNew:'New Document', btnNewShort:'New',
@@ -3244,6 +3248,7 @@
       rec.createdAt = prev.createdAt || Date.now();
       rec.convertedToId = prev.convertedToId;
       rec.convertedToNo = prev.convertedToNo;
+      rec.costExp = prev.costExp;
       if(prev.status === 'void') rec.status = 'void';
       docs[idx] = rec;
     } else {
@@ -3260,7 +3265,32 @@
     $('btnVoid').style.display = rec.status === 'void' ? 'none' : '';
     renderPreview();
     if(!silent) toast(T().savedDoc + rec.no);
+    docCostSync(rec, silent);
     return rec;
+  }
+  // The document's 支出 / 车费 becomes a real expense: ask once which wallet paid, then keep it in step
+  function docCostSync(rec, silent){
+    const linked = rec.costExp && rec.costExp !== 'none' ? invEntries.find(x => x.id === rec.costExp) : null;
+    const cost = Math.round(num(rec.cost) * 100) / 100;
+    const note = [rec.costNote || T().l_cost, rec.client].filter(Boolean).join(' · ');
+    if(!(cost > 0)){
+      if(linked && !docs.some(d => d.id !== rec.id && d.costExp === linked.id)){ invEntries = invEntries.filter(x => x.id !== linked.id); saveInv(); }
+      if(rec.costExp){ rec.costExp = ''; saveDocs(); }
+      return;
+    }
+    if(linked){ linked.amount = cost; linked.note = note; saveInv(); return; }
+    if(rec.costExp === 'none') return;
+    const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().dc_fromWallet }))
+      .concat([{ value:'__nowallet', label:T().dc_noWallet, sub:T().dc_noWalletSub }, { value:'__skip', label:T().dc_skip, sub:T().dc_skipSub }]);
+    openSheet(T().dc_ask.replace('{a}', fmt(cost)), opts, '', v => {
+      const d = docs.find(x => x.id === rec.id); if(!d) return;
+      if(v === '__skip'){ d.costExp = 'none'; saveDocs(); return; }
+      const tag = /grab|车|taxi|transport|交通|parking|停车|lrt|mrt/i.test(rec.costNote || '') ? 'grab' : 'equipment';
+      const x = { id:uid(), createdAt:Date.now(), date:d.date || todayStr(), amount:cost, note, tag, src:'', wallet: v === '__nowallet' ? '' : v, docId:d.id };
+      invEntries.push(x); saveInv();
+      d.costExp = x.id; saveDocs();
+      toast(v === '__nowallet' ? T().dc_savedNoWallet : T().dc_saved.replace('{w}', (wallets.find(w => w.id === v) || {}).name || ''));
+    });
   }
   function bindBoth(a, b, fn){ $(a).addEventListener('click', fn); if($(b)) $(b).addEventListener('click', fn); }
   bindBoth('btnSave','btnSaveM', () => saveDoc());
@@ -3291,7 +3321,7 @@
       items:(inv.items||[]).map(it => ({id:uid(), desc:it.desc, qty:it.qty, price:it.price})),
       discount:inv.discount, deposit:inv.deposit, subtotal:inv.subtotal,
       taxRate:inv.taxRate||0, tax:inv.tax||0, total:inv.total,
-      cost:inv.cost, costNote:inv.costNote, notes:inv.notes,
+      cost:inv.cost, costNote:inv.costNote, costExp:inv.costExp, notes:inv.notes,
       bizSnapshot:inv.bizSnapshot, createdAt:Date.now()
     };
     docs.unshift(receipt);
@@ -3411,6 +3441,7 @@
     if(!confirm(T().confirmDeleteDoc.replace('{no}', rec.no))) return;
     docs = docs.filter(d => d.id !== id);
     saveDocs();
+    if(rec.costExp && rec.costExp !== 'none' && !docs.some(d => d.costExp === rec.costExp)){ invEntries = invEntries.filter(x => x.id !== rec.costExp); saveInv(); }
     if(S.editingId === id) newDoc(S.docType);
     renderDocs(); refreshHome();
     toast(T().deletedDoc + rec.no);
@@ -5246,7 +5277,7 @@
       return `<div class="pt-row">
         <div class="pt-top"><span class="pt-date">${esc(x.date)}</span><span class="pt-amt">${fmt(x.amount)}</span></div>
         <div class="pt-note">${esc([grabLine(x.grab), x.note].filter(Boolean).join(' — '))}${x.grab && x.grab.trip === 'round' && (x.grab.go || x.grab.back) ? `<div class="sub-line" style="font-size:12px;color:var(--ink-soft);">${esc(T().xg_l_go)} ${fmt(x.grab.go)} · ${esc(T().xg_l_back)} ${fmt(x.grab.back)}</div>` : ''}</div>
-        <div class="pt-meta"><span class="pill cat">${esc(xTagLabel(x.tag))}</span>${x.wallet ? `<span class="pill">${esc((wallets.find(w => w.id === x.wallet) || {}).name || '')}</span>` : ''}${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
+        <div class="pt-meta"><span class="pill cat">${esc(xTagLabel(x.tag))}</span>${x.wallet ? `<span class="pill">${esc((wallets.find(w => w.id === x.wallet) || {}).name || '')}</span>` : ''}${x.docId ? `<span class="pill">📄 ${esc(T().dc_fromDoc)}</span>` : ''}${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
         ${roi}
         <div class="row-btns"><button type="button" data-xedit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-xdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
       </div>`;
