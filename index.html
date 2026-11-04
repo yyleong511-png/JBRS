@@ -772,7 +772,47 @@
   .kpi-sub{font-size:12.5px;color:var(--ink-soft);margin-top:6px;line-height:1.55;}
   .kpi-f{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-mute);margin-top:6px;background:var(--ivory);border-radius:6px;padding:5px 8px;display:inline-block;}
   .kpi-go{background:none;border:none;color:var(--rose-deep);font-size:12.5px;text-decoration:underline;cursor:pointer;padding:4px 0 0;font-family:'Inter',sans-serif;}
-  .x-tags{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+  .x-tags{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .x-grab{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 2px;margin:-4px 0 14px;}
+  .x-grab[hidden]{display:none;}
+  /* ---------- wallets ---------- */
+  .wl-total{text-align:center;padding:6px 0 2px;}
+  .wl-total small{display:block;font-size:12px;color:var(--ink-soft);}
+  .wl-total b{display:block;font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:700;color:var(--green);margin-top:2px;}
+  .wl-total b.neg{color:var(--loss);}
+  .wl-card{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 2px;border-bottom:1px solid var(--line-soft);}
+  .wl-card:last-child{border-bottom:none;}
+  .wl-card .nm{font-size:15px;font-weight:600;}
+  .wl-card .nm small{display:block;font-size:11px;color:var(--ink-mute);font-weight:400;margin-top:2px;}
+  .wl-card .bal{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;text-align:right;}
+  .wl-card .bal small{display:block;font-size:10.5px;color:var(--ink-mute);font-weight:400;font-family:'Inter',sans-serif;}
+  .wl-card .bal.owe{color:var(--loss);}
+  .wl-edit .field{margin-bottom:12px;}
+  .wl-edit .credit{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  .wl-edit .credit input{width:16px;height:16px;accent-color:var(--rose-deep);}
+  .wl-tx{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px;align-items:center;}
+  .wl-tx:last-child{border-bottom:none;}
+  .wl-tx .t small{display:block;font-size:11px;color:var(--ink-mute);margin-top:2px;}
+  .wl-tx .a{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;}
+  .wl-tx .a.in{color:var(--green);} .wl-tx .a.out{color:var(--loss);} .wl-tx .a.mv{color:var(--ink-soft);}
+  .wl-tx .del-btn{margin-left:6px;}
+  /* ---------- spending analysis ---------- */
+  .sa-sum{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:6px 0 12px;}
+  .sa-sum div{background:var(--ivory);border-radius:10px;padding:9px 10px;}
+  .sa-sum small{display:block;font-size:10.5px;color:var(--ink-soft);}
+  .sa-sum b{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;}
+  .sa-sum b.pos{color:var(--green);} .sa-sum b.neg{color:var(--loss);}
+  .sa-cat{margin:8px 0;}
+  .sa-cat .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;gap:8px;}
+  .sa-cat .top span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);white-space:nowrap;}
+  .sa-tip{display:flex;gap:10px;font-size:13.5px;line-height:1.55;padding:9px 0;border-top:1px dashed var(--line-soft);}
+  .sa-tip:first-of-type{border-top:none;}
+  .sa-tip .e{flex:none;}
+  .sa-save{background:#EDF2ED;border:1px solid #D3E0D4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px;line-height:1.6;}
+  .sa-save b{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:18px;}
+  .hs-two{display:flex;flex-direction:column;align-items:center;line-height:1.25;}
+  .hs-two .hs-val{font-size:14.5px;}
+  .hs-val.neg{color:var(--loss);}
   .x-tags button{
     border:1px solid var(--line);background:var(--ivory);border-radius:10px;padding:8px 2px;cursor:pointer;
     font-family:'Inter',sans-serif;font-size:11.5px;color:var(--ink-soft);line-height:1.3;
@@ -827,9 +867,16 @@
     <div class="home-summary">
       <button type="button" class="hs-cell" data-hs="recv"><div class="hs-val" id="hsReceived">RM 0</div><div class="hs-lab"><span data-t="hsReceived">本月已收</span> ›</div></button>
       <button type="button" class="hs-cell" data-hs="due"><div class="hs-val due" id="hsDue">RM 0</div><div class="hs-lab"><span data-t="hsDue">未收款</span> ›</div></button>
-      <button type="button" class="hs-cell" data-hs="month"><div class="hs-val pos" id="hsMonth">RM 0</div><div class="hs-lab"><span data-t="hsMonth">本月总收入</span> ›</div></button>
+      <button type="button" class="hs-cell" data-hs="month"><div class="hs-two"><div class="hs-val pos" id="hsMonth">RM 0</div><div class="hs-val neg" id="hsSpend">− RM 0</div></div><div class="hs-lab"><span data-t="hsMonth">本月赚 / 花</span> ›</div></button>
     </div>
     <div class="home-grid">
+      <button class="home-card wide" data-nav="wallet">
+        <div class="hc-icon">👛</div>
+        <div>
+          <div class="hc-title"><span data-t="cardWalTitle">钱包对账</span> <span id="hcWalBal" style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--green);"></span></div>
+          <div class="hc-desc" data-t="cardWalDesc">CIMB、Touch 'n Go、Atome 的余额放在一起看，记一笔就自动加减</div>
+        </div>
+      </button>
       <button class="home-card" data-new="invoice">
         <div class="hc-icon">📄</div>
         <div>
@@ -1520,18 +1567,56 @@
       <div class="field">
         <label data-t="x_l_tag">类别</label>
         <div class="x-tags" id="xTags">
-          <button type="button" data-xtag="portfolio"><span>📸</span><em data-t="xt_portfolio">作品集</em></button>
-          <button type="button" data-xtag="equipment"><span>💄</span><em data-t="xt_equipment">器材 / 化妆品</em></button>
+          <button type="button" data-xtag="grab"><span>🚗</span><em data-t="xt_grab">Grab 车费</em></button>
+          <button type="button" data-xtag="equipment"><span>💄</span><em data-t="xt_equipment">化妆品 / 器材</em></button>
+          <button type="button" data-xtag="wardrobe"><span>👗</span><em data-t="xt_wardrobe">服装 / 配饰</em></button>
+          <button type="button" data-xtag="food"><span>🍱</span><em data-t="xt_food">餐饮</em></button>
           <button type="button" data-xtag="marketing"><span>📣</span><em data-t="xt_marketing">宣传</em></button>
           <button type="button" data-xtag="course"><span>🎓</span><em data-t="xt_course">课程</em></button>
-          <button type="button" data-xtag="other"><span>📦</span><em data-t="xt_other">其他</em></button>
+          <button type="button" data-xtag="bills"><span>📱</span><em data-t="xt_bills">账单 / 订阅</em></button>
+          <button type="button" data-xtag="fun"><span>🎉</span><em data-t="xt_fun">娱乐 / 社交</em></button>
+        </div>
+      </div>
+      <div class="x-grab" id="xGrab">
+        <div class="field">
+          <label data-t="xg_l_purpose">这趟车是为了</label>
+          <div class="pt-cats" id="xgPurpose">
+            <button type="button" data-xgp="tfpmua" data-t="xg_tfpmua">互惠化妆</button>
+            <button type="button" data-xgp="tfpshoot" data-t="xg_tfpshoot">互惠拍摄</button>
+            <button type="button" data-xgp="paid" data-t="xg_paid">付费工作</button>
+            <button type="button" data-xgp="wes" data-t="xg_wes">Wes 上班</button>
+            <button type="button" data-xgp="personal" data-t="xg_personal">私人</button>
+          </div>
+        </div>
+        <div class="field" id="xgRoleRow">
+          <label data-t="xg_l_role">我的角色</label>
+          <div class="pt-cats" id="xgRole">
+            <button type="button" data-xgr="mua" data-t="xg_role_mua">我是化妆师</button>
+            <button type="button" data-xgr="model" data-t="xg_role_model">我是被化妆的模特</button>
+          </div>
+        </div>
+        <div class="field">
+          <label data-t="xg_l_trip">行程</label>
+          <div class="seg" id="xgTrip">
+            <button type="button" data-xgt="one" data-t="xg_one">单程</button>
+            <button type="button" data-xgt="round" data-t="xg_round">来回</button>
+          </div>
+        </div>
+        <div class="field-row" id="xgFares">
+          <div class="field"><label data-t="xg_l_go">去程 (RM)</label><input type="text" inputmode="decimal" id="xgGo" placeholder="0.00"></div>
+          <div class="field"><label data-t="xg_l_back">回程 (RM)</label><input type="text" inputmode="decimal" id="xgBack" placeholder="0.00"></div>
         </div>
       </div>
       <div class="field-row">
         <div class="field"><label data-t="x_l_date">日期</label><input type="text" id="xDate" class="date-picker-input" readonly></div>
         <div class="field"><label data-t="x_l_amt">金额 (RM)</label><input type="text" inputmode="decimal" id="xAmt" placeholder="0.00"></div>
       </div>
-      <div class="field"><label data-t="x_l_note">备注</label><input type="text" id="xNote" data-tp="xNotePh" placeholder="例如：Portfolio 拍摄 with XX / MAC 化妆品补货 / IG 广告"></div>
+      <div class="field">
+        <label data-t="x_l_wallet">用哪个钱包付（选填）</label>
+        <div class="pt-cats" id="xWallets"></div>
+        <div class="sub" data-t="x_wallet_sub">选了就会从那个钱包的余额扣掉</div>
+      </div>
+      <div class="field"><label data-t="x_l_note">备注</label><input type="text" id="xNote" data-tp="xNotePh" placeholder="例如：去 Bangsar 帮 XX 化妆 / MAC 化妆品补货 / IG 广告"></div>
       <div class="field">
         <label data-t="x_l_src">回本来源（选填）</label>
         <button type="button" class="picker" id="pkXSrc"><span class="pk-val"></span><span class="pk-arrow">▼</span></button>
@@ -1550,6 +1635,69 @@
     </div>
     <div class="panel">
       <div id="xList"></div>
+    </div>
+    <div class="panel">
+      <div class="month-nav" style="margin-bottom:6px;">
+        <button type="button" class="cal-nav" id="saPrev">‹</button>
+        <span class="mn-title" id="saTitle"></span>
+        <button type="button" class="cal-nav" id="saNext">›</button>
+      </div>
+      <h2 data-t="sa_h">本月花钱分析</h2>
+      <p class="hint" data-t="sa_hint">根据你这个月的收入和支出自动分析，所有计算都在手机里完成</p>
+      <div id="saBox"></div>
+      <button class="ghost" id="saCopy" style="width:100%;margin-top:12px;" data-t="sa_copy">复制这个月的数据，贴给 Claude 做更深入的分析</button>
+    </div>
+  </section>
+
+  <!-- ============ WALLETS ============ -->
+  <section id="view-wallet" class="view">
+    <div class="panel" id="wlView">
+      <div class="wl-total"><small data-t="wl_total">总余额（扣掉欠款）</small><b id="wlTotal">RM 0.00</b></div>
+      <div id="wlCards" style="margin-top:8px;"></div>
+      <div class="btn-row">
+        <button class="ghost" id="wlEditBtn" data-t="wl_edit">设定余额 / 钱包</button>
+      </div>
+    </div>
+    <div class="panel wl-edit" id="wlEdit" style="display:none;">
+      <h2 data-t="wl_edit_h">设定现在的余额</h2>
+      <p class="hint" data-t="wl_edit_hint">打开每个银行 / 电子钱包的 app，把现在剩下的钱填进来。保存后，之后记的收入和支出会在这个基础上加减。</p>
+      <div id="wlEditRows"></div>
+      <button type="button" class="ghost" id="wlAdd" style="width:100%;" data-t="wl_add">＋ 新增钱包</button>
+      <div class="btn-row">
+        <button class="primary" id="wlSave" data-t="wl_save">保存余额</button>
+        <button class="ghost" id="wlCancel" data-t="wl_cancel">取消</button>
+      </div>
+    </div>
+    <div class="panel" id="wlTxPanel">
+      <h2 data-t="wl_tx_h">记一笔</h2>
+      <div class="seg" id="wlType" style="margin-top:12px;">
+        <button type="button" data-wlt="out" data-t="wl_out">支出</button>
+        <button type="button" data-wlt="in" data-t="wl_in">收入</button>
+        <button type="button" data-wlt="move" data-t="wl_move">转账 / 还款</button>
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label id="wlFromLab" data-t="wl_l_wallet">钱包</label>
+        <div class="pt-cats" id="wlFrom"></div>
+      </div>
+      <div class="field" id="wlToRow">
+        <label data-t="wl_l_to">转去</label>
+        <div class="pt-cats" id="wlTo"></div>
+      </div>
+      <div class="field" id="wlCatRow">
+        <label data-t="x_l_tag">类别</label>
+        <div class="pt-cats" id="wlCat"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label data-t="x_l_amt">金额 (RM)</label><input type="text" inputmode="decimal" id="wlAmt" placeholder="0.00"></div>
+        <div class="field"><label data-t="x_l_date">日期</label><input type="text" id="wlDate" class="date-picker-input" readonly></div>
+      </div>
+      <div class="field"><label data-t="x_l_note">备注</label><input type="text" id="wlNote" data-tp="wl_note_ph" placeholder="例如：Grab 去拍摄 / 收到 KaiJing 化妆费"></div>
+      <button class="primary" id="wlTxSave" style="width:100%;" data-t="wl_tx_save">保存这一笔</button>
+      <div style="margin-top:8px;font-size:11.5px;color:var(--ink-soft);line-height:1.5;" data-t="wl_tx_sub">支出会同时记进「投资 / 支出」，主页的本月支出和花钱分析都会算到</div>
+    </div>
+    <div class="panel">
+      <h2 data-t="wl_hist_h">余额设定之后的记录</h2>
+      <div id="wlHist" style="margin-top:8px;"></div>
     </div>
   </section>
 
@@ -1767,7 +1915,7 @@
       title_home:'', title_docs:'单据记录', title_income:'收入分析', title_settings:'设置',
       title_invoice:'开立发票', title_receipt:'开立收据',
       homeSubtitle:'私人单据与收入记录系统',
-      hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', hsMonth:'本月总收入',
+      hsReceived:'本月已收 · 全部', hsDue:'未收款 · 全部', 
       cardMonTitle:'每月收入记录', cardMonDesc:'一个月一个月看收入，也可以在日历上选几个月，例如五月到九月的总收入',
       title_months:'每月收入记录', mh_p3:'最近 3 个月', mh_p6:'最近 6 个月', mh_p12:'最近 12 个月', mh_pyear:'今年', mh_plast:'去年',
       mh_totalLabel:'实际收到的钱（按收款日期）', mh_dueSub:'不算进总收入', mh_work:'做了的工作（已收 + 未收）',
@@ -1989,10 +2137,37 @@
       confirmResetRates:'把所有报价费率恢复成默认值吗？',
       title_exp:'投资 / 支出',
       cardExpTitle:'投资 / 支出', cardExpDesc:'作品集、器材、宣传、课程的花费，自动算回本进度和 ROI',
-      xHint:'记下为了工作花的钱，例如拍作品集、化妆品和器材、宣传、上课。选了「回本来源」，就会自动算这笔钱帮你赚回多少。',
+      xHint:'记下花的钱，例如 Grab 车费、化妆品和器材、服装、餐饮、宣传、上课。工作相关的选了「回本来源」，就会自动算这笔钱帮你赚回多少。',
       xNew:'新增投资 / 支出', xEdit:'编辑投资 / 支出',
-      x_l_tag:'类别', xt_portfolio:'作品集', xt_equipment:'器材 / 化妆品', xt_marketing:'宣传', xt_course:'课程', xt_other:'其他',
-      x_l_date:'日期', x_l_amt:'金额 (RM)', x_l_note:'备注', xNotePh:'例如：Portfolio 拍摄 with XX / MAC 化妆品补货 / IG 广告',
+      x_l_tag:'类别', xt_portfolio:'作品集', xt_equipment:'化妆品 / 器材', xt_marketing:'宣传', xt_course:'课程', xt_other:'其他',
+      xt_grab:'Grab 车费', xt_wardrobe:'服装 / 配饰', xt_food:'餐饮', xt_bills:'账单 / 订阅', xt_fun:'娱乐 / 社交',
+      xg_l_purpose:'这趟车是为了', xg_tfpmua:'互惠化妆', xg_tfpshoot:'互惠拍摄', xg_paid:'付费工作', xg_wes:'Wes 上班', xg_personal:'私人',
+      xg_l_role:'我的角色', xg_role_mua:'我是化妆师', xg_role_model:'我是被化妆的模特', xg_l_trip:'行程', xg_one:'单程', xg_round:'来回',
+      xg_l_go:'去程', xg_l_back:'回程', x_l_wallet:'用哪个钱包付（选填）', x_wallet_sub:'选了就会从那个钱包的余额扣掉', x_wallet_none:'不记钱包',
+      cardWalTitle:'钱包对账', cardWalDesc:'CIMB、Touch \'n Go、Atome 的余额放在一起看，记一笔就自动加减', title_wallet:'钱包对账',
+      wl_total:'总余额（扣掉欠款）', wl_edit:'设定余额 / 钱包', wl_edit_h:'设定现在的余额',
+      wl_edit_hint:'打开每个银行 / 电子钱包的 app，把现在剩下的钱填进来。保存后，之后记的收入和支出会在这个基础上加减。',
+      wl_add:'＋ 新增钱包', wl_save:'保存余额', wl_cancel:'取消', wl_tx_h:'记一笔', wl_out:'支出', wl_in:'收入', wl_move:'转账 / 还款',
+      wl_l_wallet:'钱包', wl_l_from:'从', wl_l_to:'转去', wl_note_ph:'例如：Grab 去拍摄 / 收到 KaiJing 化妆费', wl_tx_save:'保存这一笔',
+      wl_tx_sub:'支出会同时记进「投资 / 支出」，主页的本月支出和花钱分析都会算到', wl_hist_h:'余额设定之后的记录', wl_hist_none:'设定余额之后还没有记录',
+      wl_setOn:'{d} 设定的余额', wl_notSet:'还没设定余额', wl_owe:'欠款', wl_left:'余额', wl_none:'还没有钱包，按「设定余额 / 钱包」新增',
+      wl_creditLab:'这是欠款（信用卡 / PayLater，例如 Atome）', wl_addAsk:'钱包名字（例如：Maybank、ShopeePay）', wl_delAsk:'删除「{n}」这个钱包？',
+      wl_saved:'余额已保存', wl_txSaved:'已记下，余额已更新', wl_needTo:'请选要转去哪个钱包', wl_txDelAsk:'删除这一笔记录？',
+      hsMonth:'本月赚 / 花',
+      sa_h:'本月花钱分析', sa_hint:'根据你这个月的收入和支出自动分析，所有计算都在手机里完成', sa_copy:'复制这个月的数据，贴给 Claude 做更深入的分析',
+      sa_in:'这个月收到', sa_out:'这个月花掉', sa_left:'剩下', sa_empty:'这个月还没有记支出',
+      sa_t_over:'这个月花了 {s}，比收到的 {r} 多了 {d}。下个月先把一定要花的（账单、餐饮、工作）排好，其他的等收到钱再买。',
+      sa_t_top:'「{c}」占了这个月支出的 {p}%，是最大的一块，先从这里看能不能省。',
+      sa_t_up:'「{c}」这个月花了 {n}，比前几个月平均 {a} 多很多，留意一下是不是一次性的。',
+      sa_t_grab:'坐了 {n} 次 Grab，共 {s}，平均每趟 {a}。同一天有两个地方要去，可以排在一起；短途也可以考虑 LRT / MRT。',
+      sa_t_tfp:'互惠化妆 / 拍摄的车费共 {s}。互惠是在投资作品集，值得，但最好每次都能拿到可以放进作品集的照片；车费太高的可以请对方帮忙出一半。',
+      sa_t_wants:'服装和娱乐共 {s}，占收入的 {p}%。建议控制在 15% 以内，想买的东西先放进衣橱账本的清单等 48 小时。',
+      sa_t_back:'有 {n} 笔工作支出已经赚回本，这类花费值得继续。',
+      sa_t_work:'工作相关的花费（化妆品、课程、宣传）{s} 是在投资自己，值得花；记得在「回本来源」选它是为了哪类工作，才看得到有没有赚回来。',
+      sa_save:'建议这个月存 {s}（收到的 {r} 的 20%）。收入不固定的话，每收到一笔钱就先转 20% 进储蓄户口。',
+      sa_save_none:'这个月花得比收到的多，暂时存不了钱。下个月先存 10%，等收入稳定再加到 20%。',
+      sa_copy_head:'我的收入和支出', sa_copy_ask:'请帮我分析这个月的花钱情况：哪里应该减少、哪里值得花，以及我应该存多少钱。',
+      x_l_date:'日期', x_l_amt:'金额 (RM)', x_l_note:'备注', xNotePh:'例如：去 Bangsar 帮 XX 化妆 / MAC 化妆品补货 / IG 广告',
       x_l_src:'回本来源（选填）', xSrcSub:'这笔钱是为了哪一类工作？之后那类工作的收入会算成它的回报',
       xSrcNone:'不追踪回本', xSrcAll:'全部收入', xSrcWes:'Wes 兼职', xSrcPt:'外接 Part Time', pickXSrc:'这笔投资是为了哪类工作？',
       xSave:'保存', xUpdate:'更新', xCancel:'取消编辑',
@@ -2038,7 +2213,7 @@
       title_home:'', title_docs:'Documents', title_income:'Income', title_settings:'Settings',
       title_invoice:'New Invoice', title_receipt:'New Receipt',
       homeSubtitle:'Private billing and income records',
-      hsReceived:'This month · all', hsDue:'Outstanding · all', hsMonth:'Total this month',
+      hsReceived:'This month · all', hsDue:'Outstanding · all', 
       cardMonTitle:'Monthly Income', cardMonDesc:'See income month by month, or pick months on the calendar — e.g. May to September',
       title_months:'Monthly Income', mh_p3:'Last 3 months', mh_p6:'Last 6 months', mh_p12:'Last 12 months', mh_pyear:'This year', mh_plast:'Last year',
       mh_totalLabel:'Money actually received (by payment date)', mh_dueSub:'not counted in the total', mh_work:'Work done (received + owed)',
@@ -2260,10 +2435,37 @@
       confirmResetRates:'Reset every calculator rate to its default?',
       title_exp:'Investments',
       cardExpTitle:'Investments / Expenses', cardExpDesc:'Portfolio, kit, marketing and courses — tracks payback and ROI for you',
-      xHint:'Log money spent on your work: portfolio shoots, makeup and equipment, marketing, courses. Pick a payback source and it tracks what the spend earns back.',
+      xHint:'Log what you spend: Grab fares, makeup and kit, clothes, food, marketing, courses. For work spending, pick a payback source to track what it earns back.',
       xNew:'New Investment / Expense', xEdit:'Edit Investment / Expense',
-      x_l_tag:'Type', xt_portfolio:'Portfolio', xt_equipment:'Kit / makeup', xt_marketing:'Marketing', xt_course:'Course', xt_other:'Other',
-      x_l_date:'Date', x_l_amt:'Amount (RM)', x_l_note:'Note', xNotePh:'e.g. Portfolio shoot with XX / MAC restock / IG ads',
+      x_l_tag:'Type', xt_portfolio:'Portfolio', xt_equipment:'Makeup / kit', xt_marketing:'Marketing', xt_course:'Course', xt_other:'Other',
+      xt_grab:'Grab fare', xt_wardrobe:'Clothes / accessories', xt_food:'Food', xt_bills:'Bills / subscriptions', xt_fun:'Fun / social',
+      xg_l_purpose:'This ride was for', xg_tfpmua:'TFP makeup', xg_tfpshoot:'TFP shoot', xg_paid:'Paid job', xg_wes:'Wes shift', xg_personal:'Personal',
+      xg_l_role:'My role', xg_role_mua:'I was the makeup artist', xg_role_model:'I was the model', xg_l_trip:'Trip', xg_one:'One way', xg_round:'Return',
+      xg_l_go:'Going', xg_l_back:'Coming back', x_l_wallet:'Paid from (optional)', x_wallet_sub:'Picking a wallet takes it off that balance', x_wallet_none:'No wallet',
+      cardWalTitle:'Wallets', cardWalDesc:'CIMB, Touch \'n Go and Atome balances in one place — log a spend and it updates', title_wallet:'Wallets',
+      wl_total:'Total (after amounts owed)', wl_edit:'Set balances / wallets', wl_edit_h:'Set current balances',
+      wl_edit_hint:'Open each bank / e-wallet app and type what is left. After saving, everything you log is added to or taken off these figures.',
+      wl_add:'+ Add wallet', wl_save:'Save balances', wl_cancel:'Cancel', wl_tx_h:'Log one', wl_out:'Spend', wl_in:'Income', wl_move:'Transfer / repay',
+      wl_l_wallet:'Wallet', wl_l_from:'From', wl_l_to:'To', wl_note_ph:'e.g. Grab to shoot / KaiJing makeup fee', wl_tx_save:'Save',
+      wl_tx_sub:'Spending is also saved in Investments, so this month\'s spend and the analysis include it', wl_hist_h:'Since balances were set', wl_hist_none:'Nothing logged since the balances were set',
+      wl_setOn:'balance set {d}', wl_notSet:'balance not set', wl_owe:'owed', wl_left:'left', wl_none:'No wallets yet — tap "Set balances / wallets"',
+      wl_creditLab:'This is money owed (credit card / PayLater, e.g. Atome)', wl_addAsk:'Wallet name (e.g. Maybank, ShopeePay)', wl_delAsk:'Delete the wallet "{n}"?',
+      wl_saved:'Balances saved', wl_txSaved:'Logged — balance updated', wl_needTo:'Pick the wallet to transfer to', wl_txDelAsk:'Delete this entry?',
+      hsMonth:'Earned / spent',
+      sa_h:'This month\'s spending', sa_hint:'Worked out from this month\'s income and spending, all on your phone', sa_copy:'Copy this month\'s figures to paste into Claude for a deeper look',
+      sa_in:'Came in', sa_out:'Spent', sa_left:'Left', sa_empty:'No spending logged this month',
+      sa_t_over:'You spent {s}, which is {d} more than the {r} that came in. Next month plan the must-haves (bills, food, work) first and buy the rest once paid.',
+      sa_t_top:'"{c}" is {p}% of this month\'s spending — the biggest slice, so look there first.',
+      sa_t_up:'"{c}" came to {n}, well above your recent average of {a}. Check whether it was a one-off.',
+      sa_t_grab:'{n} Grab rides, {s} in total, {a} each on average. Group trips on the same day, and try LRT / MRT for short hops.',
+      sa_t_tfp:'TFP makeup / shoot rides cost {s}. TFP builds your portfolio, so it is worth it — make sure each one gives you usable photos, and ask to split the fare when it is far.',
+      sa_t_wants:'Clothes and fun came to {s}, {p}% of income. Try to keep it under 15% — park wants in the wardrobe wishlist for 48 hours first.',
+      sa_t_back:'{n} work spends have already paid for themselves — keep these up.',
+      sa_t_work:'Work spending (makeup, courses, marketing) of {s} is an investment in yourself. Pick its payback source so you can see whether it earns back.',
+      sa_save:'Aim to save {s} this month (20% of the {r} that came in). With uneven income, move 20% to savings each time money arrives.',
+      sa_save_none:'You spent more than came in, so there is nothing to save this month. Start with 10% next month and build up to 20%.',
+      sa_copy_head:'my income and spending', sa_copy_ask:'Please look at my spending this month: where should I cut back, what is worth spending on, and how much should I save?',
+      x_l_date:'Date', x_l_amt:'Amount (RM)', x_l_note:'Note', xNotePh:'e.g. Makeup for XX in Bangsar / MAC restock / IG ads',
       x_l_src:'Payback source (optional)', xSrcSub:'Which kind of work is this for? Income from that work after this date counts as its return',
       xSrcNone:'Don\'t track payback', xSrcAll:'All income', xSrcWes:'Wes part time', xSrcPt:'Outside part time', pickXSrc:'What kind of work is this spend for?',
       xSave:'Save', xUpdate:'Update', xCancel:'Cancel Edit',
@@ -2401,7 +2603,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -2482,6 +2684,14 @@
   fin = Object.assign({ savings:0, expense:0, recurring:[] }, fin || {});
   if(!Array.isArray(fin.recurring)) fin.recurring = [];
   function saveInv(){ localStorage.setItem('jl.invest', JSON.stringify(invEntries)); saveBackup(); }
+  // wallets: balance is what the user typed at setAt; credit wallets (e.g. Atome) hold what is owed
+  let wallets = readJSON('jl.wallets', null);
+  let walletTx = readJSON('jl.wallettx', null) || [];
+  if(!Array.isArray(wallets)) wallets = [
+    { id:'cimb', name:'CIMB Bank', balance:0, setAt:0, credit:false },
+    { id:'tng', name:"Touch 'n Go eWallet", balance:0, setAt:0, credit:false },
+    { id:'atome', name:'Atome', balance:0, setAt:0, credit:true }];
+  function saveWallets(){ localStorage.setItem('jl.wallets', JSON.stringify(wallets)); localStorage.setItem('jl.wallettx', JSON.stringify(walletTx)); saveBackup(); }
   function saveFin(){ localStorage.setItem('jl.fin', JSON.stringify(fin)); saveBackup(); }
   function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); localStorage.setItem('wes-paid-dates', JSON.stringify(wesPaidDates)); saveBackup(); }
   function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
@@ -2594,7 +2804,7 @@
       popup.style.display = 'block';
     });
   }
-  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate','xDate','wPaidDate','ptPaidDate'].forEach(id => initDatePicker($(id)));
+  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate','xDate','wPaidDate','ptPaidDate','wlDate'].forEach(id => initDatePicker($(id)));
 
   // ============================================================
   // editor state
@@ -3553,7 +3763,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -3588,6 +3798,7 @@
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
         if(Array.isArray(data.invest)){ invEntries = data.invest; saveInv(); }
+        if(Array.isArray(data.wallets)){ wallets = data.wallets; walletTx = data.walletTx || []; saveWallets(); }
         if(data.fin && typeof data.fin === 'object'){ fin = Object.assign({ savings:0, expense:0, recurring:[] }, data.fin); saveFin(); }
         saveBiz(); saveDocs(); saveProfessions();
         fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
@@ -4938,8 +5149,37 @@
   // ============================================================
   // Investments / expenses — payback + ROI
   // ============================================================
-  const X = { editId:null, tag:'portfolio', src:'' };
-  const X_TAG_EMOJI = { portfolio:'📸', equipment:'💄', marketing:'📣', course:'🎓', other:'📦' };
+  const X = { editId:null, tag:'grab', src:'', wallet:'', gp:'tfpmua', gr:'mua', gt:'round' };
+  const X_TAG_EMOJI = { grab:'🚗', equipment:'💄', wardrobe:'👗', food:'🍱', marketing:'📣', course:'🎓', bills:'📱', fun:'🎉', portfolio:'📸', other:'📦' };
+  const X_TAGS = ['grab','equipment','wardrobe','food','marketing','course','bills','fun'];
+  const xTagLabel = t => (X_TAG_EMOJI[t] || '') + ' ' + (T()['xt_' + t] || t);
+  // Grab: purpose / role / trip → a readable line for the list
+  function grabLine(g){
+    if(!g) return '';
+    const parts = [T()['xg_' + g.trip], T()['xg_' + g.purpose]];
+    let s = 'Grab ' + parts.join(' · ');
+    if(g.purpose === 'tfpmua' && g.role) s += '（' + T()['xg_role_' + g.role] + '）';
+    return s;
+  }
+  function xGrabSync(){
+    const on = X.tag === 'grab';
+    $('xGrab').hidden = !on;
+    document.querySelectorAll('#xgPurpose button').forEach(b => b.classList.toggle('on', b.dataset.xgp === X.gp));
+    document.querySelectorAll('#xgRole button').forEach(b => b.classList.toggle('on', b.dataset.xgr === X.gr));
+    document.querySelectorAll('#xgTrip button').forEach(b => b.classList.toggle('on', b.dataset.xgt === X.gt));
+    $('xgRoleRow').style.display = X.gp === 'tfpmua' ? '' : 'none';
+    $('xgFares').style.display = on && X.gt === 'round' ? '' : 'none';
+    $('xAmt').readOnly = on && X.gt === 'round';
+    if(on && X.gt === 'round'){ const t = num($('xgGo').value) + num($('xgBack').value); $('xAmt').value = t ? (Math.round(t*100)/100).toFixed(2) : ''; }
+  }
+  $('xgPurpose').addEventListener('click', ev => { const b = ev.target.closest('[data-xgp]'); if(b){ X.gp = b.dataset.xgp; xGrabSync(); } });
+  $('xgRole').addEventListener('click', ev => { const b = ev.target.closest('[data-xgr]'); if(b){ X.gr = b.dataset.xgr; xGrabSync(); } });
+  $('xgTrip').addEventListener('click', ev => { const b = ev.target.closest('[data-xgt]'); if(b){ X.gt = b.dataset.xgt; xGrabSync(); } });
+  ['xgGo','xgBack'].forEach(id => $(id).addEventListener('input', xGrabSync));
+  function xRenderWallets(){
+    $('xWallets').innerHTML = [{id:'', name:T().x_wallet_none}].concat(wallets).map(w => `<button type="button" class="${X.wallet === w.id ? 'on' : ''}" data-xw="${esc(w.id)}">${esc(w.name)}</button>`).join('');
+  }
+  $('xWallets').addEventListener('click', ev => { const b = ev.target.closest('[data-xw]'); if(b){ X.wallet = b.dataset.xw; xRenderWallets(); } });
   function xSrcLabel(v){
     if(!v) return T().xSrcNone;
     if(v === '__all') return T().xSrcAll;
@@ -4965,10 +5205,11 @@
     return { ret, roi: x.amount > 0 ? (ret - x.amount) / x.amount * 100 : 0, back: ret >= x.amount };
   }
   const pct = n => (n >= 0 ? '+' : '') + Math.round(n) + '%';
-  function xSetTag(t){ X.tag = t; document.querySelectorAll('#xTags button').forEach(b => b.classList.toggle('on', b.dataset.xtag === t)); }
+  function xSetTag(t){ X.tag = t; document.querySelectorAll('#xTags button').forEach(b => b.classList.toggle('on', b.dataset.xtag === t)); xGrabSync(); }
   function xReset(){
-    X.editId = null; X.src = '';
-    xSetTag('portfolio');
+    X.editId = null; X.src = ''; X.wallet = ''; X.gp = 'tfpmua'; X.gr = 'mua'; X.gt = 'round';
+    $('xgGo').value = ''; $('xgBack').value = '';
+    xSetTag('grab'); xRenderWallets();
     $('xDate').value = todayStr(); $('xAmt').value = ''; $('xNote').value = '';
     setPicker('pkXSrc', xSrcLabel(''), true);
     $('xFormTitle').textContent = T().xNew; $('xSave').textContent = T().xSave; $('xCancel').style.display = 'none';
@@ -4982,12 +5223,13 @@
   });
   $('xCancel').addEventListener('click', xReset);
   $('xSave').addEventListener('click', () => {
-    const rec = { date:$('xDate').value || todayStr(), amount: Math.round(num($('xAmt').value)*100)/100, note:$('xNote').value.trim(), tag:X.tag, src:X.src };
+    const rec = { date:$('xDate').value || todayStr(), amount: Math.round(num($('xAmt').value)*100)/100, note:$('xNote').value.trim(), tag:X.tag, src:X.src, wallet:X.wallet };
+    if(X.tag === 'grab') rec.grab = { purpose:X.gp, role:X.gp === 'tfpmua' ? X.gr : '', trip:X.gt, go: X.gt === 'round' ? num($('xgGo').value) : 0, back: X.gt === 'round' ? num($('xgBack').value) : 0 };
     if(!(rec.amount > 0)){ toast(T().xNeedAmt); return; }
-    if(!rec.note){ toast(T().xNeedNote); return; }
-    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId}) : x); toast(T().xUpdated); }
-    else { invEntries.push(Object.assign({}, rec, {id:uid()})); toast(T().xSaved); }
-    saveInv(); xReset(); renderInv();
+    if(!rec.note && X.tag !== 'grab'){ toast(T().xNeedNote); return; }
+    if(X.editId){ invEntries = invEntries.map(x => x.id === X.editId ? Object.assign({}, rec, {id:X.editId, createdAt:x.createdAt || 0}) : x); toast(T().xUpdated); }
+    else { invEntries.push(Object.assign({}, rec, {id:uid(), createdAt:Date.now()})); toast(T().xSaved); }
+    saveInv(); xReset(); renderInv(); renderSpend();
   });
   function renderInv(){
     const yr = String(new Date().getFullYear());
@@ -5003,8 +5245,8 @@
         : `<div class="x-roi" style="color:var(--ink-mute);">${esc(T().xRoiNone)}</div>`;
       return `<div class="pt-row">
         <div class="pt-top"><span class="pt-date">${esc(x.date)}</span><span class="pt-amt">${fmt(x.amount)}</span></div>
-        <div class="pt-note">${esc(x.note)}</div>
-        <div class="pt-meta"><span class="pill cat">${X_TAG_EMOJI[x.tag]||''} ${esc(T()['xt_' + x.tag] || x.tag)}</span>${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
+        <div class="pt-note">${esc([grabLine(x.grab), x.note].filter(Boolean).join(' — '))}${x.grab && x.grab.trip === 'round' && (x.grab.go || x.grab.back) ? `<div class="sub-line" style="font-size:12px;color:var(--ink-soft);">${esc(T().xg_l_go)} ${fmt(x.grab.go)} · ${esc(T().xg_l_back)} ${fmt(x.grab.back)}</div>` : ''}</div>
+        <div class="pt-meta"><span class="pill cat">${esc(xTagLabel(x.tag))}</span>${x.wallet ? `<span class="pill">${esc((wallets.find(w => w.id === x.wallet) || {}).name || '')}</span>` : ''}${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
         ${roi}
         <div class="row-btns"><button type="button" data-xedit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-xdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
       </div>`;
@@ -5014,7 +5256,9 @@
     const ed = ev.target.closest('[data-xedit]'), dl = ev.target.closest('[data-xdel]');
     if(ed){
       const x = invEntries.find(i => i.id === ed.dataset.xedit); if(!x) return;
-      X.editId = x.id; X.src = x.src || ''; xSetTag(x.tag || 'other');
+      X.editId = x.id; X.src = x.src || ''; X.wallet = x.wallet || '';
+      if(x.grab){ X.gp = x.grab.purpose || 'personal'; X.gr = x.grab.role || 'mua'; X.gt = x.grab.trip || 'one'; $('xgGo').value = x.grab.go || ''; $('xgBack').value = x.grab.back || ''; }
+      xSetTag(x.tag || 'other'); xRenderWallets();
       $('xDate').value = x.date; $('xAmt').value = x.amount; $('xNote').value = x.note || '';
       setPicker('pkXSrc', xSrcLabel(X.src), !X.src);
       $('xFormTitle').textContent = T().xEdit; $('xSave').textContent = T().xUpdate; $('xCancel').style.display = '';
@@ -5025,8 +5269,204 @@
       if(!confirm(T().xConfirmDel.replace('{n}', x.note))) return;
       invEntries = invEntries.filter(i => i.id !== x.id);
       if(X.editId === x.id) xReset();
-      saveInv(); renderInv(); toast(T().xDeleted);
+      saveInv(); renderInv(); renderSpend(); toast(T().xDeleted);
     }
+  });
+
+  // ============================================================
+  // wallets — typed balance + everything recorded after it
+  // ============================================================
+  const WL = { editing:false, type:'out', from:'', to:'', cat:'grab' };
+  // signed: positive = money you have; a credit wallet's balance is stored negative (what you owe)
+  function walletBal(w){
+    let b = w.credit ? -Math.abs(w.balance || 0) : (w.balance || 0);
+    invEntries.forEach(x => { if(x.wallet === w.id && (x.createdAt || 0) > (w.setAt || 0)) b -= x.amount || 0; });
+    walletTx.forEach(t => {
+      if((t.at || 0) <= (w.setAt || 0)) return;
+      if(t.type === 'in' && t.wallet === w.id) b += t.amount;
+      if(t.type === 'move'){ if(t.wallet === w.id) b -= t.amount; if(t.to === w.id) b += t.amount; }
+    });
+    return Math.round(b*100)/100;
+  }
+  const walletTotal = () => wallets.reduce((a,w) => a + walletBal(w), 0);
+  function renderWallet(){
+    $('wlView').style.display = WL.editing ? 'none' : '';
+    $('wlEdit').style.display = WL.editing ? '' : 'none';
+    $('wlTxPanel').style.display = WL.editing ? 'none' : '';
+    const tot = walletTotal();
+    $('wlTotal').textContent = fmt(tot); $('wlTotal').classList.toggle('neg', tot < 0);
+    $('wlCards').innerHTML = wallets.length ? wallets.map(w => {
+      const b = walletBal(w);
+      const set = w.setAt ? T().wl_setOn.replace('{d}', toStr(new Date(w.setAt))) : T().wl_notSet;
+      return `<div class="wl-card"><div class="nm">${esc(w.name)}<small>${esc(set)}</small></div>
+        <div class="bal${w.credit && b < 0 ? ' owe' : ''}">${w.credit ? (b < 0 ? fmt(-b) : fmt(0)) : fmt(b)}<small>${esc(w.credit ? T().wl_owe : T().wl_left)}</small></div></div>`;
+    }).join('') : `<div class="empty-hint">${esc(T().wl_none)}</div>`;
+    if(WL.editing){
+      $('wlEditRows').innerHTML = wallets.map((w, i) => `<div class="field" data-wli="${i}">
+        <div class="field-row" style="margin:0;gap:8px;">
+          <div class="field" style="margin:0;flex:1.3;"><input type="text" class="wl-name" value="${esc(w.name)}" aria-label="name"></div>
+          <div class="field" style="margin:0;flex:1;"><input type="text" inputmode="decimal" class="wl-bal" value="${w.credit ? Math.abs(walletBal(w)) : walletBal(w)}" aria-label="balance"></div>
+          <button type="button" class="del-btn" data-wldel="${i}" aria-label="delete" style="flex:none;">✕</button>
+        </div>
+        <label class="credit"><input type="checkbox" class="wl-credit"${w.credit ? ' checked' : ''}> ${esc(T().wl_creditLab)}</label>
+      </div>`).join('');
+      return;
+    }
+    // record form
+    if(!wallets.some(w => w.id === WL.from)) WL.from = (wallets[0] || {}).id || '';
+    if(!wallets.some(w => w.id === WL.to) || WL.to === WL.from) WL.to = (wallets.find(w => w.id !== WL.from) || {}).id || '';
+    document.querySelectorAll('#wlType button').forEach(b => b.classList.toggle('on', b.dataset.wlt === WL.type));
+    const chips = (sel, attr, skip) => wallets.filter(w => w.id !== skip).map(w => `<button type="button" class="${sel === w.id ? 'on' : ''}" data-${attr}="${esc(w.id)}">${esc(w.name)}</button>`).join('');
+    $('wlFrom').innerHTML = chips(WL.from, 'wlf');
+    $('wlTo').innerHTML = chips(WL.to, 'wlto', WL.from);
+    $('wlFromLab').textContent = WL.type === 'move' ? T().wl_l_from : T().wl_l_wallet;
+    $('wlToRow').style.display = WL.type === 'move' ? '' : 'none';
+    $('wlCatRow').style.display = WL.type === 'out' ? '' : 'none';
+    $('wlCat').innerHTML = X_TAGS.map(t => `<button type="button" class="${WL.cat === t ? 'on' : ''}" data-wlc="${t}">${esc(xTagLabel(t))}</button>`).join('');
+    if(!$('wlDate').value) $('wlDate').value = todayStr();
+    // history since the balances were set
+    const name = id => (wallets.find(w => w.id === id) || {}).name || '?';
+    const since = id => (wallets.find(w => w.id === id) || {}).setAt || 0;
+    const rows = [];
+    invEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind:'out', id:'x:' + x.id,
+      t:[grabLine(x.grab), x.note].filter(Boolean).join(' — ') || T()['xt_' + x.tag], sub:`${name(x.wallet)} · ${x.date} · ${xTagLabel(x.tag)}`, a:x.amount }));
+    walletTx.filter(t => (t.at || 0) > since(t.wallet) || (t.to && (t.at || 0) > since(t.to))).forEach(t => rows.push({ at:t.at, kind:t.type, id:'t:' + t.id,
+      t:t.note || (t.type === 'in' ? T().wl_in : T().wl_move), sub: t.type === 'move' ? `${name(t.wallet)} → ${name(t.to)} · ${t.date}` : `${name(t.wallet)} · ${t.date}`, a:t.amount }));
+    rows.sort((a,b) => b.at - a.at);
+    $('wlHist').innerHTML = rows.length ? rows.map(r => `<div class="wl-tx"><div class="t">${esc(r.t)}<small>${esc(r.sub)}</small></div>
+      <div style="display:flex;align-items:center;"><span class="a ${r.kind === 'in' ? 'in' : r.kind === 'out' ? 'out' : 'mv'}">${r.kind === 'in' ? '+' : r.kind === 'out' ? '−' : '⇄'} ${fmt(r.a)}</span><button type="button" class="del-btn" data-wltxdel="${esc(r.id)}" aria-label="delete">✕</button></div></div>`).join('')
+      : `<div class="empty-hint">${esc(T().wl_hist_none)}</div>`;
+  }
+  $('wlEditBtn').addEventListener('click', () => { WL.editing = true; renderWallet(); window.scrollTo({top:0, behavior:'smooth'}); });
+  $('wlCancel').addEventListener('click', () => { WL.editing = false; renderWallet(); });
+  function wlReadEdit(){
+    document.querySelectorAll('#wlEditRows [data-wli]').forEach(row => {
+      const w = wallets[Number(row.dataset.wli)]; if(!w) return;
+      w._name = row.querySelector('.wl-name').value.trim() || w.name;
+      w._bal = row.querySelector('.wl-bal').value;
+      w._credit = row.querySelector('.wl-credit').checked;
+    });
+  }
+  $('wlAdd').addEventListener('click', () => {
+    wlReadEdit();
+    const name = (prompt(T().wl_addAsk) || '').trim(); if(!name) return;
+    wallets.push({ id:uid(), name, balance:0, setAt:0, credit:false, _name:name, _bal:'0', _credit:false });
+    renderWallet();
+    wallets.forEach(w => { if(w._name){ const i = wallets.indexOf(w); const row = document.querySelector(`#wlEditRows [data-wli="${i}"]`); if(row){ row.querySelector('.wl-name').value = w._name; row.querySelector('.wl-bal').value = w._bal; row.querySelector('.wl-credit').checked = w._credit; } } });
+  });
+  $('wlEditRows').addEventListener('click', ev => {
+    const d = ev.target.closest('[data-wldel]'); if(!d) return;
+    const w = wallets[Number(d.dataset.wldel)]; if(!w || !confirm(T().wl_delAsk.replace('{n}', w.name))) return;
+    wlReadEdit(); wallets.splice(Number(d.dataset.wldel), 1); renderWallet();
+  });
+  $('wlSave').addEventListener('click', () => {
+    wlReadEdit();
+    const now = Date.now();
+    wallets = wallets.map(w => ({ id:w.id, name:w._name || w.name, credit:!!w._credit, balance: Math.round(Math.abs(num(w._bal)) * (w._credit ? 1 : Math.sign(num(w._bal)) || 1) * 100)/100, setAt:now }));
+    saveWallets(); WL.editing = false; renderWallet(); toast(T().wl_saved);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  $('view-wallet').addEventListener('click', ev => {
+    const t = ev.target.closest('[data-wlt]'), f = ev.target.closest('[data-wlf]'), to = ev.target.closest('[data-wlto]'), c = ev.target.closest('[data-wlc]'), del = ev.target.closest('[data-wltxdel]');
+    if(t){ WL.type = t.dataset.wlt; renderWallet(); }
+    if(f){ WL.from = f.dataset.wlf; renderWallet(); }
+    if(to){ WL.to = to.dataset.wlto; renderWallet(); }
+    if(c){ WL.cat = c.dataset.wlc; renderWallet(); }
+    if(del){
+      if(!confirm(T().wl_txDelAsk)) return;
+      const [k, id] = [del.dataset.wltxdel.slice(0,1), del.dataset.wltxdel.slice(2)];
+      if(k === 'x'){ invEntries = invEntries.filter(x => x.id !== id); saveInv(); }
+      else walletTx = walletTx.filter(x => x.id !== id);
+      saveWallets(); renderWallet();
+    }
+  });
+  $('wlTxSave').addEventListener('click', () => {
+    const amount = Math.round(num($('wlAmt').value)*100)/100, note = $('wlNote').value.trim(), date = $('wlDate').value || todayStr();
+    if(!(amount > 0)){ toast(T().xNeedAmt); return; }
+    if(!WL.from){ toast(T().wl_none); return; }
+    if(WL.type === 'move' && (!WL.to || WL.to === WL.from)){ toast(T().wl_needTo); return; }
+    if(WL.type === 'out'){
+      // a wallet expense is a normal expense, so it shows in 投资 / 支出 and the analysis too
+      invEntries.push({ id:uid(), createdAt:Date.now(), date, amount, note, tag:WL.cat, src:'', wallet:WL.from });
+      saveInv();
+    } else walletTx.push({ id:uid(), at:Date.now(), type:WL.type, wallet:WL.from, to: WL.type === 'move' ? WL.to : '', amount, note, date });
+    saveWallets();
+    $('wlAmt').value = ''; $('wlNote').value = '';
+    renderWallet(); toast(T().wl_txSaved);
+  });
+
+  // ============================================================
+  // spending analysis — rules on this month's income and spending
+  // ============================================================
+  const SA = { month: todayStr().slice(0,7) };
+  const ESSENTIAL = ['bills','food'], WORK = ['equipment','course','marketing','grab'], WANTS = ['wardrobe','fun'];
+  function spendOf(ym){
+    const list = invEntries.filter(x => String(x.date || '').startsWith(ym));
+    const by = {}; list.forEach(x => { by[x.tag] = (by[x.tag] || 0) + (x.amount || 0); });
+    return { list, by, total: list.reduce((a,x) => a+(x.amount||0), 0) };
+  }
+  const ymShift = (ym, n) => { const [y,m] = ym.split('-').map(Number); const d = new Date(y, m-1+n, 1); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}`; };
+  function spendReport(ym){
+    const cur = spendOf(ym), inc = sourceTotals(ds => String(ds || '').startsWith(ym));
+    const prev = [1,2,3].map(n => spendOf(ymShift(ym, -n)));
+    const prevN = prev.filter(p => p.total > 0).length;
+    const avgBy = t => prevN ? prev.reduce((a,p) => a + (p.by[t] || 0), 0) / prevN : 0;
+    const tips = [];
+    const recv = inc.recv, total = cur.total, left = recv - total;
+    if(!total) return { cur, recv, total, left, tips, save:0 };
+    const cats = Object.keys(cur.by).sort((a,b) => cur.by[b] - cur.by[a]);
+    // 1. spending more than came in
+    if(total > recv) tips.push(['⚠️', T().sa_t_over.replace('{s}', fmt(total)).replace('{r}', fmt(recv)).replace('{d}', fmt(total - recv))]);
+    // 2. biggest category
+    const top = cats[0], topShare = cur.by[top] / total;
+    if(topShare >= 0.4 && cats.length > 1) tips.push(['🔎', T().sa_t_top.replace('{c}', xTagLabel(top)).replace('{p}', Math.round(topShare*100))]);
+    // 3. categories that jumped vs the last 3 months
+    cats.forEach(t => { const a = avgBy(t); if(a > 0 && cur.by[t] > a * 1.3 && cur.by[t] - a >= 30) tips.push(['📈', T().sa_t_up.replace('{c}', xTagLabel(t)).replace('{n}', fmt(cur.by[t])).replace('{a}', fmt(a))]); });
+    // 4. Grab
+    const grabs = cur.list.filter(x => x.tag === 'grab');
+    if(grabs.length){
+      const tfp = grabs.filter(x => x.grab && (x.grab.purpose === 'tfpmua' || x.grab.purpose === 'tfpshoot')).reduce((a,x) => a+x.amount, 0);
+      tips.push(['🚗', T().sa_t_grab.replace('{n}', grabs.length).replace('{s}', fmt(cur.by.grab)).replace('{a}', fmt(cur.by.grab / grabs.length))]);
+      if(tfp > 0) tips.push(['🤝', T().sa_t_tfp.replace('{s}', fmt(tfp))]);
+    }
+    // 5. wants
+    const wants = WANTS.reduce((a,t) => a + (cur.by[t] || 0), 0);
+    if(recv > 0 && wants / recv > 0.15) tips.push(['✂️', T().sa_t_wants.replace('{s}', fmt(wants)).replace('{p}', Math.round(wants / recv * 100))]);
+    // 6. worth it: work spend with payback, courses / kit
+    const work = WORK.filter(t => t !== 'grab').reduce((a,t) => a + (cur.by[t] || 0), 0);
+    const back = cur.list.filter(x => x.src && invReturn(x) && invReturn(x).back);
+    if(back.length) tips.push(['✅', T().sa_t_back.replace('{n}', back.length)]);
+    else if(work > 0) tips.push(['💡', T().sa_t_work.replace('{s}', fmt(work))]);
+    // savings: 20% of what came in, or everything left if less; never negative
+    const save = Math.max(0, Math.min(recv * 0.2, left));
+    return { cur, recv, total, left, tips, save };
+  }
+  function renderSpend(){
+    $('saTitle').textContent = monthTitle(SA.month);
+    const r = spendReport(SA.month);
+    if(!r.total){ $('saBox').innerHTML = `<div class="empty-hint">${esc(T().sa_empty)}</div>`; return; }
+    const cats = Object.keys(r.cur.by).sort((a,b) => r.cur.by[b] - r.cur.by[a]);
+    const max = r.cur.by[cats[0]];
+    $('saBox').innerHTML = `<div class="sa-sum">
+        <div><small>${esc(T().sa_in)}</small><b class="pos">${fmtShort(r.recv)}</b></div>
+        <div><small>${esc(T().sa_out)}</small><b class="neg">${fmtShort(r.total)}</b></div>
+        <div><small>${esc(T().sa_left)}</small><b class="${r.left >= 0 ? 'pos' : 'neg'}">${fmtShort(r.left)}</b></div>
+      </div>` +
+      cats.map(t => `<div class="sa-cat"><div class="top"><span>${esc(xTagLabel(t))}</span><span>${fmt(r.cur.by[t])} · ${Math.round(r.cur.by[t] / r.total * 100)}%</span></div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${r.cur.by[t] / max * 100}%"></div></div></div>`).join('') +
+      `<div style="margin-top:10px;">${r.tips.map(([e,t]) => `<div class="sa-tip"><span class="e">${e}</span><span>${esc(t)}</span></div>`).join('')}</div>` +
+      `<div class="sa-save">${r.left > 0
+        ? T().sa_save.replace('{s}', `<b>${fmt(r.save)}</b>`).replace('{r}', esc(fmt(r.recv)))
+        : esc(T().sa_save_none)}</div>`;
+  }
+  $('saPrev').addEventListener('click', () => { SA.month = ymShift(SA.month, -1); renderSpend(); });
+  $('saNext').addEventListener('click', () => { SA.month = ymShift(SA.month, 1); renderSpend(); });
+  $('saCopy').addEventListener('click', () => {
+    const r = spendReport(SA.month);
+    const lines = [`${monthTitle(SA.month)} — ${T().sa_copy_head}`, `${T().sa_in}: ${fmt(r.recv)}`, `${T().sa_out}: ${fmt(r.total)}`, ''];
+    r.cur.list.slice().sort((a,b) => (a.date||'').localeCompare(b.date||'')).forEach(x => lines.push(`${x.date} · ${T()['xt_' + x.tag] || x.tag} · ${fmt(x.amount)} · ${[grabLine(x.grab), x.note].filter(Boolean).join(' — ')}`));
+    lines.push('', T().sa_copy_ask);
+    copyText(lines.join('\n'));
   });
 
   // ---------- business figures in Settings ----------
@@ -5182,6 +5622,10 @@
     // this month's total income = received + still owed, from every source
     const m = sourceTotals(ds => inRange(ds, mStart, mEnd));
     $('hsMonth').textContent = fmtShort(m.recv + m.due);
+    $('hsSpend').textContent = '− ' + fmtShort(invEntries.filter(x => inRange(x.date, mStart, mEnd)).reduce((a,x) => a+(x.amount||0), 0));
+    const wb = walletTotal();
+    $('hcWalBal').textContent = wallets.length ? fmtShort(wb) : '';
+    $('hcWalBal').style.color = wb < 0 ? 'var(--loss)' : 'var(--green)';
   }
   // tap a home figure → the list behind it (documents, Wes months, outside part time)
   function homeList(kind, opt){
@@ -5348,7 +5792,8 @@
     if(name === 'wes'){ renderWes(); if(!W.editId) wRenderPunch(); }
     if(name === 'pt') renderPt();
     if(name === 'quote'){ qFillForm(); renderQuote(); }
-    if(name === 'exp') renderInv();
+    if(name === 'exp'){ renderInv(); xRenderWallets(); xGrabSync(); renderSpend(); }
+    if(name === 'wallet') renderWallet();
     if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); renderRateFields(); renderFin(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
   }
