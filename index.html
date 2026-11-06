@@ -98,6 +98,7 @@
   .hs-val.due{color:var(--amber);} .hs-val.pos{color:var(--green);}
   .hs-lab{font-size:10.5px;color:var(--ink-soft);margin-top:4px;}
   .home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;}
+  .home-grid > .home-card{order:2;}
   @media (max-width:640px){.home-grid{grid-template-columns:1fr;}}
   .home-card{
     display:flex;align-items:center;gap:14px;width:100%;
@@ -870,7 +871,14 @@
       <button type="button" class="hs-cell" data-hs="month"><div class="hs-two"><div class="hs-val pos" id="hsMonth">RM 0</div><div class="hs-val neg" id="hsSpend">− RM 0</div></div><div class="hs-lab"><span data-t="hsMonth">本月赚 / 花</span> ›</div></button>
     </div>
     <div class="home-grid">
-      <button class="home-card wide" data-nav="wallet">
+      <button class="home-card wide" data-nav="personal" style="order:1;">
+        <div class="hc-icon">🏠</div>
+        <div>
+          <div class="hc-title" data-t="cardPerTitle">个人开销</div>
+          <div class="hc-desc" data-t="cardPerDesc">房租、电费、水费，和收到的租金放在一起看，每笔都可以选用哪个钱包付或收</div>
+        </div>
+      </button>
+      <button class="home-card wide" data-nav="wallet" style="order:0;">
         <div class="hc-icon">👛</div>
         <div>
           <div class="hc-title"><span data-t="cardWalTitle">钱包对账</span> <span id="hcWalBal" style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--green);"></span></div>
@@ -1331,12 +1339,17 @@
           <label data-t="wes_l_paidDate">工资收到的日期</label>
           <input type="text" id="wPaidDate" class="date-picker-input" readonly>
           <div class="sub" data-t="wes_paidDateSub">这笔工资会算进收到钱的那个月</div>
+          <label data-t="wes_l_actual" style="margin-top:12px;">实际收到的金额 (RM)</label>
+          <input type="text" inputmode="decimal" id="wActual">
+          <div class="sub" data-t="wes_actualSub">填了就以这个数字为准（工资、收入分析、钱包都用它）；留空就用你记录的工时算</div>
         </div>
       </div>
       <div class="stats-bar">
         <div class="stat-box"><div class="sl" data-t="wes_days">上班天数</div><div class="sv" id="wDays">0</div></div>
         <div class="stat-box"><div class="sl" data-t="wes_hours">总工时</div><div class="sv" id="wHours">0h</div></div>
-        <div class="stat-box"><div class="sl" data-t="wes_pay">本月工资</div><div class="sv pos" id="wPay">RM 0.00</div></div>
+        <div class="stat-box"><div class="sl"><span id="wPayLab" data-t="wes_pay">本月工资</span></div><div class="sv pos" id="wPay">RM 0.00</div>
+          <button type="button" class="pc-undo" id="wOrigBtn" style="display:none;margin-top:4px;padding:0;" data-t="wes_origBtn">查看原本记录</button>
+          <div class="sub-line" id="wOrig" style="display:none;font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5;"></div></div>
       </div>
       <div class="panel">
         <div id="wMonthList"></div>
@@ -1649,6 +1662,43 @@
     </div>
   </section>
 
+  <!-- ============ PERSONAL EXPENSES ============ -->
+  <section id="view-personal" class="view">
+    <div class="panel">
+      <div class="month-nav">
+        <button type="button" class="cal-nav" id="perPrev">‹</button>
+        <span class="mn-title" id="perTitle"></span>
+        <button type="button" class="cal-nav" id="perNext">›</button>
+      </div>
+      <div class="sa-sum" style="margin-top:12px;">
+        <div><small data-t="per_s_in">收到的租金</small><b class="pos" id="perIn">RM 0</b></div>
+        <div><small data-t="per_s_out">付出去</small><b class="neg" id="perOut">RM 0</b></div>
+        <div><small data-t="per_s_net">净额</small><b id="perNet">RM 0</b></div>
+      </div>
+      <div id="perCheck"></div>
+    </div>
+    <div class="panel">
+      <h2 id="perFormTitle" data-t="per_new">记一笔</h2>
+      <div class="pt-cats" id="perTypes" style="margin-top:12px;"></div>
+      <div class="field-row" style="margin-top:12px;">
+        <div class="field"><label data-t="x_l_amt">金额 (RM)</label><input type="text" inputmode="decimal" id="perAmt" placeholder="0.00"></div>
+        <div class="field"><label data-t="x_l_date">日期</label><input type="text" id="perDate" class="date-picker-input" readonly></div>
+      </div>
+      <div class="field"><label data-t="x_l_note">备注</label><input type="text" id="perNote" data-tp="per_note_ph" placeholder="例如：11 月房租 / 租客 Amy / TNB 10 月账单"></div>
+      <div class="field">
+        <label id="perWalLab" data-t="x_l_wallet">用哪个钱包付</label>
+        <div class="pt-cats" id="perWallets"></div>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="perSave" data-t="xSave">保存</button>
+        <button class="ghost" id="perCancel" style="display:none;" data-t="xCancel">取消编辑</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div id="perList"></div>
+    </div>
+  </section>
+
   <!-- ============ WALLETS ============ -->
   <section id="view-wallet" class="view">
     <div class="panel" id="wlView">
@@ -1952,6 +2002,16 @@
       l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语',
       h_internal:'内部记录（不会印在单据上）', l_cost:'支出 / 车费 (RM)', l_costNote:'支出说明',
       costNotePh:'例如：Grab 车费、化妆品材料',
+      cardPerTitle:'个人开销', cardPerDesc:'房租、电费、水费，和收到的租金放在一起看，每笔都可以选用哪个钱包付或收', title_personal:'个人开销',
+      per_s_in:'收到的租金', per_s_out:'付出去', per_s_net:'净额', per_new:'记一笔', per_edit:'修改这一笔', per_note_ph:'例如：11 月房租 / 租客 Amy / TNB 10 月账单',
+      per_l_walletIn:'钱进了哪个钱包', per_notYet:'这个月还没记', per_empty:'这个月还没有记录',
+      per_t_rentin:'收到租金', per_t_rent:'房租', per_t_elec:'电费', per_t_water:'水费', per_t_net:'网络', per_t_phone:'手机费', per_t_living:'生活用品',
+      mv_btn:'更改源头', mv_title:'把这一笔搬去哪里？', mv_pickCat:'选一个分类', mv_done:'已搬去「{d}」', mv_docLinked:'这笔是单据里的车费，请到单据里修改',
+      mv_to_inv:'投资 / 支出', mv_to_inv_s:'工作相关的花费，会算进回本和花钱分析', mv_to_per_out:'个人开销', mv_to_per_out_s:'房租、水电、网络、手机等个人开销',
+      mv_to_per_in:'个人开销 · 收到租金', mv_to_per_in_s:'租客给的租金', mv_to_pt:'外接 Part Time', mv_to_pt_s:'当作一份已收到钱的外接工作', mv_to_wtx:'钱包收入', mv_to_wtx_s:'只记在钱包对账里的收入',
+      wes_l_actual:'实际收到的金额 (RM)', wes_actualSub:'填了就以这个数字为准（工资、收入分析、钱包都用它）；留空就用你记录的工时算',
+      wes_payActual:'本月实际到手', wes_origBtn:'查看原本记录', wes_origHide:'收起原本记录', wes_origLine:'我自己的记录：{h} · {p}', wes_short:'少收 {d}', wes_more:'多收 {d}',
+      inc_ask:'这笔收入 {a} 进了哪个钱包？', inc_toWallet:'加进这个钱包的余额', inc_none:'不记钱包', inc_noneSub:'例如收现金', inc_saved:'已加进 {w} 的余额',
       dc_ask:'这笔支出 {a} 是从哪里付的？', dc_fromWallet:'从这个钱包扣，同时记进支出', dc_noWallet:'只记进支出，不扣钱包', dc_noWalletSub:'例如用现金付',
       dc_skip:'不用记', dc_skipSub:'这张单据的支出不记进「投资 / 支出」', dc_saved:'已记进支出，并从 {w} 扣掉', dc_savedNoWallet:'已记进支出', dc_fromDoc:'来自单据',
       l_subtotal:'小计', l_discountShort:'折扣', l_depositShort:'订金',
@@ -2252,6 +2312,16 @@
       l_notes:'Notes', notesPh:'e.g. shoot location, terms of use, thank-you note',
       h_internal:'Internal Notes (not printed)', l_cost:'Cost / Transport (RM)', l_costNote:'Expense Note',
       costNotePh:'e.g. Grab fare, makeup supplies',
+      cardPerTitle:'Personal', cardPerDesc:'Rent, electricity, water and the rent you collect in one place — each linked to a wallet', title_personal:'Personal',
+      per_s_in:'Rent collected', per_s_out:'Paid out', per_s_net:'Net', per_new:'Log one', per_edit:'Edit entry', per_note_ph:'e.g. November rent / tenant Amy / TNB October bill',
+      per_l_walletIn:'Which wallet did it go into', per_notYet:'not logged yet', per_empty:'Nothing logged this month',
+      per_t_rentin:'Rent collected', per_t_rent:'Rent', per_t_elec:'Electricity', per_t_water:'Water', per_t_net:'Internet', per_t_phone:'Phone', per_t_living:'Household',
+      mv_btn:'Change source', mv_title:'Move this to…', mv_pickCat:'Pick a category', mv_done:'Moved to "{d}"', mv_docLinked:'This is a document\'s cost — change it in the document',
+      mv_to_inv:'Investments', mv_to_inv_s:'Work spending, counted in payback and the analysis', mv_to_per_out:'Personal', mv_to_per_out_s:'Rent, utilities, internet, phone and other personal costs',
+      mv_to_per_in:'Personal · rent collected', mv_to_per_in_s:'Rent from tenants', mv_to_pt:'Outside part time', mv_to_pt_s:'As a paid outside gig', mv_to_wtx:'Wallet income', mv_to_wtx_s:'Income kept only in the wallets',
+      wes_l_actual:'Amount actually received (RM)', wes_actualSub:'When filled it replaces the worked-out pay everywhere (pay, income, wallet); leave empty to use your hours',
+      wes_payActual:'Actually received', wes_origBtn:'See my own record', wes_origHide:'Hide my own record', wes_origLine:'My record: {h} · {p}', wes_short:'{d} short', wes_more:'{d} extra',
+      inc_ask:'Which wallet did this {a} go into?', inc_toWallet:'Add it to this balance', inc_none:'No wallet', inc_noneSub:'e.g. paid in cash', inc_saved:'Added to {w}',
       dc_ask:'Where was this {a} paid from?', dc_fromWallet:'Take it off this wallet and log the expense', dc_noWallet:'Log the expense only', dc_noWalletSub:'e.g. paid in cash',
       dc_skip:'Don\'t log it', dc_skipSub:'Keep this cost out of Investments', dc_saved:'Logged as an expense and taken off {w}', dc_savedNoWallet:'Logged as an expense', dc_fromDoc:'from a document',
       l_subtotal:'Subtotal', l_discountShort:'Discount', l_depositShort:'Deposit',
@@ -2607,7 +2677,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, wesActual, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx, personal: personalEntries});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -2655,6 +2725,10 @@
   let wesPaidMonths = readJSON('wes-paid-months', null);
   // month (YYYY-MM) → date the salary actually came in; income is counted in that month
   let wesPaidDates = readJSON('wes-paid-dates', null);
+  // month → {w: wallet id, at: time linked}; that month's salary is added to the wallet
+  let wesPaidWallets = readJSON('wes-paid-wallets', null) || {};
+  // month → what actually arrived; replaces the pay worked out from the hours everywhere
+  let wesActual = readJSON('wes-actual', null) || {};
   // outside part time gigs: {id, date, amount, note, paid}
   let ptEntries = readJSON('jl.parttime', null);
   {
@@ -2695,9 +2769,12 @@
     { id:'cimb', name:'CIMB Bank', balance:0, setAt:0, credit:false },
     { id:'tng', name:"Touch 'n Go eWallet", balance:0, setAt:0, credit:false },
     { id:'atome', name:'Atome', balance:0, setAt:0, credit:true }];
+  // personal expenses: rent, utilities and the rent received from tenants (dir 'in')
+  let personalEntries = readJSON('jl.personal', null) || [];
+  function savePersonal(){ localStorage.setItem('jl.personal', JSON.stringify(personalEntries)); saveBackup(); }
   function saveWallets(){ localStorage.setItem('jl.wallets', JSON.stringify(wallets)); localStorage.setItem('jl.wallettx', JSON.stringify(walletTx)); saveBackup(); }
   function saveFin(){ localStorage.setItem('jl.fin', JSON.stringify(fin)); saveBackup(); }
-  function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); localStorage.setItem('wes-paid-dates', JSON.stringify(wesPaidDates)); saveBackup(); }
+  function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); localStorage.setItem('wes-paid-dates', JSON.stringify(wesPaidDates)); localStorage.setItem('wes-paid-wallets', JSON.stringify(wesPaidWallets)); localStorage.setItem('wes-actual', JSON.stringify(wesActual)); saveBackup(); }
   function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
 
   saveBiz(); saveDocs(); saveProfessions(); saveWes(); saveWesPaid(); savePt();
@@ -2723,7 +2800,13 @@
     sheetHandler = onPick;
     $('sheetWrap').hidden = false;
   }
-  function closeSheet(){ $('sheetWrap').hidden = true; sheetHandler = null; }
+  function closeSheet(){ $('sheetWrap').hidden = true; sheetHandler = null; const n = sheetQueue.shift(); if(n) setTimeout(n, 120); }
+  const sheetQueue = [];
+  // ask after whatever is open now (e.g. the cost question, then the income question)
+  function askSheet(title, options, onPick){
+    const go = () => openSheet(title, options, '', onPick);
+    if($('sheetWrap').hidden) go(); else sheetQueue.push(go);
+  }
   $('sheetBody').addEventListener('click', e => {
     const btn = e.target.closest('.sheet-opt');
     if(!btn) return;
@@ -2808,7 +2891,7 @@
       popup.style.display = 'block';
     });
   }
-  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate','xDate','wPaidDate','ptPaidDate','wlDate'].forEach(id => initDatePicker($(id)));
+  ['dDate','dDueDate','fStart','fEnd','iStart','iEnd','wDate','ptDate','xDate','wPaidDate','ptPaidDate','wlDate','perDate'].forEach(id => initDatePicker($(id)));
 
   // ============================================================
   // editor state
@@ -3249,6 +3332,7 @@
       rec.convertedToId = prev.convertedToId;
       rec.convertedToNo = prev.convertedToNo;
       rec.costExp = prev.costExp;
+      if(prev.incWallet !== undefined){ rec.incWallet = prev.incWallet; rec.incAt = prev.incAt; }
       if(prev.status === 'void') rec.status = 'void';
       docs[idx] = rec;
     } else {
@@ -3266,7 +3350,23 @@
     renderPreview();
     if(!silent) toast(T().savedDoc + rec.no);
     docCostSync(rec, silent);
+    docIncomeSync(rec);
     return rec;
+  }
+  // Money coming in: ask which wallet it landed in. onPick gets a wallet id, or '' for none.
+  function askIncomeWallet(amount, onPick){
+    if(!wallets.length) return;
+    const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().inc_toWallet }))
+      .concat([{ value:'__none', label:T().inc_none, sub:T().inc_noneSub }]);
+    askSheet(T().inc_ask.replace('{a}', fmt(amount)), opts, v => {
+      const w = v === '__none' ? '' : v;
+      onPick(w);
+      if(w) toast(T().inc_saved.replace('{w}', (wallets.find(x => x.id === w) || {}).name || ''));
+    });
+  }
+  function docIncomeSync(rec){
+    if(!isIncome(rec) || rec.incWallet !== undefined || !(rec.total > 0)) return;
+    askIncomeWallet(rec.total, w => { const d = docs.find(x => x.id === rec.id); if(!d) return; d.incWallet = w; d.incAt = Date.now(); saveDocs(); });
   }
   // The document's 支出 / 车费 becomes a real expense: ask once which wallet paid, then keep it in step
   function docCostSync(rec, silent){
@@ -3282,7 +3382,7 @@
     if(rec.costExp === 'none') return;
     const opts = wallets.map(w => ({ value:w.id, label:w.name, sub:T().dc_fromWallet }))
       .concat([{ value:'__nowallet', label:T().dc_noWallet, sub:T().dc_noWalletSub }, { value:'__skip', label:T().dc_skip, sub:T().dc_skipSub }]);
-    openSheet(T().dc_ask.replace('{a}', fmt(cost)), opts, '', v => {
+    askSheet(T().dc_ask.replace('{a}', fmt(cost)), opts, v => {
       const d = docs.find(x => x.id === rec.id); if(!d) return;
       if(v === '__skip'){ d.costExp = 'none'; saveDocs(); return; }
       const tag = /grab|车|taxi|transport|交通|parking|停车|lrt|mrt/i.test(rec.costNote || '') ? 'grab' : 'equipment';
@@ -3330,6 +3430,7 @@
     saveBiz(); saveDocs();
     toast(T().convertDone + receipt.no);
     loadDoc(receipt);
+    docIncomeSync(receipt);
   });
 
   // ============================================================
@@ -3794,7 +3895,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, wesActual, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx, personal: personalEntries}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -3824,7 +3925,8 @@
         docs.forEach(d => { if(!d.style) d.style = isAtelierCat(d.service) ? 'atelier' : 'classic'; });
         if(Array.isArray(data.professions) && data.professions.length) professions = data.professions;
         if(Array.isArray(data.wes)){ wesEntries = data.wes; saveWes(); }
-        if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; wesPaidDates = data.wesPaidDates || {}; saveWesPaid(); }
+        if(Array.isArray(data.wesPaid)){ wesPaidMonths = data.wesPaid; wesPaidDates = data.wesPaidDates || {}; wesPaidWallets = data.wesPaidWallets || {}; wesActual = data.wesActual || {}; saveWesPaid(); }
+        if(Array.isArray(data.personal)){ personalEntries = data.personal; savePersonal(); }
         if(Array.isArray(data.ptCats)){ ptCustomCats = data.ptCats; savePtCats(); }
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
@@ -4337,12 +4439,23 @@
   }
   $('wPaidSw').addEventListener('click', () => {
     if(wesPaidMonths.includes(W.month)){ wesPaidMonths = wesPaidMonths.filter(m => m !== W.month); delete wesPaidDates[W.month]; }
-    else { wesPaidMonths.push(W.month); wesPaidDates[W.month] = todayStr(); }
+    else {
+      wesPaidMonths.push(W.month); wesPaidDates[W.month] = todayStr();
+      const ym = W.month, pay = wesMonthPay(ym);
+      if(pay > 0) askIncomeWallet(pay, w => { if(w) wesPaidWallets[ym] = { w, at:Date.now() }; else delete wesPaidWallets[ym]; saveWesPaid(); });
+    }
+    if(!wesPaidMonths.includes(W.month)){ delete wesPaidWallets[W.month]; delete wesActual[W.month]; }
     saveWesPaid(); renderWes();
   });
   $('wPaidDate').addEventListener('input', () => {
     if(!wesPaidMonths.includes(W.month) || !$('wPaidDate').value) return;
     wesPaidDates[W.month] = $('wPaidDate').value; saveWesPaid(); renderWes();
+  });
+  $('wOrigBtn').addEventListener('click', () => { W.showOrig = !W.showOrig; renderWes(); });
+  $('wActual').addEventListener('change', () => {
+    const v = $('wActual').value.trim();
+    if(v === '') delete wesActual[W.month]; else wesActual[W.month] = Math.round(num(v) * 100) / 100;
+    saveWesPaid(); renderWes();
   });
   $('wPrevM').addEventListener('click', () => wShift(-1));
   $('wNextM').addEventListener('click', () => wShift(1));
@@ -4380,7 +4493,20 @@
     $('wPaidDate').value = wesPaidMonths.includes(W.month) ? wesPayDate(W.month) : '';
     $('wDays').textContent = days.size;
     $('wHours').textContent = wHrs(mins);
-    $('wPay').textContent = fmt(pay);
+    // actual pay received overrides the worked-out figure; the own record stays one tap away
+    const act = wesPaidMonths.includes(W.month) && wesActual[W.month] != null ? wesActual[W.month] : null;
+    $('wPay').textContent = fmt(act != null ? act : pay);
+    $('wPayLab').textContent = act != null ? T().wes_payActual : T().wes_pay;
+    $('wOrigBtn').style.display = act != null ? '' : 'none';
+    $('wOrigBtn').textContent = W.showOrig ? T().wes_origHide : T().wes_origBtn;
+    $('wOrig').style.display = act != null && W.showOrig ? '' : 'none';
+    if(act != null){
+      const diff = Math.round((pay - act) * 100) / 100;
+      $('wOrig').textContent = T().wes_origLine.replace('{p}', fmt(pay)).replace('{h}', wHrs(mins))
+        + (Math.abs(diff) >= 0.01 ? ' · ' + (diff > 0 ? T().wes_short : T().wes_more).replace('{d}', fmt(Math.abs(diff))) : '');
+    }
+    if(document.activeElement !== $('wActual')) $('wActual').value = wesActual[W.month] != null ? wesActual[W.month] : '';
+    $('wActual').placeholder = (Math.round(pay * 100) / 100).toFixed(2);
 
     // ledger: everything, newest first
     const all = wesEntries.slice().sort(wSortAsc).reverse();
@@ -4594,14 +4720,19 @@
     if(!rec.date){ toast(T().ptNeedDate); return; }
     if(!(rec.amount > 0)){ toast(T().ptNeedAmt); return; }
     if(!rec.note){ toast(T().ptNeedNote); return; }
+    let saved;
     if(P.editId){
-      ptEntries = ptEntries.map(x => x.id === P.editId ? Object.assign({}, rec, {id:P.editId}) : x);
+      const prev = ptEntries.find(x => x.id === P.editId) || {};
+      saved = Object.assign({}, rec, {id:P.editId}, prev.wallet !== undefined ? {wallet:prev.wallet, walletAt:prev.walletAt} : {});
+      ptEntries = ptEntries.map(x => x.id === P.editId ? saved : x);
       toast(T().ptUpdated);
     } else {
-      ptEntries.push(Object.assign({}, rec, {id: uid()}));
+      saved = Object.assign({}, rec, {id: uid()});
+      ptEntries.push(saved);
       toast(T().ptSaved);
     }
     savePt();
+    if(saved.paid) ptIncomeSync(saved.id);
     P.month = rec.date.slice(0,7);
     ptReset(); renderPt();
   });
@@ -4650,6 +4781,7 @@
         </div>
         <div class="row-btns">
           ${e.paid ? '' : `<button type="button" data-ptpay="${esc(e.id)}">${esc(T().ptMarkPaid)}</button>`}
+          <button type="button" data-move="pt:${esc(e.id)}">${esc(T().mv_btn)}</button>
           <button type="button" data-ptedit="${esc(e.id)}">${esc(T().wesEdit_btn)}</button>
           <button type="button" class="del" data-ptdel="${esc(e.id)}">${esc(T().wesDel_btn)}</button>
         </div>
@@ -4699,8 +4831,14 @@
     if(py){
       ptEntries = ptEntries.map(x => x.id === py.dataset.ptpay ? Object.assign({}, x, {paid:true, paidDate:todayStr()}) : x);
       savePt(); renderPt(); toast(T().ptMarked);
+      ptIncomeSync(py.dataset.ptpay);
     }
   });
+  function ptIncomeSync(id){
+    const e = ptEntries.find(x => x.id === id);
+    if(!e || !e.paid || e.wallet !== undefined) return;
+    askIncomeWallet(e.amount, w => { const x = ptEntries.find(y => y.id === id); if(!x) return; x.wallet = w; x.walletAt = Date.now(); savePt(); });
+  }
   $('ptCsv').addEventListener('click', () => {
     if(!ptEntries.length){ toast(T().wesNoRecords); return; }
     const q = v => `"${String(v==null?'':v).replace(/"/g,'""')}"`;
@@ -4728,9 +4866,11 @@
     wesEntries.forEach(e => {
       const r = wesCalc(e); if(!r) return;
       if(inWin(e.date)){ wMin += r.work; wDays.add(e.date); }
-      if(wesPaidFor(e)){ if(inWin(wesPayDate(String(e.date).slice(0,7)))) wRecv += r.pay; }
+      const ym = String(e.date).slice(0,7);
+      if(wesPaidFor(e)){ if(wesActual[ym] == null && inWin(wesPayDate(ym))) wRecv += r.pay; }
       else if(inWin(e.date)) wDue += r.pay;
     });
+    Object.keys(wesActual).forEach(ym => { if(wesPaidMonths.includes(ym) && inWin(wesPayDate(ym))) wRecv += wesActual[ym] || 0; });
     const pts = ptEntries.filter(e => inWin(e.date));
     const pRecv = ptEntries.filter(e => e.paid && inWin(ptPayDate(e))).reduce((a,e) => a+(e.amount||0), 0);
     const pDue  = pts.filter(e => !e.paid).reduce((a,e) => a+(e.amount||0), 0);
@@ -5287,7 +5427,7 @@
         <div class="pt-note">${esc([grabLine(x.grab), x.note].filter(Boolean).join(' — '))}${x.grab && x.grab.trip === 'round' && (x.grab.go || x.grab.back) ? `<div class="sub-line" style="font-size:12px;color:var(--ink-soft);">${esc(T().xg_l_go)} ${fmt(x.grab.go)} · ${esc(T().xg_l_back)} ${fmt(x.grab.back)}</div>` : ''}</div>
         <div class="pt-meta"><span class="pill cat">${esc(xTagLabel(x.tag))}</span>${x.wallet ? `<span class="pill">${esc((wallets.find(w => w.id === x.wallet) || {}).name || '')}</span>` : ''}${x.docId ? `<span class="pill">📄 ${esc(T().dc_fromDoc)}</span>` : ''}${x.src ? `<span class="pill">→ ${esc(xSrcLabel(x.src))}</span>` : ''}</div>
         ${roi}
-        <div class="row-btns"><button type="button" data-xedit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-xdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
+        <div class="row-btns">${x.docId ? '' : `<button type="button" data-move="inv:${esc(x.id)}">${esc(T().mv_btn)}</button>`}<button type="button" data-xedit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-xdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
       </div>`;
     }).join('') : `<div class="empty-hint">${esc(T().xEmpty)}</div>`;
   }
@@ -5317,9 +5457,20 @@
   // ============================================================
   const WL = { editing:false, type:'out', from:'', to:'', cat:'grab' };
   // signed: positive = money you have; a credit wallet's balance is stored negative (what you owe)
+  const wesMonthPay = ym => wesPaidMonths.includes(ym) && wesActual[ym] != null ? wesActual[ym] : Math.round(wesEntries.filter(e => String(e.date || '').startsWith(ym)).reduce((a,e) => { const r = wesCalc(e); return a + (r ? r.pay : 0); }, 0) * 100) / 100;
+  // money in that is linked to a wallet (follows later edits of the record itself)
+  function walletIncomes(){
+    const out = [];
+    docs.forEach(d => { if(d.incWallet && isIncome(d)) out.push({ id:'d:' + d.id, w:d.incWallet, at:d.incAt || 0, a:d.total || 0, t:`${d.client || T().hl_noClient} · ${d.no}`, date:docPayDate(d) }); });
+    ptEntries.forEach(e => { if(e.wallet && e.paid) out.push({ id:'p:' + e.id, w:e.wallet, at:e.walletAt || 0, a:e.amount || 0, t:(e.note || T().hl_pt).split('\n')[0].slice(0, 40), date:ptPayDate(e) }); });
+    Object.keys(wesPaidWallets).forEach(ym => { const l = wesPaidWallets[ym]; if(l && wesPaidMonths.includes(ym)) out.push({ id:'w:' + ym, w:l.w, at:l.at || 0, a:wesMonthPay(ym), t:T().hl_wesMonth.replace('{m}', monthTitle(ym)), date:wesPayDate(ym) }); });
+    return out;
+  }
   function walletBal(w){
     let b = w.credit ? -Math.abs(w.balance || 0) : (w.balance || 0);
+    walletIncomes().forEach(i => { if(i.w === w.id && i.at > (w.setAt || 0)) b += i.a; });
     invEntries.forEach(x => { if(x.wallet === w.id && (x.createdAt || 0) > (w.setAt || 0)) b -= x.amount || 0; });
+    personalEntries.forEach(x => { if(x.wallet === w.id && (x.createdAt || 0) > (w.setAt || 0)) b += perType(x.type).dir === 'in' ? (x.amount || 0) : -(x.amount || 0); });
     walletTx.forEach(t => {
       if((t.at || 0) <= (w.setAt || 0)) return;
       if(t.type === 'in' && t.wallet === w.id) b += t.amount;
@@ -5328,6 +5479,136 @@
     return Math.round(b*100)/100;
   }
   const walletTotal = () => wallets.reduce((a,w) => a + walletBal(w), 0);
+
+  // ============================================================
+  // personal expenses — rent paid, utilities, rent received
+  // ============================================================
+  const PER_TYPES = [
+    { k:'rentin', e:'💰', dir:'in' }, { k:'rent', e:'🏠', dir:'out' }, { k:'elec', e:'⚡', dir:'out' },
+    { k:'water', e:'💧', dir:'out' }, { k:'net', e:'🌐', dir:'out' }, { k:'phone', e:'📱', dir:'out' }, { k:'living', e:'🧺', dir:'out' }];
+  const perType = k => PER_TYPES.find(t => t.k === k) || PER_TYPES[1];
+  const perLabel = k => perType(k).e + ' ' + (T()['per_t_' + k] || k);
+  const PER = { month: todayStr().slice(0,7), editId:null, type:'rent', wallet:null };
+  function perRenderForm(){
+    $('perTypes').innerHTML = PER_TYPES.map(t => `<button type="button" class="${PER.type === t.k ? 'on' : ''}" data-pert="${t.k}">${esc(perLabel(t.k))}</button>`).join('');
+    const inc = perType(PER.type).dir === 'in';
+    $('perWalLab').textContent = inc ? T().per_l_walletIn : T().x_l_wallet;
+    $('perWallets').innerHTML = wallets.concat([{id:'', name:T().x_wallet_none}]).map(w => `<button type="button" class="${PER.wallet === w.id ? 'on' : ''}" data-perw="${esc(w.id)}">${esc(w.name)}</button>`).join('');
+  }
+  function perReset(){
+    PER.editId = null; PER.type = 'rent'; PER.wallet = null;
+    $('perAmt').value = ''; $('perNote').value = ''; $('perDate').value = todayStr();
+    $('perFormTitle').textContent = T().per_new; $('perSave').textContent = T().xSave; $('perCancel').style.display = 'none';
+    perRenderForm();
+  }
+  function renderPersonal(){
+    $('perTitle').textContent = monthTitle(PER.month);
+    const list = personalEntries.filter(x => String(x.date || '').startsWith(PER.month)).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    const inn = list.filter(x => perType(x.type).dir === 'in').reduce((a,x) => a+(x.amount||0), 0);
+    const out = list.filter(x => perType(x.type).dir === 'out').reduce((a,x) => a+(x.amount||0), 0);
+    $('perIn').textContent = fmtShort(inn); $('perOut').textContent = fmtShort(out);
+    $('perNet').textContent = fmtShort(inn - out); $('perNet').className = inn - out >= 0 ? 'pos' : 'neg';
+    // this month's checklist: rent received and what it covers
+    const sum = k => list.filter(x => x.type === k).reduce((a,x) => a+(x.amount||0), 0);
+    $('perCheck').innerHTML = `<div style="margin-top:4px;">${['rentin','rent','elec','water'].map(k => { const v = sum(k);
+      return `<div class="wl-tx"><div class="t">${esc(perLabel(k))}</div><span class="a ${v ? (k === 'rentin' ? 'in' : 'out') : 'mv'}">${v ? '✓ ' + fmt(v) : esc(T().per_notYet)}</span></div>`; }).join('')}</div>`;
+    const wname = id => (wallets.find(w => w.id === id) || {}).name || '';
+    $('perList').innerHTML = list.length ? list.map(x => {
+      const inc = perType(x.type).dir === 'in';
+      return `<div class="pt-row">
+        <div class="pt-top"><span class="pt-date">${esc(x.date)}</span><span class="pt-amt" style="color:${inc ? 'var(--green)' : 'var(--loss)'}">${inc ? '+' : '−'} ${fmt(x.amount)}</span></div>
+        ${x.note ? `<div class="pt-note">${esc(x.note)}</div>` : ''}
+        <div class="pt-meta"><span class="pill cat">${esc(perLabel(x.type))}</span>${x.wallet ? `<span class="pill">${esc(wname(x.wallet))}</span>` : ''}</div>
+        <div class="row-btns"><button type="button" data-move="per:${esc(x.id)}">${esc(T().mv_btn)}</button><button type="button" data-peredit="${esc(x.id)}">${esc(T().wesEdit_btn)}</button><button type="button" class="del" data-perdel="${esc(x.id)}">${esc(T().wesDel_btn)}</button></div>
+      </div>`; }).join('') : `<div class="empty-hint">${esc(T().per_empty)}</div>`;
+  }
+  $('perPrev').addEventListener('click', () => { PER.month = ymShift(PER.month, -1); renderPersonal(); });
+  $('perNext').addEventListener('click', () => { PER.month = ymShift(PER.month, 1); renderPersonal(); });
+  $('perCancel').addEventListener('click', perReset);
+  $('view-personal').addEventListener('click', ev => {
+    const t = ev.target.closest('[data-pert]'), w = ev.target.closest('[data-perw]'), ed = ev.target.closest('[data-peredit]'), dl = ev.target.closest('[data-perdel]');
+    if(t){ PER.type = t.dataset.pert; perRenderForm(); }
+    if(w){ PER.wallet = w.dataset.perw; perRenderForm(); }
+    if(ed){
+      const x = personalEntries.find(i => i.id === ed.dataset.peredit); if(!x) return;
+      PER.editId = x.id; PER.type = x.type; PER.wallet = x.wallet || '';
+      $('perAmt').value = x.amount; $('perNote').value = x.note || ''; $('perDate').value = x.date;
+      $('perFormTitle').textContent = T().per_edit; $('perSave').textContent = T().xUpdate; $('perCancel').style.display = '';
+      perRenderForm(); window.scrollTo({top:0, behavior:'smooth'});
+    }
+    if(dl){
+      const x = personalEntries.find(i => i.id === dl.dataset.perdel); if(!x || !confirm(T().wl_txDelAsk)) return;
+      personalEntries = personalEntries.filter(i => i.id !== x.id); savePersonal();
+      if(PER.editId === x.id) perReset();
+      renderPersonal();
+    }
+  });
+  $('perSave').addEventListener('click', () => {
+    const amount = Math.round(num($('perAmt').value)*100)/100;
+    if(!(amount > 0)){ toast(T().xNeedAmt); return; }
+    const inc = perType(PER.type).dir === 'in';
+    if(PER.wallet === null){
+      const opts = wallets.map(w => ({ value:w.id, label:w.name, sub: inc ? T().inc_toWallet : T().x_wallet_sub }))
+        .concat([{ value:'__none', label: inc ? T().inc_none : T().dc_noWallet, sub: inc ? T().inc_noneSub : T().dc_noWalletSub }]);
+      askSheet((inc ? T().inc_ask : T().dc_ask).replace('{a}', fmt(amount)), opts, v => { PER.wallet = v === '__none' ? '' : v; perRenderForm(); $('perSave').click(); });
+      return;
+    }
+    const rec = { date:$('perDate').value || todayStr(), type:PER.type, amount, note:$('perNote').value.trim(), wallet:PER.wallet };
+    if(PER.editId){
+      personalEntries = personalEntries.map(x => x.id === PER.editId ? Object.assign({}, rec, {id:x.id, createdAt: rec.wallet && rec.wallet !== x.wallet ? Date.now() : (x.createdAt || 0)}) : x);
+      toast(T().xUpdated);
+    } else { personalEntries.push(Object.assign({}, rec, {id:uid(), createdAt:Date.now()})); toast(T().xSaved); }
+    savePersonal(); PER.month = rec.date.slice(0,7); perReset(); renderPersonal();
+  });
+
+  // ============================================================
+  // 更改源头 — move a record to another ledger
+  // ============================================================
+  // ledgers: inv (投资 / 支出), per (个人开销), pt (外接 Part Time), wtx (钱包收入)
+  function moveRecord(ref){
+    const [kind, id] = [ref.slice(0, ref.indexOf(':')), ref.slice(ref.indexOf(':') + 1)];
+    let rec = kind === 'inv' ? invEntries.find(x => x.id === id) : kind === 'per' ? personalEntries.find(x => x.id === id)
+      : kind === 'pt' ? ptEntries.find(x => x.id === id) : walletTx.find(x => x.id === id);
+    if(!rec) return;
+    if(kind === 'inv' && rec.docId){ toast(T().mv_docLinked); return; }
+    const isIn = kind === 'pt' || kind === 'wtx' || (kind === 'per' && perType(rec.type).dir === 'in');
+    const base = { date: rec.date || todayStr(), amount: rec.amount || 0, note: rec.note || '',
+      wallet: kind === 'pt' ? (rec.wallet || '') : (rec.wallet || ''), at: kind === 'pt' ? (rec.walletAt || 0) : kind === 'wtx' ? (rec.at || 0) : (rec.createdAt || 0) };
+    const dests = (isIn ? ['pt','wtx','per_in'] : ['inv','per_out']).filter(d => d !== kind && !(kind === 'per' && d.startsWith('per')));
+    const opts = dests.map(d => ({ value:d, label:T()['mv_to_' + d], sub:T()['mv_to_' + d + '_s'] }));
+    openSheet(T().mv_title, opts, '', dest => {
+      const remove = () => {
+        if(kind === 'inv'){ invEntries = invEntries.filter(x => x.id !== id); saveInv(); }
+        if(kind === 'per'){ personalEntries = personalEntries.filter(x => x.id !== id); savePersonal(); }
+        if(kind === 'pt'){ ptEntries = ptEntries.filter(x => x.id !== id); savePt(); }
+        if(kind === 'wtx'){ walletTx = walletTx.filter(x => x.id !== id); saveWallets(); }
+      };
+      const done = () => { remove(); toast(T().mv_done.replace('{d}', T()['mv_to_' + dest])); refreshAfterMove(); };
+      if(dest === 'inv') askSheet(T().mv_pickCat, X_TAGS.map(t => ({ value:t, label:xTagLabel(t) })), tag => {
+        invEntries.push({ id:uid(), createdAt:base.at, date:base.date, amount:base.amount, note:base.note, tag, src:'', wallet:base.wallet }); saveInv(); done(); });
+      if(dest === 'per_out' || dest === 'per_in') {
+        const types = PER_TYPES.filter(t => t.dir === (dest === 'per_in' ? 'in' : 'out'));
+        const put = type => { personalEntries.push({ id:uid(), createdAt:base.at, date:base.date, type, amount:base.amount, note:base.note, wallet:base.wallet }); savePersonal(); done(); };
+        if(types.length === 1) put(types[0].k);
+        else askSheet(T().mv_pickCat, types.map(t => ({ value:t.k, label:perLabel(t.k) })), put);
+      }
+      if(dest === 'pt'){
+        ptEntries.push({ id:uid(), date:base.date, amount:base.amount, note:base.note || T().hl_pt, paid:true, paidDate:base.date, cat:'other', wallet:base.wallet, walletAt:base.at }); savePt(); done();
+      }
+      if(dest === 'wtx'){
+        const put = (w, at) => { walletTx.push({ id:uid(), at, type:'in', wallet:w, to:'', amount:base.amount, note:base.note, date:base.date }); saveWallets(); done(); };
+        if(base.wallet) put(base.wallet, base.at);
+        else askSheet(T().inc_ask.replace('{a}', fmt(base.amount)), wallets.map(w => ({ value:w.id, label:w.name })), w => put(w, Date.now()));
+      }
+    });
+  }
+  function refreshAfterMove(){
+    if(currentView === 'exp'){ renderInv(); renderSpend(); }
+    if(currentView === 'personal') renderPersonal();
+    if(currentView === 'pt') renderPt();
+    if(currentView === 'wallet') renderWallet();
+  }
+  document.addEventListener('click', ev => { const b = ev.target.closest('[data-move]'); if(b){ ev.stopPropagation(); moveRecord(b.dataset.move); } }, true);
   function renderWallet(){
     $('wlView').style.display = WL.editing ? 'none' : '';
     $('wlEdit').style.display = WL.editing ? '' : 'none';
@@ -5367,13 +5648,16 @@
     const name = id => (wallets.find(w => w.id === id) || {}).name || '?';
     const since = id => (wallets.find(w => w.id === id) || {}).setAt || 0;
     const rows = [];
-    invEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind:'out', id:'x:' + x.id,
+    invEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind:'out', id:'x:' + x.id, mv: x.docId ? '' : 'inv:' + x.id,
       t:[grabLine(x.grab), x.note].filter(Boolean).join(' — ') || T()['xt_' + x.tag], sub:`${name(x.wallet)} · ${x.date} · ${xTagLabel(x.tag)}`, a:x.amount }));
-    walletTx.filter(t => (t.at || 0) > since(t.wallet) || (t.to && (t.at || 0) > since(t.to))).forEach(t => rows.push({ at:t.at, kind:t.type, id:'t:' + t.id,
+    personalEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind: perType(x.type).dir === 'in' ? 'in' : 'out', id:'per:' + x.id,
+      t:x.note || perLabel(x.type), sub:`${name(x.wallet)} · ${x.date} · ${perLabel(x.type)}`, a:x.amount, mv:'per:' + x.id }));
+    walletIncomes().filter(i => i.at > since(i.w)).forEach(i => rows.push({ at:i.at, kind:'in', id:i.id, t:i.t, sub:`${name(i.w)} · ${i.date}`, a:i.a }));
+    walletTx.filter(t => (t.at || 0) > since(t.wallet) || (t.to && (t.at || 0) > since(t.to))).forEach(t => rows.push({ at:t.at, kind:t.type, id:'t:' + t.id, mv: t.type === 'in' ? 'wtx:' + t.id : '',
       t:t.note || (t.type === 'in' ? T().wl_in : T().wl_move), sub: t.type === 'move' ? `${name(t.wallet)} → ${name(t.to)} · ${t.date}` : `${name(t.wallet)} · ${t.date}`, a:t.amount }));
     rows.sort((a,b) => b.at - a.at);
     $('wlHist').innerHTML = rows.length ? rows.map(r => `<div class="wl-tx"><div class="t">${esc(r.t)}<small>${esc(r.sub)}</small></div>
-      <div style="display:flex;align-items:center;"><span class="a ${r.kind === 'in' ? 'in' : r.kind === 'out' ? 'out' : 'mv'}">${r.kind === 'in' ? '+' : r.kind === 'out' ? '−' : '⇄'} ${fmt(r.a)}</span><button type="button" class="del-btn" data-wltxdel="${esc(r.id)}" aria-label="delete">✕</button></div></div>`).join('')
+      <div style="display:flex;align-items:center;"><span class="a ${r.kind === 'in' ? 'in' : r.kind === 'out' ? 'out' : 'mv'}">${r.kind === 'in' ? '+' : r.kind === 'out' ? '−' : '⇄'} ${fmt(r.a)}</span>${r.mv ? `<button type="button" class="del-btn" data-move="${esc(r.mv)}" aria-label="move" title="${esc(T().mv_btn)}">⇄</button>` : ''}<button type="button" class="del-btn" data-wltxdel="${esc(r.id)}" aria-label="delete">✕</button></div></div>`).join('')
       : `<div class="empty-hint">${esc(T().wl_hist_none)}</div>`;
   }
   $('wlEditBtn').addEventListener('click', () => { WL.editing = true; renderWallet(); window.scrollTo({top:0, behavior:'smooth'}); });
@@ -5415,6 +5699,11 @@
       if(!confirm(T().wl_txDelAsk)) return;
       const [k, id] = [del.dataset.wltxdel.slice(0,1), del.dataset.wltxdel.slice(2)];
       if(k === 'x'){ invEntries = invEntries.filter(x => x.id !== id); saveInv(); }
+      // linked incomes: only unlink from the wallet, the income record itself stays
+      else if(k === 'd'){ const d = docs.find(x => x.id === id); if(d){ d.incWallet = ''; saveDocs(); } }
+      else if(k === 'p'){ const e = ptEntries.find(x => x.id === id); if(e){ e.wallet = ''; savePt(); } }
+      else if(k === 'w'){ delete wesPaidWallets[id]; saveWesPaid(); }
+      else if(del.dataset.wltxdel.startsWith('per:')){ personalEntries = personalEntries.filter(x => x.id !== del.dataset.wltxdel.slice(4)); savePersonal(); }
       else walletTx = walletTx.filter(x => x.id !== id);
       saveWallets(); renderWallet();
     }
@@ -5661,7 +5950,11 @@
     // this month's total income = received + still owed, from every source
     const m = sourceTotals(ds => inRange(ds, mStart, mEnd));
     $('hsMonth').textContent = fmtShort(m.recv + m.due);
-    $('hsSpend').textContent = '− ' + fmtShort(invEntries.filter(x => inRange(x.date, mStart, mEnd)).reduce((a,x) => a+(x.amount||0), 0));
+    const perM = personalEntries.filter(x => inRange(x.date, mStart, mEnd));
+    const perOut = perM.filter(x => perType(x.type).dir === 'out').reduce((a,x) => a+(x.amount||0), 0);
+    const perIn = perM.filter(x => perType(x.type).dir === 'in').reduce((a,x) => a+(x.amount||0), 0);
+    $('hsMonth').textContent = fmtShort(m.recv + m.due + perIn);
+    $('hsSpend').textContent = '− ' + fmtShort(invEntries.filter(x => inRange(x.date, mStart, mEnd)).reduce((a,x) => a+(x.amount||0), 0) + perOut);
     const wb = walletTotal();
     $('hcWalBal').textContent = wallets.length ? fmtShort(wb) : '';
     $('hcWalBal').style.color = wb < 0 ? 'var(--loss)' : 'var(--green)';
@@ -5697,7 +5990,7 @@
         const g = months[m], [y, mo] = m.split('-').map(Number);
         const mName = lang === 'zh' ? `${y} 年 ${mo} 月` : new Date(y, mo-1, 1).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
         rows.push({ date:g.paid ? wesPayDate(m) : m + '-31', value:'wes:' + m, cls:g.paid ? '' : 'due', label:'🕘 ' + T().hl_wesMonth.replace('{m}', mName),
-          sub:T().hl_wesSub.replace('{n}', g.days.size).replace('{h}', wHrs(g.min)) + (g.paid && wesPaidDates[m] ? ' · ' + T().hl_paidOn.replace('{d}', wesPaidDates[m]) : ''), amt:g.pay, st:'' });
+          sub:T().hl_wesSub.replace('{n}', g.days.size).replace('{h}', wHrs(g.min)) + (g.paid && wesPaidDates[m] ? ' · ' + T().hl_paidOn.replace('{d}', wesPaidDates[m]) : ''), amt:g.paid && wesActual[m] != null ? wesActual[m] : g.pay, st:'' });
       });
       ptEntries.filter(e => want(!!e.paid) && inWin(e.paid ? ptPayDate(e) : e.date)).forEach(e => rows.push({
         date:(e.paid ? ptPayDate(e) : e.date) || '', value:'pt:' + e.id, cls:e.paid ? '' : 'due', label:'🎬 ' + (e.note || T().hl_pt).split('\n')[0].slice(0, 40),
@@ -5833,6 +6126,7 @@
     if(name === 'quote'){ qFillForm(); renderQuote(); }
     if(name === 'exp'){ renderInv(); xRenderWallets(); xGrabSync(); renderSpend(); }
     if(name === 'wallet') renderWallet();
+    if(name === 'personal'){ perReset(); renderPersonal(); }
     if(name === 'settings'){ fillSettings(); renderProfessions(); renderCompliance(); renderRateFields(); renderFin(); setTimeout(sigResize, 30); }
     window.scrollTo({top:0, behavior:'auto'});
   }
