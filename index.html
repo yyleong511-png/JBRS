@@ -777,7 +777,9 @@
   .x-grab{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 2px;margin:-4px 0 14px;}
   .x-grab[hidden]{display:none;}
   /* ---------- wallets ---------- */
-  .wl-total{text-align:center;padding:6px 0 2px;}
+  .wl-total{display:block;width:100%;text-align:center;padding:6px 0 2px;background:none;border:none;cursor:pointer;font-family:inherit;color:inherit;min-height:0;font-weight:400;}
+  .wl-total .wl-other{display:block;font-size:12px;color:var(--ink-soft);margin-top:4px;}
+  .wl-total .wl-other u{text-decoration:none;color:var(--rose-deep);}
   .wl-total small{display:block;font-size:12px;color:var(--ink-soft);}
   .wl-total b{display:block;font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:700;color:var(--green);margin-top:2px;}
   .wl-total b.neg{color:var(--loss);}
@@ -1713,7 +1715,7 @@
   <!-- ============ WALLETS ============ -->
   <section id="view-wallet" class="view">
     <div class="panel" id="wlView">
-      <div class="wl-total"><small data-t="wl_total">总余额（扣掉欠款）</small><b id="wlTotal">RM 0.00</b></div>
+      <button type="button" class="wl-total" id="wlTotalBtn"><small id="wlTotalLab">总余额（扣掉欠款）</small><b id="wlTotal">RM 0.00</b><span class="wl-other" id="wlTotalOther"></span></button>
       <div id="wlCards" style="margin-top:8px;"></div>
       <div class="btn-row">
         <button class="ghost" id="wlEditBtn" data-t="wl_edit">设定余额 / 钱包</button>
@@ -2220,7 +2222,7 @@
       xg_l_role:'我的角色', xg_role_mua:'我是化妆师', xg_role_model:'我是被化妆的模特', xg_l_trip:'行程', xg_one:'单程', xg_round:'来回',
       xg_l_go:'去程', xg_l_back:'回程', x_l_wallet:'用哪个钱包付', x_wallet_sub:'选了就会从那个钱包的余额扣掉', x_wallet_none:'不记钱包',
       cardWalTitle:'钱包对账', cardWalDesc:'CIMB、Touch \'n Go、Atome 的余额放在一起看，记一笔就自动加减', title_wallet:'钱包对账',
-      wl_total:'总余额（扣掉欠款）', wl_edit:'设定余额 / 钱包', wl_edit_h:'设定现在的余额',
+      wl_total:'总余额（扣掉欠款）', wl_totalGross:'户口里的钱（不扣欠款）', wl_other_gross:'户口里有 {g} · 欠款 {o}', wl_other_net:'欠款 {o} · 扣掉后剩 {n}', wl_switch:'点一下切换', wl_edit:'设定余额 / 钱包', wl_edit_h:'设定现在的余额',
       wl_edit_hint:'打开每个银行 / 电子钱包的 app，把现在剩下的钱填进来。保存后，之后记的收入和支出会在这个基础上加减。',
       wl_add:'＋ 新增钱包', wl_save:'保存余额', wl_cancel:'取消', wl_tx_h:'记一笔', wl_out:'支出', wl_in:'收入', wl_move:'转账 / 还款',
       wl_l_wallet:'钱包', wl_l_from:'从', wl_l_to:'转去', wl_note_ph:'例如：Grab 去拍摄 / 收到 KaiJing 化妆费', wl_tx_save:'保存这一笔',
@@ -2532,7 +2534,7 @@
       xg_l_role:'My role', xg_role_mua:'I was the makeup artist', xg_role_model:'I was the model', xg_l_trip:'Trip', xg_one:'One way', xg_round:'Return',
       xg_l_go:'Going', xg_l_back:'Coming back', x_l_wallet:'Paid from', x_wallet_sub:'Picking a wallet takes it off that balance', x_wallet_none:'No wallet',
       cardWalTitle:'Wallets', cardWalDesc:'CIMB, Touch \'n Go and Atome balances in one place — log a spend and it updates', title_wallet:'Wallets',
-      wl_total:'Total (after amounts owed)', wl_edit:'Set balances / wallets', wl_edit_h:'Set current balances',
+      wl_total:'Total (after amounts owed)', wl_totalGross:'Money in accounts (before amounts owed)', wl_other_gross:'In accounts {g} · owed {o}', wl_other_net:'Owed {o} · leaves {n}', wl_switch:'tap to switch', wl_edit:'Set balances / wallets', wl_edit_h:'Set current balances',
       wl_edit_hint:'Open each bank / e-wallet app and type what is left. After saving, everything you log is added to or taken off these figures.',
       wl_add:'+ Add wallet', wl_save:'Save balances', wl_cancel:'Cancel', wl_tx_h:'Log one', wl_out:'Spend', wl_in:'Income', wl_move:'Transfer / repay',
       wl_l_wallet:'Wallet', wl_l_from:'From', wl_l_to:'To', wl_note_ph:'e.g. Grab to shoot / KaiJing makeup fee', wl_tx_save:'Save',
@@ -5511,6 +5513,12 @@
     return Math.round(b*100)/100;
   }
   const walletTotal = () => wallets.reduce((a,w) => a + walletBal(w), 0);
+  // money actually sitting in accounts (credit wallets such as Atome left out)
+  const walletGross = () => wallets.filter(w => !w.credit).reduce((a,w) => a + walletBal(w), 0);
+  const walletOwed = () => wallets.filter(w => w.credit).reduce((a,w) => a + Math.max(0, -walletBal(w)), 0);
+  // which total to show: 'net' (after amounts owed) or 'gross'; remembered on this phone
+  let wlMode = 'net'; try{ wlMode = localStorage.getItem('jl.wltotal') === 'gross' ? 'gross' : 'net'; }catch(e){}
+  const walletShown = () => wlMode === 'gross' ? walletGross() : walletTotal();
 
   // ============================================================
   // personal expenses — rent paid, utilities, rent received
@@ -5649,8 +5657,12 @@
     $('wlView').style.display = WL.editing ? 'none' : '';
     $('wlEdit').style.display = WL.editing ? '' : 'none';
     $('wlTxPanel').style.display = WL.editing ? 'none' : '';
-    const tot = walletTotal();
+    const tot = walletShown(), owed = walletOwed();
     $('wlTotal').textContent = fmt(tot); $('wlTotal').classList.toggle('neg', tot < 0);
+    $('wlTotalLab').textContent = wlMode === 'gross' ? T().wl_totalGross : T().wl_total;
+    $('wlTotalOther').innerHTML = (wlMode === 'gross'
+      ? T().wl_other_net.replace('{o}', esc(fmt(owed))).replace('{n}', esc(fmt(walletTotal())))
+      : T().wl_other_gross.replace('{g}', esc(fmt(walletGross()))).replace('{o}', esc(fmt(owed)))) + ` · <u>${esc(T().wl_switch)}</u>`;
     $('wlCards').innerHTML = wallets.length ? wallets.map(w => {
       const b = walletBal(w);
       const set = w.setAt ? T().wl_setOn.replace('{d}', toStr(new Date(w.setAt))) : T().wl_notSet;
@@ -5720,6 +5732,11 @@
     rows.sort((a,b) => b.at - a.at);
     return rows;
   }
+  $('wlTotalBtn').addEventListener('click', () => {
+    wlMode = wlMode === 'gross' ? 'net' : 'gross';
+    try{ localStorage.setItem('jl.wltotal', wlMode); }catch(e){}
+    renderWallet();
+  });
   $('wlPastBtn').addEventListener('click', () => { WL.showPast = !WL.showPast; renderWallet(); });
   $('wlEditBtn').addEventListener('click', () => { WL.editing = true; renderWallet(); window.scrollTo({top:0, behavior:'smooth'}); });
   $('wlCancel').addEventListener('click', () => { WL.editing = false; renderWallet(); });
@@ -6022,7 +6039,7 @@
     const perIn = perM.filter(x => perType(x.type).dir === 'in').reduce((a,x) => a+(x.amount||0), 0);
     $('hsMonth').textContent = fmtShort(m.recv + m.due + perIn);
     $('hsSpend').textContent = '− ' + fmtShort(invEntries.filter(x => inRange(x.date, mStart, mEnd)).reduce((a,x) => a+(x.amount||0), 0) + perOut);
-    const wb = walletTotal();
+    const wb = walletShown();
     $('hcWalBal').textContent = wallets.length ? fmtShort(wb) : '';
     $('hcWalBal').style.color = wb < 0 ? 'var(--loss)' : 'var(--green)';
   }
