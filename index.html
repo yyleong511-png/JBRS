@@ -797,6 +797,14 @@
   .wl-tx .a{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;}
   .wl-tx .a.in{color:var(--green);} .wl-tx .a.out{color:var(--loss);} .wl-tx .a.mv{color:var(--ink-soft);}
   .wl-tx .del-btn{margin-left:6px;}
+  .wl-reset{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:var(--ivory);}
+  .wl-reset summary{cursor:pointer;list-style:none;}
+  .wl-reset summary::-webkit-details-marker{display:none;}
+  .wl-reset summary b{display:block;font-size:14px;}
+  .wl-reset summary small{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .wl-reset[open] summary b::after{content:' ▲';font-size:10px;color:var(--ink-mute);}
+  .wl-reset:not([open]) summary b::after{content:' ▼';font-size:10px;color:var(--ink-mute);}
+  .wl-past-rows{border-top:1px dashed var(--line);margin-top:6px;}
   /* ---------- spending analysis ---------- */
   .sa-sum{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:6px 0 12px;}
   .sa-sum div{background:var(--ivory);border-radius:10px;padding:9px 10px;}
@@ -1749,6 +1757,8 @@
     <div class="panel">
       <h2 data-t="wl_hist_h">余额设定之后的记录</h2>
       <div id="wlHist" style="margin-top:8px;"></div>
+      <button type="button" class="ghost" id="wlPastBtn" style="width:100%;margin-top:12px;display:none;">以前的对账记录</button>
+      <div id="wlPast" style="display:none;margin-top:10px;"></div>
     </div>
   </section>
 
@@ -2215,6 +2225,8 @@
       wl_tx_sub:'支出会同时记进「投资 / 支出」，主页的本月支出和花钱分析都会算到', wl_hist_h:'余额设定之后的记录', wl_hist_none:'设定余额之后还没有记录',
       wl_setOn:'{d} 设定的余额', wl_notSet:'还没设定余额', wl_owe:'欠款', wl_left:'余额', wl_none:'还没有钱包，按「设定余额 / 钱包」新增',
       wl_creditLab:'这是欠款（信用卡 / PayLater，例如 Atome）', wl_addAsk:'钱包名字（例如：Maybank、ShopeePay）', wl_delAsk:'删除「{n}」这个钱包？',
+      wl_past:'以前的对账记录（{n} 次）', wl_past_title:'{d} 重新设定余额', wl_past_range:'{a} 到 {b} · {n} 笔记录',
+      wl_past_line:'开始 {s} → 系统算出 {c} → 实际 {a}', wl_past_ok:'对得上',
       wl_saved:'余额已保存', wl_txSaved:'已记下，余额已更新', wl_needTo:'请选要转去哪个钱包', wl_txDelAsk:'删除这一笔记录？',
       hsMonth:'本月赚 / 花',
       sa_h:'本月花钱分析', sa_hint:'根据你这个月的收入和支出自动分析，所有计算都在手机里完成', sa_copy:'复制这个月的数据，贴给 Claude 做更深入的分析',
@@ -2525,6 +2537,8 @@
       wl_tx_sub:'Spending is also saved in Investments, so this month\'s spend and the analysis include it', wl_hist_h:'Since balances were set', wl_hist_none:'Nothing logged since the balances were set',
       wl_setOn:'balance set {d}', wl_notSet:'balance not set', wl_owe:'owed', wl_left:'left', wl_none:'No wallets yet — tap "Set balances / wallets"',
       wl_creditLab:'This is money owed (credit card / PayLater, e.g. Atome)', wl_addAsk:'Wallet name (e.g. Maybank, ShopeePay)', wl_delAsk:'Delete the wallet "{n}"?',
+      wl_past:'Earlier periods ({n})', wl_past_title:'Balances reset on {d}', wl_past_range:'{a} to {b} · {n} entries',
+      wl_past_line:'start {s} → worked out {c} → actual {a}', wl_past_ok:'matched',
       wl_saved:'Balances saved', wl_txSaved:'Logged — balance updated', wl_needTo:'Pick the wallet to transfer to', wl_txDelAsk:'Delete this entry?',
       hsMonth:'Earned / spent',
       sa_h:'This month\'s spending', sa_hint:'Worked out from this month\'s income and spending, all on your phone', sa_copy:'Copy this month\'s figures to paste into Claude for a deeper look',
@@ -2678,7 +2692,7 @@
   function saveBackup(){
     try{
       const arr = readJSON(BAK_KEY, []);
-      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, wesActual, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx, personal: personalEntries});
+      arr.unshift({at: Date.now(), docs, biz, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, wesActual, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx, walletResets, personal: personalEntries});
       localStorage.setItem(BAK_KEY, JSON.stringify(arr.slice(0, 5)));
     }catch(e){}
   }
@@ -2766,6 +2780,8 @@
   // wallets: balance is what the user typed at setAt; credit wallets (e.g. Atome) hold what is owed
   let wallets = readJSON('jl.wallets', null);
   let walletTx = readJSON('jl.wallettx', null) || [];
+  // each time balances are set again: per wallet, the period it closed and how far off it was
+  let walletResets = readJSON('jl.walletresets', null) || [];
   if(!Array.isArray(wallets)) wallets = [
     { id:'cimb', name:'CIMB Bank', balance:0, setAt:0, credit:false },
     { id:'tng', name:"Touch 'n Go eWallet", balance:0, setAt:0, credit:false },
@@ -2773,7 +2789,7 @@
   // personal expenses: rent, utilities and the rent received from tenants (dir 'in')
   let personalEntries = readJSON('jl.personal', null) || [];
   function savePersonal(){ localStorage.setItem('jl.personal', JSON.stringify(personalEntries)); saveBackup(); }
-  function saveWallets(){ localStorage.setItem('jl.wallets', JSON.stringify(wallets)); localStorage.setItem('jl.wallettx', JSON.stringify(walletTx)); saveBackup(); }
+  function saveWallets(){ localStorage.setItem('jl.wallets', JSON.stringify(wallets)); localStorage.setItem('jl.wallettx', JSON.stringify(walletTx)); localStorage.setItem('jl.walletresets', JSON.stringify(walletResets)); saveBackup(); }
   function saveFin(){ localStorage.setItem('jl.fin', JSON.stringify(fin)); saveBackup(); }
   function saveWesPaid(){ localStorage.setItem('wes-paid-months', JSON.stringify(wesPaidMonths)); localStorage.setItem('wes-paid-dates', JSON.stringify(wesPaidDates)); localStorage.setItem('wes-paid-wallets', JSON.stringify(wesPaidWallets)); localStorage.setItem('wes-actual', JSON.stringify(wesActual)); saveBackup(); }
   function savePt(){ localStorage.setItem('jl.parttime', JSON.stringify(ptEntries)); saveBackup(); }
@@ -3896,7 +3912,7 @@
   }
   $('btnExport').addEventListener('click', () => {
     download(`jl-backstage-backup-${todayStr()}.json`,
-      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, wesActual, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx, personal: personalEntries}, null, 2),
+      JSON.stringify({app:'jl-backstage', version:7, exportedAt:new Date().toISOString(), biz, docs, professions, wes: wesEntries, wesPaid: wesPaidMonths, wesPaidDates, wesPaidWallets, wesActual, parttime: ptEntries, ptCats: ptCustomCats, rates, invest: invEntries, fin, wallets, walletTx, walletResets, personal: personalEntries}, null, 2),
       'application/json');
     toast(T().exported);
   });
@@ -3932,7 +3948,7 @@
         if(Array.isArray(data.parttime)){ ptEntries = data.parttime; savePt(); }
         if(data.rates && typeof data.rates === 'object'){ rates = Object.assign({}, RATE_DEFAULTS, data.rates); saveRates(); }
         if(Array.isArray(data.invest)){ invEntries = data.invest; saveInv(); }
-        if(Array.isArray(data.wallets)){ wallets = data.wallets; walletTx = data.walletTx || []; saveWallets(); }
+        if(Array.isArray(data.wallets)){ wallets = data.wallets; walletTx = data.walletTx || []; walletResets = data.walletResets || []; saveWallets(); }
         if(data.fin && typeof data.fin === 'object'){ fin = Object.assign({ savings:0, expense:0, recurring:[] }, data.fin); saveFin(); }
         saveBiz(); saveDocs(); saveProfessions();
         fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
@@ -5650,21 +5666,46 @@
     $('wlCat').innerHTML = X_TAGS.map(t => `<button type="button" class="${WL.cat === t ? 'on' : ''}" data-wlc="${t}">${esc(xTagLabel(t))}</button>`).join('');
     if(!$('wlDate').value) $('wlDate').value = todayStr();
     // history since the balances were set
+    const rows = walletRows(id => (wallets.find(w => w.id === id) || {}).setAt || 0, () => Infinity);
+    $('wlHist').innerHTML = rows.length ? rows.map(r => wlRowHTML(r, true)).join('') : `<div class="empty-hint">${esc(T().wl_hist_none)}</div>`;
+    // earlier periods, kept when balances are set again
+    $('wlPastBtn').textContent = T().wl_past.replace('{n}', walletResets.length);
+    $('wlPastBtn').style.display = walletResets.length ? '' : 'none';
+    $('wlPast').style.display = WL.showPast && walletResets.length ? '' : 'none';
+    if(WL.showPast) $('wlPast').innerHTML = walletResets.slice().reverse().map(r => {
+      const from = id => ((r.items.find(i => i.id === id) || {}).from) || 0;
+      const pr = walletRows(from, () => r.at);
+      const lines = r.items.map(i => {
+        const d = Math.round((i.actual - i.calc) * 100) / 100;
+        return `<div class="wl-tx"><div class="t">${esc(i.name)}<small>${esc((v => T().wl_past_line.replace('{s}', v(i.start)).replace('{c}', v(i.calc)).replace('{a}', v(i.actual)))(v => i.credit ? fmt(Math.abs(v)) + ' ' + T().wl_owe : fmt(v)))}</small></div>
+          <span class="a ${Math.abs(d) < 0.01 ? 'mv' : d > 0 ? 'in' : 'out'}">${Math.abs(d) < 0.01 ? esc(T().wl_past_ok) : (d > 0 ? '+' : '−') + ' ' + fmt(Math.abs(d))}</span></div>`;
+      }).join('');
+      const start = Math.min(...r.items.map(i => i.from || r.at));
+      return `<details class="wl-reset"><summary><b>${esc(T().wl_past_title.replace('{d}', toStr(new Date(r.at))))}</b><small>${esc(T().wl_past_range.replace('{a}', start ? toStr(new Date(start)) : '—').replace('{b}', toStr(new Date(r.at))).replace('{n}', pr.length))}</small></summary>
+        <div style="margin:6px 0 4px;">${lines}</div>
+        <div class="wl-past-rows">${pr.length ? pr.map(x => wlRowHTML(x, false)).join('') : `<div class="empty-hint">${esc(T().wl_hist_none)}</div>`}</div></details>`;
+    }).join('');
+  }
+  function wlRowHTML(r, actions){
+    return `<div class="wl-tx"><div class="t">${esc(r.t)}<small>${esc(r.sub)}</small></div>
+      <div style="display:flex;align-items:center;"><span class="a ${r.kind === 'in' ? 'in' : r.kind === 'out' ? 'out' : 'mv'}">${r.kind === 'in' ? '+' : r.kind === 'out' ? '−' : '⇄'} ${fmt(r.a)}</span>${actions && r.mv ? `<button type="button" class="del-btn" data-move="${esc(r.mv)}" aria-label="move" title="${esc(T().mv_btn)}">⇄</button>` : ''}${actions ? `<button type="button" class="del-btn" data-wltxdel="${esc(r.id)}" aria-label="delete">✕</button>` : ''}</div></div>`;
+  }
+  // every wallet movement in (since(wallet), until(wallet)]
+  function walletRows(since, until){
     const name = id => (wallets.find(w => w.id === id) || {}).name || '?';
-    const since = id => (wallets.find(w => w.id === id) || {}).setAt || 0;
+    const inW = (id, at) => (at || 0) > since(id) && (at || 0) <= until(id);
     const rows = [];
-    invEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind:'out', id:'x:' + x.id, mv: x.docId ? '' : 'inv:' + x.id,
+    invEntries.filter(x => x.wallet && inW(x.wallet, x.createdAt)).forEach(x => rows.push({ at:x.createdAt, kind:'out', id:'x:' + x.id, mv: x.docId ? '' : 'inv:' + x.id,
       t:[grabLine(x.grab), x.note].filter(Boolean).join(' — ') || T()['xt_' + x.tag], sub:`${name(x.wallet)} · ${x.date} · ${xTagLabel(x.tag)}`, a:x.amount }));
-    personalEntries.filter(x => x.wallet && (x.createdAt || 0) > since(x.wallet)).forEach(x => rows.push({ at:x.createdAt, kind: perType(x.type).dir === 'in' ? 'in' : 'out', id:'per:' + x.id,
+    personalEntries.filter(x => x.wallet && inW(x.wallet, x.createdAt)).forEach(x => rows.push({ at:x.createdAt, kind: perType(x.type).dir === 'in' ? 'in' : 'out', id:'per:' + x.id,
       t:x.note || perLabel(x.type), sub:`${name(x.wallet)} · ${x.date} · ${perLabel(x.type)}`, a:x.amount, mv:'per:' + x.id }));
-    walletIncomes().filter(i => i.at > since(i.w)).forEach(i => rows.push({ at:i.at, kind:'in', id:i.id, t:i.t, sub:`${name(i.w)} · ${i.date}`, a:i.a }));
-    walletTx.filter(t => (t.at || 0) > since(t.wallet) || (t.to && (t.at || 0) > since(t.to))).forEach(t => rows.push({ at:t.at, kind:t.type, id:'t:' + t.id, mv: t.type === 'in' ? 'wtx:' + t.id : '',
+    walletIncomes().filter(i => inW(i.w, i.at)).forEach(i => rows.push({ at:i.at, kind:'in', id:i.id, t:i.t, sub:`${name(i.w)} · ${i.date}`, a:i.a }));
+    walletTx.filter(t => inW(t.wallet, t.at) || (t.to && inW(t.to, t.at))).forEach(t => rows.push({ at:t.at, kind:t.type, id:'t:' + t.id, mv: t.type === 'in' ? 'wtx:' + t.id : '',
       t:t.note || (t.type === 'in' ? T().wl_in : T().wl_move), sub: t.type === 'move' ? `${name(t.wallet)} → ${name(t.to)} · ${t.date}` : `${name(t.wallet)} · ${t.date}`, a:t.amount }));
     rows.sort((a,b) => b.at - a.at);
-    $('wlHist').innerHTML = rows.length ? rows.map(r => `<div class="wl-tx"><div class="t">${esc(r.t)}<small>${esc(r.sub)}</small></div>
-      <div style="display:flex;align-items:center;"><span class="a ${r.kind === 'in' ? 'in' : r.kind === 'out' ? 'out' : 'mv'}">${r.kind === 'in' ? '+' : r.kind === 'out' ? '−' : '⇄'} ${fmt(r.a)}</span>${r.mv ? `<button type="button" class="del-btn" data-move="${esc(r.mv)}" aria-label="move" title="${esc(T().mv_btn)}">⇄</button>` : ''}<button type="button" class="del-btn" data-wltxdel="${esc(r.id)}" aria-label="delete">✕</button></div></div>`).join('')
-      : `<div class="empty-hint">${esc(T().wl_hist_none)}</div>`;
+    return rows;
   }
+  $('wlPastBtn').addEventListener('click', () => { WL.showPast = !WL.showPast; renderWallet(); });
   $('wlEditBtn').addEventListener('click', () => { WL.editing = true; renderWallet(); window.scrollTo({top:0, behavior:'smooth'}); });
   $('wlCancel').addEventListener('click', () => { WL.editing = false; renderWallet(); });
   function wlReadEdit(){
@@ -5690,6 +5731,12 @@
   $('wlSave').addEventListener('click', () => {
     wlReadEdit();
     const now = Date.now();
+    // keep the period being closed: start, what the app worked out, and the real figure typed now
+    if(wallets.some(w => w.setAt)) walletResets.push({ at:now, items: wallets.filter(w => w.setAt).map(w => {
+      const start = w.credit ? -Math.abs(w.balance || 0) : (w.balance || 0), calc = walletBal(w);
+      const typed = Math.round(Math.abs(num(w._bal)) * (w._credit ? -1 : (Math.sign(num(w._bal)) || 1)) * 100) / 100;
+      return { id:w.id, name:w._name || w.name, credit:!!w._credit, from:w.setAt, start, calc, actual:typed };
+    }) });
     wallets = wallets.map(w => ({ id:w.id, name:w._name || w.name, credit:!!w._credit, balance: Math.round(Math.abs(num(w._bal)) * (w._credit ? 1 : Math.sign(num(w._bal)) || 1) * 100)/100, setAt:now }));
     saveWallets(); WL.editing = false; renderWallet(); toast(T().wl_saved);
     window.scrollTo({top:0, behavior:'smooth'});
