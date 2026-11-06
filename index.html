@@ -2002,12 +2002,12 @@
       l_notes:'备注', notesPh:'例如：拍摄地点、使用条款、感谢语',
       h_internal:'内部记录（不会印在单据上）', l_cost:'支出 / 车费 (RM)', l_costNote:'支出说明',
       costNotePh:'例如：Grab 车费、化妆品材料',
-      cardPerTitle:'个人开销', cardPerDesc:'房租、电费、水费，和收到的租金放在一起看，每笔都可以选用哪个钱包付或收', title_personal:'个人开销',
+      cardPerTitle:'个人开销', cardPerDesc:'房租、水电、食物、娱乐，和收到的租金放在一起看，每笔都可以选用哪个钱包付或收', title_personal:'个人开销',
       per_s_in:'收到的租金', per_s_out:'付出去', per_s_net:'净额', per_new:'记一笔', per_edit:'修改这一笔', per_note_ph:'例如：11 月房租 / 租客 Amy / TNB 10 月账单',
       per_l_walletIn:'钱进了哪个钱包', per_notYet:'这个月还没记', per_empty:'这个月还没有记录',
-      per_t_rentin:'收到租金', per_t_rent:'房租', per_t_elec:'电费', per_t_water:'水费', per_t_net:'网络', per_t_phone:'手机费', per_t_living:'生活用品',
+      per_t_rentin:'收到租金', per_t_rent:'房租', per_t_elec:'电费', per_t_water:'水费', per_t_net:'网络', per_t_phone:'手机费', per_t_food:'食物', per_t_fun:'娱乐', per_t_living:'生活用品',
       mv_btn:'更改源头', mv_title:'把这一笔搬去哪里？', mv_pickCat:'选一个分类', mv_done:'已搬去「{d}」', mv_docLinked:'这笔是单据里的车费，请到单据里修改',
-      mv_to_inv:'投资 / 支出', mv_to_inv_s:'工作相关的花费，会算进回本和花钱分析', mv_to_per_out:'个人开销', mv_to_per_out_s:'房租、水电、网络、手机等个人开销',
+      mv_to_inv:'投资 / 支出', mv_to_inv_s:'工作相关的花费，会算进回本和花钱分析', mv_to_per_out:'个人开销', mv_to_per_out_s:'房租、水电、网络、手机、食物、娱乐等个人开销',
       mv_to_per_in:'个人开销 · 收到租金', mv_to_per_in_s:'租客给的租金', mv_to_pt:'外接 Part Time', mv_to_pt_s:'当作一份已收到钱的外接工作', mv_to_wtx:'钱包收入', mv_to_wtx_s:'只记在钱包对账里的收入',
       wes_l_actual:'实际收到的金额 (RM)', wes_actualSub:'填了就以这个数字为准（工资、收入分析、钱包都用它）；留空就用你记录的工时算',
       wes_payActual:'本月实际到手', wes_origBtn:'查看原本记录', wes_origHide:'收起原本记录', wes_origLine:'我自己的记录：{h} · {p}', wes_short:'少收 {d}', wes_more:'多收 {d}',
@@ -2315,7 +2315,7 @@
       cardPerTitle:'Personal', cardPerDesc:'Rent, electricity, water and the rent you collect in one place — each linked to a wallet', title_personal:'Personal',
       per_s_in:'Rent collected', per_s_out:'Paid out', per_s_net:'Net', per_new:'Log one', per_edit:'Edit entry', per_note_ph:'e.g. November rent / tenant Amy / TNB October bill',
       per_l_walletIn:'Which wallet did it go into', per_notYet:'not logged yet', per_empty:'Nothing logged this month',
-      per_t_rentin:'Rent collected', per_t_rent:'Rent', per_t_elec:'Electricity', per_t_water:'Water', per_t_net:'Internet', per_t_phone:'Phone', per_t_living:'Household',
+      per_t_rentin:'Rent collected', per_t_rent:'Rent', per_t_elec:'Electricity', per_t_water:'Water', per_t_net:'Internet', per_t_phone:'Phone', per_t_food:'Food', per_t_fun:'Fun', per_t_living:'Household',
       mv_btn:'Change source', mv_title:'Move this to…', mv_pickCat:'Pick a category', mv_done:'Moved to "{d}"', mv_docLinked:'This is a document\'s cost — change it in the document',
       mv_to_inv:'Investments', mv_to_inv_s:'Work spending, counted in payback and the analysis', mv_to_per_out:'Personal', mv_to_per_out_s:'Rent, utilities, internet, phone and other personal costs',
       mv_to_per_in:'Personal · rent collected', mv_to_per_in_s:'Rent from tenants', mv_to_pt:'Outside part time', mv_to_pt_s:'As a paid outside gig', mv_to_wtx:'Wallet income', mv_to_wtx_s:'Income kept only in the wallets',
@@ -5485,7 +5485,7 @@
   // ============================================================
   const PER_TYPES = [
     { k:'rentin', e:'💰', dir:'in' }, { k:'rent', e:'🏠', dir:'out' }, { k:'elec', e:'⚡', dir:'out' },
-    { k:'water', e:'💧', dir:'out' }, { k:'net', e:'🌐', dir:'out' }, { k:'phone', e:'📱', dir:'out' }, { k:'living', e:'🧺', dir:'out' }];
+    { k:'water', e:'💧', dir:'out' }, { k:'net', e:'🌐', dir:'out' }, { k:'phone', e:'📱', dir:'out' }, { k:'food', e:'🍱', dir:'out' }, { k:'fun', e:'🎉', dir:'out' }, { k:'living', e:'🧺', dir:'out' }];
   const perType = k => PER_TYPES.find(t => t.k === k) || PER_TYPES[1];
   const perLabel = k => perType(k).e + ' ' + (T()['per_t_' + k] || k);
   const PER = { month: todayStr().slice(0,7), editId:null, type:'rent', wallet:null };
