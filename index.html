@@ -1675,6 +1675,7 @@
         <div><small data-t="per_s_out">付出去</small><b class="neg" id="perOut">RM 0</b></div>
         <div><small data-t="per_s_net">净额</small><b id="perNet">RM 0</b></div>
       </div>
+      <div class="sa-save" id="perLife" style="margin-top:10px;"></div>
       <div id="perCheck"></div>
     </div>
     <div class="panel">
@@ -2004,7 +2005,7 @@
       costNotePh:'例如：Grab 车费、化妆品材料',
       cardPerTitle:'个人开销', cardPerDesc:'房租、水电、食物、娱乐，和收到的租金放在一起看，每笔都可以选用哪个钱包付或收', title_personal:'个人开销',
       per_s_in:'收到的租金', per_s_out:'付出去', per_s_net:'净额', per_new:'记一笔', per_edit:'修改这一笔', per_note_ph:'例如：11 月房租 / 租客 Amy / TNB 10 月账单',
-      per_l_walletIn:'钱进了哪个钱包', per_notYet:'这个月还没记', per_empty:'这个月还没有记录',
+      per_life:'本月总收入：工作 {w} + 租金 {r}，减个人开销 {o}，剩下 {l}', per_l_walletIn:'钱进了哪个钱包', per_notYet:'这个月还没记', per_empty:'这个月还没有记录',
       per_t_rentin:'收到租金', per_t_rent:'房租', per_t_elec:'电费', per_t_water:'水费', per_t_net:'网络', per_t_phone:'手机费', per_t_food:'食物', per_t_fun:'娱乐', per_t_living:'生活用品',
       mv_btn:'更改源头', mv_title:'把这一笔搬去哪里？', mv_pickCat:'选一个分类', mv_done:'已搬去「{d}」', mv_docLinked:'这笔是单据里的车费，请到单据里修改',
       mv_to_inv:'投资 / 支出', mv_to_inv_s:'工作相关的花费，会算进回本和花钱分析', mv_to_per_out:'个人开销', mv_to_per_out_s:'房租、水电、网络、手机、食物、娱乐等个人开销',
@@ -2314,7 +2315,7 @@
       costNotePh:'e.g. Grab fare, makeup supplies',
       cardPerTitle:'Personal', cardPerDesc:'Rent, electricity, water and the rent you collect in one place — each linked to a wallet', title_personal:'Personal',
       per_s_in:'Rent collected', per_s_out:'Paid out', per_s_net:'Net', per_new:'Log one', per_edit:'Edit entry', per_note_ph:'e.g. November rent / tenant Amy / TNB October bill',
-      per_l_walletIn:'Which wallet did it go into', per_notYet:'not logged yet', per_empty:'Nothing logged this month',
+      per_life:'Income this month: work {w} + rent {r}, minus personal {o}, leaves {l}', per_l_walletIn:'Which wallet did it go into', per_notYet:'not logged yet', per_empty:'Nothing logged this month',
       per_t_rentin:'Rent collected', per_t_rent:'Rent', per_t_elec:'Electricity', per_t_water:'Water', per_t_net:'Internet', per_t_phone:'Phone', per_t_food:'Food', per_t_fun:'Fun', per_t_living:'Household',
       mv_btn:'Change source', mv_title:'Move this to…', mv_pickCat:'Pick a category', mv_done:'Moved to "{d}"', mv_docLinked:'This is a document\'s cost — change it in the document',
       mv_to_inv:'Investments', mv_to_inv_s:'Work spending, counted in payback and the analysis', mv_to_per_out:'Personal', mv_to_per_out_s:'Rent, utilities, internet, phone and other personal costs',
@@ -5508,6 +5509,10 @@
     const out = list.filter(x => perType(x.type).dir === 'out').reduce((a,x) => a+(x.amount||0), 0);
     $('perIn').textContent = fmtShort(inn); $('perOut').textContent = fmtShort(out);
     $('perNet').textContent = fmtShort(inn - out); $('perNet').className = inn - out >= 0 ? 'pos' : 'neg';
+    // does what came in this month (work received + rent) cover personal spending?
+    const work = sourceTotals(ds => String(ds || '').startsWith(PER.month)).recv, left = work + inn - out;
+    $('perLife').innerHTML = T().per_life.replace('{w}', esc(fmt(work))).replace('{r}', esc(fmt(inn))).replace('{o}', esc(fmt(out)))
+      .replace('{l}', `<b style="color:${left >= 0 ? 'var(--green)' : 'var(--loss)'}">${esc(fmt(left))}</b>`);
     // this month's checklist: rent received and what it covers
     const sum = k => list.filter(x => x.type === k).reduce((a,x) => a+(x.amount||0), 0);
     $('perCheck').innerHTML = `<div style="margin-top:4px;">${['rentin','rent','elec','water'].map(k => { const v = sum(k);
