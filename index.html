@@ -1350,6 +1350,8 @@
           <label data-t="wes_l_actual" style="margin-top:12px;">实际收到的金额 (RM)</label>
           <input type="text" inputmode="decimal" id="wActual">
           <div class="sub" data-t="wes_actualSub">填了就以这个数字为准（工资、收入分析、钱包都用它）；留空就用你记录的工时算</div>
+          <label data-t="wes_l_wallet" style="margin-top:12px;">进了哪个钱包</label>
+          <div class="pt-cats" id="wWallets"></div>
         </div>
       </div>
       <div class="stats-bar">
@@ -2020,7 +2022,7 @@
       mv_btn:'更改源头', mv_title:'把这一笔搬去哪里？', mv_pickCat:'选一个分类', mv_done:'已搬去「{d}」', mv_docLinked:'这笔是单据里的车费，请到单据里修改',
       mv_to_inv:'投资 / 支出', mv_to_inv_s:'工作相关的花费，会算进回本和花钱分析', mv_to_per_out:'个人开销', mv_to_per_out_s:'房租、水电、网络、手机、食物、娱乐等个人开销',
       mv_to_per_in:'个人开销 · 收到租金', mv_to_per_in_s:'租客给的租金', mv_to_pt:'外接 Part Time', mv_to_pt_s:'当作一份已收到钱的外接工作', mv_to_wtx:'钱包收入', mv_to_wtx_s:'只记在钱包对账里的收入',
-      wes_l_actual:'实际收到的金额 (RM)', wes_actualSub:'填了就以这个数字为准（工资、收入分析、钱包都用它）；留空就用你记录的工时算',
+      wes_l_wallet:'进了哪个钱包', wes_l_actual:'实际收到的金额 (RM)', wes_actualSub:'填了就以这个数字为准（工资、收入分析、钱包都用它）；留空就用你记录的工时算',
       wes_payActual:'本月实际到手', wes_origBtn:'查看原本记录', wes_origHide:'收起原本记录', wes_origLine:'我自己的记录：{h} · {p}', wes_short:'少收 {d}', wes_more:'多收 {d}',
       inc_ask:'这笔收入 {a} 进了哪个钱包？', inc_toWallet:'加进这个钱包的余额', inc_none:'不记钱包', inc_noneSub:'例如收现金', inc_saved:'已加进 {w} 的余额',
       dc_ask:'这笔支出 {a} 是从哪里付的？', dc_fromWallet:'从这个钱包扣，同时记进支出', dc_noWallet:'只记进支出，不扣钱包', dc_noWalletSub:'例如用现金付',
@@ -2332,7 +2334,7 @@
       mv_btn:'Change source', mv_title:'Move this to…', mv_pickCat:'Pick a category', mv_done:'Moved to "{d}"', mv_docLinked:'This is a document\'s cost — change it in the document',
       mv_to_inv:'Investments', mv_to_inv_s:'Work spending, counted in payback and the analysis', mv_to_per_out:'Personal', mv_to_per_out_s:'Rent, utilities, internet, phone and other personal costs',
       mv_to_per_in:'Personal · rent collected', mv_to_per_in_s:'Rent from tenants', mv_to_pt:'Outside part time', mv_to_pt_s:'As a paid outside gig', mv_to_wtx:'Wallet income', mv_to_wtx_s:'Income kept only in the wallets',
-      wes_l_actual:'Amount actually received (RM)', wes_actualSub:'When filled it replaces the worked-out pay everywhere (pay, income, wallet); leave empty to use your hours',
+      wes_l_wallet:'Went into wallet', wes_l_actual:'Amount actually received (RM)', wes_actualSub:'When filled it replaces the worked-out pay everywhere (pay, income, wallet); leave empty to use your hours',
       wes_payActual:'Actually received', wes_origBtn:'See my own record', wes_origHide:'Hide my own record', wes_origLine:'My record: {h} · {p}', wes_short:'{d} short', wes_more:'{d} extra',
       inc_ask:'Which wallet did this {a} go into?', inc_toWallet:'Add it to this balance', inc_none:'No wallet', inc_noneSub:'e.g. paid in cash', inc_saved:'Added to {w}',
       dc_ask:'Where was this {a} paid from?', dc_fromWallet:'Take it off this wallet and log the expense', dc_noWallet:'Log the expense only', dc_noWalletSub:'e.g. paid in cash',
@@ -4468,6 +4470,14 @@
     if(!wesPaidMonths.includes(W.month) || !$('wPaidDate').value) return;
     wesPaidDates[W.month] = $('wPaidDate').value; saveWesPaid(); renderWes();
   });
+  $('wWallets').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-wesw]'); if(!b || !wesPaidMonths.includes(W.month)) return;
+    const w = b.dataset.wesw, cur = wesPaidWallets[W.month];
+    if(!w) delete wesPaidWallets[W.month];
+    else if(!cur || cur.w !== w) wesPaidWallets[W.month] = { w, at:Date.now() };
+    saveWesPaid(); renderWes();
+    if(w) toast(T().inc_saved.replace('{w}', (wallets.find(x => x.id === w) || {}).name || ''));
+  });
   $('wOrigBtn').addEventListener('click', () => { W.showOrig = !W.showOrig; renderWes(); });
   $('wActual').addEventListener('change', () => {
     const v = $('wActual').value.trim();
@@ -4522,6 +4532,11 @@
       $('wOrig').textContent = T().wes_origLine.replace('{p}', fmt(pay)).replace('{h}', wHrs(mins))
         + (Math.abs(diff) >= 0.01 ? ' · ' + (diff > 0 ? T().wes_short : T().wes_more).replace('{d}', fmt(Math.abs(diff))) : '');
     }
+    // which wallet this month's salary went into (can be picked or changed any time)
+    const cw = (wesPaidWallets[W.month] || {}).w || '';
+    // only rebuild when it changed, so a tap that also blurs the amount field still lands
+    const wh = wallets.concat([{id:'', name:T().x_wallet_none}]).map(w => `<button type="button" class="${cw === w.id ? 'on' : ''}" data-wesw="${esc(w.id)}">${esc(w.name)}</button>`).join('');
+    if($('wWallets').innerHTML !== wh) $('wWallets').innerHTML = wh;
     if(document.activeElement !== $('wActual')) $('wActual').value = wesActual[W.month] != null ? wesActual[W.month] : '';
     $('wActual').placeholder = (Math.round(pay * 100) / 100).toFixed(2);
 
