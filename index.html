@@ -822,6 +822,17 @@
   .sa-save{background:#EDF2ED;border:1px solid #D3E0D4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px;line-height:1.6;}
   .sa-save b{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:18px;}
   .plan-box{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin:4px 0 14px;}
+  .rm-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:12px;box-shadow:var(--shadow);}
+  .rm-box h3{margin:0 0 4px;font-size:14px;}
+  .rm-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px dashed var(--line);}
+  .rm-item:first-of-type{border-top:none;}
+  .rm-item .t{font-size:13.5px;line-height:1.45;min-width:0;}
+  .rm-item .t small{display:block;font-size:11.5px;color:var(--ink-soft);}
+  .rm-item .t small.over{color:var(--loss);font-weight:600;}
+  .rm-item .t small.soon{color:var(--amber);font-weight:600;}
+  .rm-item .b{display:flex;gap:6px;flex:none;}
+  .rm-item .b button{min-height:32px;font-size:12px;padding:4px 10px;border-radius:9px;border:1px solid var(--line);background:var(--ivory);color:var(--ink);cursor:pointer;}
+  .rm-item .b button.go{background:var(--rose-deep);border-color:var(--rose-deep);color:#fff;}
   .pl-mode{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);margin:2px 0 6px;}
   .pl-mode button{background:none;border:none;color:var(--rose-deep);text-decoration:underline;font-size:12.5px;cursor:pointer;padding:4px 0;min-height:0;}
   .pl-row input[readonly]{background:transparent;border-color:transparent;font-weight:600;}
@@ -908,6 +919,7 @@
       <button type="button" class="hs-cell" data-hs="due"><div class="hs-val due" id="hsDue">RM 0</div><div class="hs-lab"><span data-t="hsDue">未收款</span> ›</div></button>
       <button type="button" class="hs-cell" data-hs="month"><div class="hs-two"><div class="hs-val pos" id="hsMonth">RM 0</div><div class="hs-val neg" id="hsSpend">− RM 0</div></div><div class="hs-lab"><span data-t="hsMonth">本月赚 / 花</span> ›</div></button>
     </div>
+    <div class="rm-box" id="homeRemind" style="display:none;"></div>
     <div class="home-grid">
       <button class="home-card wide" data-nav="personal" style="order:1;">
         <div class="hc-icon">🏠</div>
@@ -2084,7 +2096,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
@@ -2399,7 +2411,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
@@ -3143,6 +3155,8 @@
         <span class="n">${esc(T().pl_nth.replace('{n}', i + 1))}</span>
         <input type="text" inputmode="decimal" class="pl-amt" value="${p.amt}" aria-label="amount"${S.planCustom || p.paid ? '' : ' readonly'}>
         <button type="button" class="pl-pay${p.paid ? ' paid' : ''}">${esc(p.paid ? T().pl_paid : T().pl_markPaid)}</button>
+        ${!p.paid ? `<button type="button" class="pl-remind" style="grid-area:rcp;">${esc(T().rm_btn)}</button>` : ''}
+        ${!p.paid && p.remindedAt ? `<small>${esc(T().rm_last.replace('{d}', p.remindedAt))}</small>` : ''}
         ${p.paid ? `<button type="button" class="pl-rcp" style="grid-area:rcp;">${esc(p.receiptId && docs.some(d => d.id === p.receiptId) ? T().pl_openRcp.replace('{no}', p.receiptNo || '') : T().pl_makeRcp)}</button>` : ''}
         <label class="pl-due-w">${esc(T().pl_due)}<input type="date" class="pl-due" value="${esc(p.due || '')}" aria-label="due"></label>
         ${p.paid ? `<small>${esc(T().pl_paidOn.replace('{d}', p.paidDate || '—'))}${p.wallet ? ' · ' + esc((wallets.find(w => w.id === p.wallet) || {}).name || '') : ''}</small>` : ''}
@@ -3179,6 +3193,12 @@
       } else S.planCustom = true;
       renderPlan(); renderPreview(); return;
     }
+    const rmb = ev.target.closest('.pl-remind');
+    if(rmb){
+      const inv = saveDoc(true); if(!inv) return;
+      remindInstallment(inv.id, Number(rmb.closest('[data-pli]').dataset.pli));
+      return;
+    }
     const rb = ev.target.closest('.pl-rcp');
     if(rb){ planReceipt(Number(rb.closest('[data-pli]').dataset.pli)); return; }
     const pb = ev.target.closest('.pl-pay'); if(!pb) return;
@@ -3190,6 +3210,72 @@
     p.paid = true; p.paidDate = todayStr();
     renderPlan(); renderPreview();
     askIncomeWallet(num(p.amt), w => { p.wallet = w; p.walletAt = Date.now(); renderPlan(); toast(T().pl_saveHint); });
+  });
+  // ---------- installment reminders: 3 days before due, by WhatsApp or email ----------
+  const REMIND_DAYS = 3;
+  const daysTo = ds => Math.round((new Date(ds + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 86400000);
+  function contactOf(d){
+    const t = String(d.clientContact || '');
+    const em = (t.match(/[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+/) || [])[0] || '';
+    let ph = '';
+    const m = t.replace(em, '').match(/\+?\d[\d\s\-()]{7,}\d/);
+    if(m){ ph = m[0].replace(/\D/g, ''); if(ph.startsWith('0')) ph = '6' + ph; }
+    return { email:em, phone:ph };
+  }
+  function dueInstallments(){
+    const out = [];
+    docs.forEach(d => {
+      if(d.docType !== 'invoice' || !d.plan || !d.plan.length || isVoid(d) || d.convertedToId) return;
+      d.plan.forEach((p, i) => { if(!p.paid && p.due){ const n = daysTo(p.due); if(n <= REMIND_DAYS) out.push({ d, i, p, n }); } });
+    });
+    return out.sort((a,b) => a.n - b.n);
+  }
+  function remindText(d, i){
+    const p = d.plan[i], n = d.plan.length, amt = fmt(num(p.amt));
+    const bank = [biz.bankName, biz.bankHolder, biz.bankAccount].filter(Boolean).join(' · ');
+    const name = d.client || '';
+    return [
+      `Hi ${name}, a friendly reminder that installment ${i + 1} of ${n} for invoice ${d.no} (${amt}) is due on ${p.due}.`,
+      bank ? `Payment to: ${bank}` : null, biz.duitnow || null,
+      `Please send the transfer slip once paid. Thank you!`,
+      '',
+      `您好${name ? ' ' + name : ''}，温馨提醒：发票 ${d.no} 的第 ${i + 1} 期（共 ${n} 期）${amt}，到期日是 ${p.due}。`,
+      bank ? `付款到：${bank}` : null,
+      `付款后麻烦发一下转账截图，谢谢！`,
+      biz.name ? `— ${biz.name}` : null
+    ].filter(x => x !== null).join('\n');
+  }
+  function remindInstallment(docId, i){
+    const d = docs.find(x => x.id === docId); if(!d || !d.plan || !d.plan[i]) return;
+    const c = contactOf(d), text = remindText(d, i);
+    const opts = [];
+    if(c.phone) opts.push({ value:'wa', label:'WhatsApp', sub:'+' + c.phone });
+    if(c.email) opts.push({ value:'mail', label:T().rm_email, sub:c.email });
+    opts.push({ value:'copy', label:T().rm_copy, sub:T().rm_copySub });
+    askSheet(T().rm_ask.replace('{c}', d.client || '').replace('{n}', i + 1), opts, v => {
+      if(v === 'wa') window.open('https://wa.me/' + c.phone + '?text=' + encodeURIComponent(text), '_blank');
+      if(v === 'mail') location.href = 'mailto:' + c.email + '?subject=' + encodeURIComponent(`Payment reminder · ${d.no} · installment ${i + 1}/${d.plan.length}`) + '&body=' + encodeURIComponent(text);
+      if(v === 'copy') copyText(text);
+      d.plan[i].remindedAt = todayStr(); saveDocs();
+      if(S.editingId === d.id && S.plan && S.plan[i]){ S.plan[i].remindedAt = d.plan[i].remindedAt; renderPlan(); }
+      if(currentView === 'home') renderReminders();
+    });
+  }
+  function renderReminders(){
+    const list = dueInstallments();
+    $('homeRemind').style.display = list.length ? '' : 'none';
+    if(!list.length) return;
+    $('homeRemind').innerHTML = `<h3>${esc(T().rm_h.replace('{n}', list.length))}</h3>` + list.map(x => {
+      const when = x.n < 0 ? `<small class="over">${esc(T().rm_over.replace('{n}', -x.n))}</small>` : `<small class="soon">${esc(x.n === 0 ? T().rm_today : T().rm_soon.replace('{n}', x.n))}</small>`;
+      return `<div class="rm-item"><div class="t">📅 ${esc(x.d.client || T().hl_noClient)} · ${esc(T().pl_nth.replace('{n}', x.i + 1))} · ${esc(fmt(num(x.p.amt)))}
+          ${when}<small>${esc(x.d.no)} · ${esc(T().pl_due)} ${esc(x.p.due)}${x.p.remindedAt ? ' · ' + esc(T().rm_last.replace('{d}', x.p.remindedAt)) : ''}</small></div>
+        <div class="b"><button type="button" data-rmopen="${esc(x.d.id)}">${esc(T().rm_open)}</button><button type="button" class="go" data-rmsend="${esc(x.d.id)}:${x.i}">${esc(T().rm_btn)}</button></div></div>`;
+    }).join('');
+  }
+  $('homeRemind').addEventListener('click', ev => {
+    const o = ev.target.closest('[data-rmopen]'), s2 = ev.target.closest('[data-rmsend]');
+    if(o){ const d = docs.find(x => x.id === o.dataset.rmopen); if(d) loadDoc(d); }
+    if(s2){ const [id, i] = s2.dataset.rmsend.split(':'); remindInstallment(id, Number(i)); }
   });
   // one receipt per paid installment, linked back to the invoice
   function planReceipt(i){
@@ -3516,7 +3602,7 @@
       payMethod:S.payMethod, style:S.style,
       status: S.docType === 'invoice' ? (S.plan && S.plan.length ? (S.plan.every(p => p.paid) ? 'paid' : S.plan.some(p => p.paid) ? 'partial' : (S.status === 'paid' || S.status === 'partial' ? 'unpaid' : S.status)) : S.status) : 'paid',
       planCustom: !!(S.docType === 'invoice' && S.plan && S.plan.length && S.planCustom),
-      plan: S.docType === 'invoice' && S.plan && S.plan.length ? S.plan.map(p => ({ amt:r2(num(p.amt)), due:p.due || '', paid:!!p.paid, paidDate:p.paid ? (p.paidDate || todayStr()) : '', wallet:p.paid ? p.wallet : undefined, walletAt:p.paid ? (p.walletAt || 0) : 0, receiptId:p.receiptId, receiptNo:p.receiptNo })) : null,
+      plan: S.docType === 'invoice' && S.plan && S.plan.length ? S.plan.map(p => ({ amt:r2(num(p.amt)), due:p.due || '', paid:!!p.paid, paidDate:p.paid ? (p.paidDate || todayStr()) : '', wallet:p.paid ? p.wallet : undefined, walletAt:p.paid ? (p.walletAt || 0) : 0, receiptId:p.receiptId, receiptNo:p.receiptNo, remindedAt:p.remindedAt })) : null,
       // invoice marked paid here (not converted to a receipt): remember when the money came in
       paidDate: S.docType === 'invoice' && S.status === 'paid' ? ((docs.find(d => d.id === S.editingId) || {}).paidDate || todayStr()) : '',
       refInvoiceNo: S.docType === 'receipt' ? $('dRefInvoice').value : '',
@@ -6224,6 +6310,7 @@
   // home + routing
   // ============================================================
   function refreshHome(){
+    renderReminders();
     const now = new Date();
     const mStart = toStr(new Date(now.getFullYear(), now.getMonth(), 1));
     const mEnd = toStr(new Date(now.getFullYear(), now.getMonth()+1, 0));
