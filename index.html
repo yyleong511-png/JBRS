@@ -880,12 +880,16 @@
 
   /* ---------- Print ---------- */
   #printRoot{display:none;}
+  /* off-screen copy used to measure the printed height */
+  .print-measure{position:fixed;left:-10000px;top:0;width:718px;background:#fff;}
+  .print-measure .doc{box-shadow:none;border:none;border-radius:0;padding:0;width:100%;overflow:visible;}
+  .print-measure .doc.style-atelier{padding:14px 16px;border:none;}
   @media print{
-    @page{margin:12mm;}
+    @page{size:A4;margin:10mm;}
     body{background:#fff;}
     body.printing > *{display:none !important;}
     body.printing > #printRoot{display:block !important;}
-    #printRoot .doc{box-shadow:none;border:none;border-radius:0;padding:0;width:100%;overflow:visible;}
+    #printRoot .doc{box-shadow:none;border:none;border-radius:0;padding:0;width:100%;overflow:visible;zoom:var(--pz,1);}
     #printRoot .doc.style-atelier{padding:14px 16px;border:none;}
     #printRoot .doc-receipt::before,#printRoot .doc-receipt::after{display:none;}
     .doc, .doc *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -3736,6 +3740,17 @@
   // print → PDF named after the document number, then auto-blank
   // ============================================================
   let printing = false, printPlaceholder = null, printNode = null, prevTitle = '', printedNo = '';
+  // shrink the printed document just enough to keep it on one A4 page
+  function fitOnePage(rec){
+    const m = document.createElement('div');
+    m.className = 'print-measure';
+    m.innerHTML = docHTML(Object.assign({}, rec));
+    document.body.appendChild(m);
+    const h = m.firstElementChild.scrollHeight;
+    m.remove();
+    const avail = 1040;   // A4 height minus 10 mm margins, in CSS px (277 mm ≈ 1047 px)
+    document.documentElement.style.setProperty('--pz', h > avail ? (avail / h).toFixed(3) : '1');
+  }
   function printDoc(){
     const rec = saveDoc(true);
     if(!rec) return;
@@ -3744,6 +3759,7 @@
     printPlaceholder = document.createComment('preview');
     printNode.parentNode.insertBefore(printPlaceholder, printNode);
     $('printRoot').appendChild(printNode);
+    fitOnePage(rec);
     document.body.classList.add('printing');
     prevTitle = document.title;
     document.title = rec.no;   // browsers use the title as the PDF filename
@@ -4295,9 +4311,12 @@
       const canvas = await html2canvas(node, { scale:2, backgroundColor:'#ffffff', useCORS:true });
       const pdf = new window.jspdf.jsPDF({ unit:'pt', format:'a4' });
       const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-      const iw = pw, ih = canvas.height * pw / canvas.width;
+      // fit the whole document on one A4 page (shrink if it is taller than the page)
+      const margin = 24, maxW = pw - margin * 2, maxH = ph - margin * 2;
+      const k = Math.min(maxW / canvas.width, maxH / canvas.height);
+      const iw = canvas.width * k, ih = canvas.height * k;
       const img = canvas.toDataURL('image/jpeg', 0.92);
-      for(let y = 0; y < ih; y += ph){ if(y) pdf.addPage(); pdf.addImage(img, 'JPEG', 0, -y, iw, ih); }
+      pdf.addImage(img, 'JPEG', (pw - iw) / 2, margin, iw, ih);
       const name = [rec.no, rec.client].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g, '').trim() + '.pdf';
       return new File([pdf.output('blob')], name, { type:'application/pdf' });
     } finally { box.remove(); }
