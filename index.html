@@ -822,6 +822,9 @@
   .sa-save{background:#EDF2ED;border:1px solid #D3E0D4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px;line-height:1.6;}
   .sa-save b{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:18px;}
   .plan-box{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin:4px 0 14px;}
+  .pl-mode{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-soft);margin:2px 0 6px;}
+  .pl-mode button{background:none;border:none;color:var(--rose-deep);text-decoration:underline;font-size:12.5px;cursor:pointer;padding:4px 0;min-height:0;}
+  .pl-row input[readonly]{background:transparent;border-color:transparent;font-weight:600;}
   .pl-row{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"n amt pay" "due due due" "note note rcp";gap:6px 8px;align-items:center;padding:10px 0;border-top:1px dashed var(--line);}
   .pl-row .n{grid-area:n;} .pl-row .pl-amt{grid-area:amt;} .pl-row .pl-pay{grid-area:pay;} .pl-row .pl-due-w{grid-area:due;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);} .pl-row small{grid-area:note;}
   .pl-row .pl-due-w input{flex:1;}
@@ -1035,6 +1038,7 @@
                 <label data-t="pl_count">分几期</label>
                 <div class="stepper" style="max-width:180px;"><button type="button" data-pln="-1">−</button><span id="plN">2</span><button type="button" data-pln="1">+</button></div>
               </div>
+              <div class="pl-mode" id="plMode"></div>
               <div id="plRows"></div>
               <div class="sub" id="plSum"></div>
             </div>
@@ -2080,7 +2084,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
@@ -2395,7 +2399,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
@@ -3132,9 +3136,12 @@
     $('plBody').style.display = on ? '' : 'none';
     if(!on) return;
     $('plN').textContent = S.plan.length;
+    $('plMode').innerHTML = S.planCustom
+      ? `<span>${esc(T().pl_modeCustom)}</span><button type="button" data-plmode="auto">${esc(T().pl_toAuto)}</button>`
+      : `<span>${esc(T().pl_modeAuto)}</span><button type="button" data-plmode="custom">${esc(T().pl_toCustom)}</button>`;
     $('plRows').innerHTML = S.plan.map((p, i) => `<div class="pl-row" data-pli="${i}">
         <span class="n">${esc(T().pl_nth.replace('{n}', i + 1))}</span>
-        <input type="text" inputmode="decimal" class="pl-amt" value="${p.amt}" aria-label="amount">
+        <input type="text" inputmode="decimal" class="pl-amt" value="${p.amt}" aria-label="amount"${S.planCustom || p.paid ? '' : ' readonly'}>
         <button type="button" class="pl-pay${p.paid ? ' paid' : ''}">${esc(p.paid ? T().pl_paid : T().pl_markPaid)}</button>
         ${p.paid ? `<button type="button" class="pl-rcp" style="grid-area:rcp;">${esc(p.receiptId && docs.some(d => d.id === p.receiptId) ? T().pl_openRcp.replace('{no}', p.receiptNo || '') : T().pl_makeRcp)}</button>` : ''}
         <label class="pl-due-w">${esc(T().pl_due)}<input type="date" class="pl-due" value="${esc(p.due || '')}" aria-label="due"></label>
@@ -3143,18 +3150,35 @@
     const sum = r2(S.plan.reduce((a,p) => a + num(p.amt), 0)), total = r2(totals().total);
     const paid = r2(S.plan.filter(p => p.paid).reduce((a,p) => a + num(p.amt), 0));
     $('plSum').innerHTML = esc(T().pl_sum.replace('{p}', fmt(paid)).replace('{r}', fmt(r2(sum - paid)))) +
-      (Math.abs(sum - total) >= 0.01 ? ` · <span style="color:var(--loss)">${esc(T().pl_mismatch.replace('{s}', fmt(sum)).replace('{t}', fmt(total)))}</span>` : '');
+      (Math.abs(sum - total) >= 0.01 ? `<br><span style="color:var(--loss)">${esc(T().pl_mismatch.replace('{s}', fmt(sum)).replace('{t}', fmt(total)) + ' · ' + (sum < total ? T().pl_short : T().pl_over).replace('{d}', fmt(Math.abs(r2(total - sum)))))}</span>` : '');
   }
   $('plSw').addEventListener('click', () => {
     if(S.plan && S.plan.length){
       if(S.plan.some(p => p.paid) && !confirm(T().pl_offAsk)) return;
       S.plan = null;
-    } else planSplit(2);
+    } else { S.planCustom = false; planSplit(2); }
     renderPlan(); renderPreview();
   });
   $('planBox').addEventListener('click', ev => {
     const st = ev.target.closest('[data-pln]');
-    if(st){ const n = Math.max(2, Math.min(12, S.plan.length + Number(st.dataset.pln))); if(n !== S.plan.length){ planSplit(n); renderPlan(); renderPreview(); } return; }
+    if(st){
+      const n = Math.max(2, Math.min(12, S.plan.length + Number(st.dataset.pln)));
+      if(n === S.plan.length) return;
+      if(!S.planCustom) planSplit(n);
+      else if(n > S.plan.length){
+        const last = S.plan[S.plan.length - 1], d = new Date((last.due || todayStr()) + 'T00:00:00'); d.setMonth(d.getMonth() + 1);
+        S.plan.push({ amt: r2(Math.max(0, totals().total - S.plan.reduce((a,p) => a + num(p.amt), 0))), due: toStr(d), paid:false, paidDate:'' });
+      } else { if(S.plan[S.plan.length - 1].paid){ toast(T().pl_cantRemovePaid); return; } S.plan.pop(); }
+      renderPlan(); renderPreview(); return;
+    }
+    const md = ev.target.closest('[data-plmode]');
+    if(md){
+      if(md.dataset.plmode === 'auto'){
+        if(S.plan.some(p => p.paid)){ toast(T().pl_autoPaid); return; }
+        S.planCustom = false; planSplit(S.plan.length);
+      } else S.planCustom = true;
+      renderPlan(); renderPreview(); return;
+    }
     const rb = ev.target.closest('.pl-rcp');
     if(rb){ planReceipt(Number(rb.closest('[data-pli]').dataset.pli)); return; }
     const pb = ev.target.closest('.pl-pay'); if(!pb) return;
@@ -3202,7 +3226,7 @@
       p.amt = r2(num(ev.target.value));
       // the last unpaid installment takes up the difference so the plan still adds up
       const last = S.plan.length - 1;
-      if(i !== last && !S.plan[last].paid){
+      if(!S.planCustom && i !== last && !S.plan[last].paid){
         const others = S.plan.slice(0, last).reduce((a,x) => a + num(x.amt), 0);
         S.plan[last].amt = r2(Math.max(0, totals().total - others));
       }
@@ -3222,7 +3246,7 @@
     $('mProfit').textContent = fmt(t.profit);
     $('mProfitRow').classList.toggle('pos', t.profit >= 0);
     $('mProfitRow').classList.toggle('neg', t.profit < 0);
-    if(S.plan && S.plan.length && !S.plan.some(p => p.paid) && Math.abs(S.plan.reduce((a,p) => a + num(p.amt), 0) - t.total) >= 0.01) planSplit(S.plan.length);
+    if(S.plan && S.plan.length && !S.planCustom && !S.plan.some(p => p.paid) && Math.abs(S.plan.reduce((a,p) => a + num(p.amt), 0) - t.total) >= 0.01) planSplit(S.plan.length);
     if($('planBox')) renderPlan();
   }
 
@@ -3430,7 +3454,7 @@
   function newDoc(type){
     S.editingId = null; S.importNo = ''; S.customNo = ''; S.no = ''; S.docType = type || S.docType; S.status = 'unpaid';
     S.service = professions.includes(S.service) ? S.service : (professions[0] || 'Other');
-    S.styleLocked = false; S.items = []; S.plan = null; S.planInfo = null;
+    S.styleLocked = false; S.items = []; S.plan = null; S.planInfo = null; S.planCustom = false;
     $('docNo').readOnly = true;
     ['dClient','dClientContact','dClientTin','dRefInvoice','dCostNote','dNotes'].forEach(id => $(id).value = '');
     ['dDiscount','dDeposit','dCost'].forEach(id => $(id).value = '0');
@@ -3452,6 +3476,7 @@
     $('docNo').readOnly = true;
     S.items = (rec.items||[]).map(it => ({id:it.id||uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)}));
     S.plan = rec.plan && rec.plan.length ? rec.plan.map(p => Object.assign({}, p)) : null;
+    S.planCustom = !!rec.planCustom;
     S.planInfo = rec.planInfo || null;
     if(!S.items.length) S.items.push({id:uid(),desc:'',qty:1,price:0});
     $('dClient').value = rec.client || '';
@@ -3490,6 +3515,7 @@
       dueDate: S.docType === 'invoice' ? $('dDueDate').value : '',
       payMethod:S.payMethod, style:S.style,
       status: S.docType === 'invoice' ? (S.plan && S.plan.length ? (S.plan.every(p => p.paid) ? 'paid' : S.plan.some(p => p.paid) ? 'partial' : (S.status === 'paid' || S.status === 'partial' ? 'unpaid' : S.status)) : S.status) : 'paid',
+      planCustom: !!(S.docType === 'invoice' && S.plan && S.plan.length && S.planCustom),
       plan: S.docType === 'invoice' && S.plan && S.plan.length ? S.plan.map(p => ({ amt:r2(num(p.amt)), due:p.due || '', paid:!!p.paid, paidDate:p.paid ? (p.paidDate || todayStr()) : '', wallet:p.paid ? p.wallet : undefined, walletAt:p.paid ? (p.walletAt || 0) : 0, receiptId:p.receiptId, receiptNo:p.receiptNo })) : null,
       // invoice marked paid here (not converted to a receipt): remember when the money came in
       paidDate: S.docType === 'invoice' && S.status === 'paid' ? ((docs.find(d => d.id === S.editingId) || {}).paidDate || todayStr()) : '',
