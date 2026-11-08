@@ -835,8 +835,15 @@
   .doc .d-plan .l{font-size:10.5px;color:var(--ink-soft);font-weight:600;margin-bottom:4px;}
   .doc .d-plan table{width:100%;border-collapse:collapse;font-size:12px;}
   .doc .d-plan td{padding:5px 0;border-bottom:1px solid var(--line-soft);white-space:nowrap;}
+  .doc .d-plan tr.paid td{background:#F3F7F3;}
+  .doc .d-plan tr.latest td{background:#DCEBDD;font-weight:700;border-bottom-color:#B9D3BC;}
+  .doc .d-plan tr.latest td:first-child{box-shadow:inset 3px 0 0 var(--green);}
+  .doc .d-plan td:first-child{padding-left:6px;}
+  .doc .d-plan td:last-child{padding-right:6px;}
+  .doc .d-plan .tag{display:inline-block;margin-left:6px;font-size:9px;font-weight:700;color:#fff;background:var(--green);border-radius:8px;padding:1px 6px;vertical-align:1px;}
+  .doc .d-plan td.st small{display:block;font-size:9px;font-weight:400;color:var(--ink-soft);}
   .doc .d-plan td.dt{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);padding-left:8px;}
-  .doc .d-plan td.num{text-align:right;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+  .doc .d-plan td.num{text-align:right;font-family:'IBM Plex Mono',monospace;white-space:nowrap;padding-left:12px;}
   .doc .d-plan td.st{text-align:right;font-size:10.5px;font-weight:700;padding-left:8px;}
   .doc .d-plan td.st.paid{color:var(--green);} .doc .d-plan td.st.due{color:var(--amber);}
   .hs-two{display:flex;flex-direction:column;align-items:center;line-height:1.25;}
@@ -3306,8 +3313,12 @@
           <div class="row"><span>Deposit paid</span><span>- ${fmt(d.deposit)}</span></div>
           <div class="row grand"><span>Balance due</span><span>${fmt(d.total)}</span></div>
         </div>
-        ${d.plan && d.plan.length ? `<div class="d-plan"><div class="l">Payment schedule · ${d.plan.length} installments (due date · amount)</div><table>${d.plan.map((p, i) =>
-          `<tr><td>#${i + 1}</td><td class="dt">${esc(p.due || '')}</td><td class="num">${fmt(num(p.amt))}</td><td class="st ${p.paid ? 'paid' : 'due'}">${p.paid ? 'Paid' : 'Due'}</td></tr>`).join('')}</table></div>` : ''}
+        ${d.plan && d.plan.length ? (() => {
+          // the most recent payment stands out; earlier paid parts are tinted, unpaid parts stay plain
+          const latest = d.plan.reduce((b, p, i) => p.paid && (b < 0 || (p.paidDate || '') >= (d.plan[b].paidDate || '')) ? i : b, -1);
+          return `<div class="d-plan"><div class="l">Payment schedule · ${d.plan.length} installments (due date · amount)</div><table>${d.plan.map((p, i) =>
+          `<tr class="${i === latest ? 'latest' : p.paid ? 'paid' : ''}"><td>#${i + 1}${i === latest ? '<span class="tag">This payment</span>' : ''}</td><td class="dt">${esc(p.due || '')}</td><td class="num">${fmt(num(p.amt))}</td><td class="st ${p.paid ? 'paid' : 'due'}">${p.paid ? 'Paid' + (p.paidDate ? '<small>' + esc(p.paidDate) + '</small>' : '') : 'Due'}</td></tr>`).join('')}</table></div>`;
+        })() : ''}
         ${payBox}
         ${d.notes ? `<div class="d-note">${esc(d.notes)}</div>` : ''}
         ${b.terms ? `<div class="d-terms">${esc(b.terms)}</div>` : ''}
