@@ -822,7 +822,7 @@
   .sa-save{background:#EDF2ED;border:1px solid #D3E0D4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px;line-height:1.6;}
   .sa-save b{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:18px;}
   .plan-box{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin:4px 0 14px;}
-  .pl-row{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"n amt pay" "due due due" "note note note";gap:6px 8px;align-items:center;padding:10px 0;border-top:1px dashed var(--line);}
+  .pl-row{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"n amt pay" "due due due" "note note rcp";gap:6px 8px;align-items:center;padding:10px 0;border-top:1px dashed var(--line);}
   .pl-row .n{grid-area:n;} .pl-row .pl-amt{grid-area:amt;} .pl-row .pl-pay{grid-area:pay;} .pl-row .pl-due-w{grid-area:due;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);} .pl-row small{grid-area:note;}
   .pl-row .pl-due-w input{flex:1;}
   .pl-row:first-child{border-top:none;}
@@ -2080,7 +2080,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_due:'到期日', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
@@ -2395,7 +2395,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_due:'Due', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
@@ -3136,6 +3136,7 @@
         <span class="n">${esc(T().pl_nth.replace('{n}', i + 1))}</span>
         <input type="text" inputmode="decimal" class="pl-amt" value="${p.amt}" aria-label="amount">
         <button type="button" class="pl-pay${p.paid ? ' paid' : ''}">${esc(p.paid ? T().pl_paid : T().pl_markPaid)}</button>
+        ${p.paid ? `<button type="button" class="pl-rcp" style="grid-area:rcp;">${esc(p.receiptId && docs.some(d => d.id === p.receiptId) ? T().pl_openRcp.replace('{no}', p.receiptNo || '') : T().pl_makeRcp)}</button>` : ''}
         <label class="pl-due-w">${esc(T().pl_due)}<input type="date" class="pl-due" value="${esc(p.due || '')}" aria-label="due"></label>
         ${p.paid ? `<small>${esc(T().pl_paidOn.replace('{d}', p.paidDate || '—'))}${p.wallet ? ' · ' + esc((wallets.find(w => w.id === p.wallet) || {}).name || '') : ''}</small>` : ''}
       </div>`).join('');
@@ -3154,13 +3155,45 @@
   $('planBox').addEventListener('click', ev => {
     const st = ev.target.closest('[data-pln]');
     if(st){ const n = Math.max(2, Math.min(12, S.plan.length + Number(st.dataset.pln))); if(n !== S.plan.length){ planSplit(n); renderPlan(); renderPreview(); } return; }
+    const rb = ev.target.closest('.pl-rcp');
+    if(rb){ planReceipt(Number(rb.closest('[data-pli]').dataset.pli)); return; }
     const pb = ev.target.closest('.pl-pay'); if(!pb) return;
     const i = Number(pb.closest('[data-pli]').dataset.pli), p = S.plan[i];
-    if(p.paid){ p.paid = false; p.paidDate = ''; p.wallet = undefined; p.walletAt = 0; renderPlan(); renderPreview(); return; }
+    if(p.paid){
+      if(p.receiptId && docs.some(d => d.id === p.receiptId) && !confirm(T().pl_unpayAsk.replace('{no}', p.receiptNo || ''))) return;
+      p.paid = false; p.paidDate = ''; p.wallet = undefined; p.walletAt = 0; renderPlan(); renderPreview(); return;
+    }
     p.paid = true; p.paidDate = todayStr();
     renderPlan(); renderPreview();
     askIncomeWallet(num(p.amt), w => { p.wallet = w; p.walletAt = Date.now(); renderPlan(); toast(T().pl_saveHint); });
   });
+  // one receipt per paid installment, linked back to the invoice
+  function planReceipt(i){
+    const p = S.plan[i];
+    if(p.receiptId){ const r = docs.find(d => d.id === p.receiptId); if(r){ loadDoc(r); return; } }
+    const inv = saveDoc(true); if(!inv) return;
+    const ip = inv.plan[i], n = inv.plan.length;
+    const paidSoFar = r2(inv.plan.slice(0, i + 1).filter(x => x.paid).reduce((a,x) => a + num(x.amt), 0));
+    const left = r2(inv.plan.filter(x => !x.paid).reduce((a,x) => a + num(x.amt), 0));
+    const what = (inv.items || []).map(it => it.desc).filter(Boolean)[0] || inv.service || '';
+    const receipt = {
+      id: uid(), docType:'receipt', no: numberFor('receipt'),
+      client:inv.client, clientContact:inv.clientContact, clientTin:inv.clientTin,
+      service:inv.service, date: ip.paidDate || todayStr(), dueDate:'', payMethod:inv.payMethod,
+      status:'paid', style:inv.style, refInvoiceNo:inv.no,
+      items:[{ id:uid(), desc:`Installment ${i + 1} of ${n}${what ? ' — ' + what : ''}`, qty:1, price:num(ip.amt) }],
+      discount:0, deposit:0, subtotal:num(ip.amt), taxRate:0, tax:0, total:num(ip.amt),
+      cost:0, costNote:'', costExp:'none', incWallet:'', notes:'',
+      fromPlan:{ inv:inv.id, idx:i }, planInfo:{ n, idx:i, invTotal:inv.total, paid:paidSoFar, left },
+      bizSnapshot:inv.bizSnapshot, createdAt:Date.now()
+    };
+    docs.unshift(receipt);
+    biz.receiptCounter = (Number(biz.receiptCounter)||1) + 1;
+    const d = docs.find(x => x.id === inv.id); d.plan[i].receiptId = receipt.id; d.plan[i].receiptNo = receipt.no;
+    saveBiz(); saveDocs();
+    toast(T().pl_rcpMade.replace('{no}', receipt.no));
+    loadDoc(receipt);
+  }
   $('planBox').addEventListener('change', ev => {
     const row = ev.target.closest('[data-pli]'); if(!row) return;
     const i = Number(row.dataset.pli), p = S.plan[i];
@@ -3218,7 +3251,8 @@
       payMethod:S.payMethod, status:S.status, style:S.style, refInvoiceNo:$('dRefInvoice').value,
       items:S.items, discount:t.discount, deposit:t.deposit, subtotal:t.subtotal,
       taxRate:t.taxRate, tax:t.tax, total:t.total, notes:$('dNotes').value, bizSnapshot:null,
-      plan: S.docType === 'invoice' && S.plan ? S.plan : null
+      plan: S.docType === 'invoice' && S.plan ? S.plan : null,
+      planInfo: S.docType === 'receipt' ? S.planInfo : null
     };
   }
   function supplierLines(b){
@@ -3356,6 +3390,10 @@
         <div class="row"><span>Deposit received earlier</span><span>- ${fmt(d.deposit)}</span></div>
         <div class="row grand"><span>Amount paid</span><span>${fmt(d.total)}</span></div>
       </div>
+      ${d.planInfo ? `<div class="d-pay" style="margin-top:12px;"><div class="l">Installment ${d.planInfo.idx + 1} of ${d.planInfo.n}${d.refInvoiceNo ? ' · Invoice ' + esc(d.refInvoiceNo) : ''}</div>
+        <div class="row"><span>Invoice total</span><span>${fmt(d.planInfo.invTotal)}</span></div>
+        <div class="row"><span>Paid to date</span><span>${fmt(d.planInfo.paid)}</span></div>
+        <div class="row"><span>Balance remaining</span><span>${fmt(d.planInfo.left)}</span></div></div>` : ''}
       ${payBox}
       ${d.notes ? `<div class="d-note">${esc(d.notes)}</div>` : ''}
       ${signatureHTML(b)}
@@ -3392,7 +3430,7 @@
   function newDoc(type){
     S.editingId = null; S.importNo = ''; S.customNo = ''; S.no = ''; S.docType = type || S.docType; S.status = 'unpaid';
     S.service = professions.includes(S.service) ? S.service : (professions[0] || 'Other');
-    S.styleLocked = false; S.items = []; S.plan = null;
+    S.styleLocked = false; S.items = []; S.plan = null; S.planInfo = null;
     $('docNo').readOnly = true;
     ['dClient','dClientContact','dClientTin','dRefInvoice','dCostNote','dNotes'].forEach(id => $(id).value = '');
     ['dDiscount','dDeposit','dCost'].forEach(id => $(id).value = '0');
@@ -3414,6 +3452,7 @@
     $('docNo').readOnly = true;
     S.items = (rec.items||[]).map(it => ({id:it.id||uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)}));
     S.plan = rec.plan && rec.plan.length ? rec.plan.map(p => Object.assign({}, p)) : null;
+    S.planInfo = rec.planInfo || null;
     if(!S.items.length) S.items.push({id:uid(),desc:'',qty:1,price:0});
     $('dClient').value = rec.client || '';
     $('dClientContact').value = rec.clientContact || '';
@@ -3451,7 +3490,7 @@
       dueDate: S.docType === 'invoice' ? $('dDueDate').value : '',
       payMethod:S.payMethod, style:S.style,
       status: S.docType === 'invoice' ? (S.plan && S.plan.length ? (S.plan.every(p => p.paid) ? 'paid' : S.plan.some(p => p.paid) ? 'partial' : (S.status === 'paid' || S.status === 'partial' ? 'unpaid' : S.status)) : S.status) : 'paid',
-      plan: S.docType === 'invoice' && S.plan && S.plan.length ? S.plan.map(p => ({ amt:r2(num(p.amt)), due:p.due || '', paid:!!p.paid, paidDate:p.paid ? (p.paidDate || todayStr()) : '', wallet:p.paid ? p.wallet : undefined, walletAt:p.paid ? (p.walletAt || 0) : 0 })) : null,
+      plan: S.docType === 'invoice' && S.plan && S.plan.length ? S.plan.map(p => ({ amt:r2(num(p.amt)), due:p.due || '', paid:!!p.paid, paidDate:p.paid ? (p.paidDate || todayStr()) : '', wallet:p.paid ? p.wallet : undefined, walletAt:p.paid ? (p.walletAt || 0) : 0, receiptId:p.receiptId, receiptNo:p.receiptNo })) : null,
       // invoice marked paid here (not converted to a receipt): remember when the money came in
       paidDate: S.docType === 'invoice' && S.status === 'paid' ? ((docs.find(d => d.id === S.editingId) || {}).paidDate || todayStr()) : '',
       refInvoiceNo: S.docType === 'receipt' ? $('dRefInvoice').value : '',
@@ -3475,6 +3514,7 @@
       rec.convertedToId = prev.convertedToId;
       rec.convertedToNo = prev.convertedToNo;
       rec.costExp = prev.costExp;
+      if(prev.fromPlan){ rec.fromPlan = prev.fromPlan; rec.planInfo = prev.planInfo; }
       if(prev.incWallet !== undefined){ rec.incWallet = prev.incWallet; rec.incAt = prev.incAt; }
       if(prev.status === 'void') rec.status = 'void';
       docs[idx] = rec;
@@ -3634,7 +3674,7 @@
     return [];
   }
   function isOutstanding(d){ return d.docType === 'invoice' && d.status !== 'paid' && !isVoid(d) && !d.convertedToId; }
-  function isIncome(d){ return !isVoid(d) && (d.docType === 'receipt' || (d.docType === 'invoice' && d.status === 'paid' && !d.convertedToId)); }
+  function isIncome(d){ return !isVoid(d) && !d.fromPlan && (d.docType === 'receipt' || (d.docType === 'invoice' && d.status === 'paid' && !d.convertedToId)); }
   function inRange(dateStr, s, e){
     if(!dateStr) return false;
     if(s && dateStr < s) return false;
@@ -3695,6 +3735,7 @@
     if(!confirm(T().confirmDeleteDoc.replace('{no}', rec.no))) return;
     docs = docs.filter(d => d.id !== id);
     saveDocs();
+    if(rec.fromPlan){ const inv = docs.find(d => d.id === rec.fromPlan.inv); const pp = inv && inv.plan && inv.plan[rec.fromPlan.idx]; if(pp && pp.receiptId === rec.id){ delete pp.receiptId; delete pp.receiptNo; saveDocs(); } }
     if(rec.costExp && rec.costExp !== 'none' && !docs.some(d => d.costExp === rec.costExp)){ invEntries = invEntries.filter(x => x.id !== rec.costExp); saveInv(); }
     if(S.editingId === id) newDoc(S.docType);
     renderDocs(); refreshHome();
