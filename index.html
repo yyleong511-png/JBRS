@@ -821,6 +821,24 @@
   .sa-tip .e{flex:none;}
   .sa-save{background:#EDF2ED;border:1px solid #D3E0D4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px;line-height:1.6;}
   .sa-save b{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:18px;}
+  .plan-box{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin:4px 0 14px;}
+  .pl-row{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"n amt pay" "due due due" "note note note";gap:6px 8px;align-items:center;padding:10px 0;border-top:1px dashed var(--line);}
+  .pl-row .n{grid-area:n;} .pl-row .pl-amt{grid-area:amt;} .pl-row .pl-pay{grid-area:pay;} .pl-row .pl-due-w{grid-area:due;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);} .pl-row small{grid-area:note;}
+  .pl-row .pl-due-w input{flex:1;}
+  .pl-row:first-child{border-top:none;}
+  .pl-row .n{font-size:12px;font-weight:700;color:var(--rose-deep);white-space:nowrap;}
+  .pl-row input{min-height:38px;font-size:14px;padding:6px 8px;width:100%;}
+  .pl-row button{min-height:34px;font-size:12px;padding:4px 10px;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
+  .pl-row button.paid{background:#EDF2ED;border-color:#D3E0D4;color:var(--green);font-weight:600;}
+  .pl-row small{font-size:11px;color:var(--ink-mute);}
+  .doc .d-plan{margin-top:14px;}
+  .doc .d-plan .l{font-size:10.5px;color:var(--ink-soft);font-weight:600;margin-bottom:4px;}
+  .doc .d-plan table{width:100%;border-collapse:collapse;font-size:12px;}
+  .doc .d-plan td{padding:5px 0;border-bottom:1px solid var(--line-soft);white-space:nowrap;}
+  .doc .d-plan td.dt{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);padding-left:8px;}
+  .doc .d-plan td.num{text-align:right;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+  .doc .d-plan td.st{text-align:right;font-size:10.5px;font-weight:700;padding-left:8px;}
+  .doc .d-plan td.st.paid{color:var(--green);} .doc .d-plan td.st.due{color:var(--amber);}
   .hs-two{display:flex;flex-direction:column;align-items:center;line-height:1.25;}
   .hs-two .hs-val{font-size:14.5px;}
   .hs-val.neg{color:var(--loss);}
@@ -998,6 +1016,20 @@
             <div class="field">
               <label data-t="l_status">付款状态</label>
               <button type="button" class="picker" id="pkStatus"><span class="pk-val"></span><span class="pk-arrow">▼</span></button>
+            </div>
+          </div>
+          <div class="plan-box" id="planBox">
+            <div class="switch-row" style="border-top:none;padding-top:0;">
+              <div class="lab"><span data-t="pl_l">分期付款</span><small data-t="pl_sub">客人要分几期付，就打开；每一期可以分开标记已付</small></div>
+              <button type="button" class="switch" id="plSw" aria-label="installments"></button>
+            </div>
+            <div id="plBody" style="display:none;">
+              <div class="field" style="margin:10px 0 8px;">
+                <label data-t="pl_count">分几期</label>
+                <div class="stepper" style="max-width:180px;"><button type="button" data-pln="-1">−</button><span id="plN">2</span><button type="button" data-pln="1">+</button></div>
+              </div>
+              <div id="plRows"></div>
+              <div class="sub" id="plSum"></div>
             </div>
           </div>
           <div class="field" id="receiptOnlyFields">
@@ -2040,6 +2072,9 @@
       l_startDate:'开始日期', l_endDate:'结束日期', l_startDate2:'开始日期', l_endDate2:'结束日期',
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
+      pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
+      pl_due:'到期日', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
       h_breakdown:'收入分类拆解', breakdownHint:'只计算已经收到的钱（收据 + 已付清的发票），作废的不算',
@@ -2352,6 +2387,9 @@
       l_startDate:'Start Date', l_endDate:'End Date', l_startDate2:'Start Date', l_endDate2:'End Date',
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
+      pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
+      pl_due:'Due', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
       h_breakdown:'Income by Category', breakdownHint:'Counts money actually received (receipts + paid invoices); voided documents excluded',
@@ -3009,6 +3047,7 @@
     document.querySelectorAll('#docTypeSeg button').forEach(b => b.classList.toggle('on', b.dataset.type === type));
     const isInv = type === 'invoice';
     $('invoiceOnlyFields').style.display = isInv ? '' : 'none';
+    if(!isInv) S.plan = null;
     $('receiptOnlyFields').style.display = isInv ? 'none' : '';
     $('docTypeHint').textContent = isInv ? T().hintInvoice : T().hintReceipt;
     $('l_dateEl').textContent = isInv ? T().l_dateInvoice : T().l_dateReceipt;
@@ -3066,6 +3105,71 @@
   });
 
   // ---------- totals ----------
+  // ---------- installments (invoice only) ----------
+  // S.plan: null or [{amt, due, paid, paidDate, wallet, walletAt}]
+  const r2 = n => Math.round(n * 100) / 100;
+  function planSplit(n){
+    const total = totals().total, base = Math.floor(total / n * 100) / 100;
+    const start = $('dDueDate').value || $('dDate').value || todayStr();
+    const old = S.plan || [];
+    S.plan = Array.from({length:n}, (_, i) => {
+      const d = new Date(start + 'T00:00:00'); d.setMonth(d.getMonth() + i);
+      const o = old[i] || {};
+      return { amt: i === n - 1 ? r2(total - base * (n - 1)) : base, due: o.due || toStr(d), paid: !!o.paid, paidDate: o.paidDate || '', wallet: o.wallet, walletAt: o.walletAt };
+    });
+  }
+  function renderPlan(){
+    const on = !!(S.plan && S.plan.length);
+    $('planBox').style.display = S.docType === 'invoice' ? '' : 'none';
+    $('plSw').classList.toggle('on', on);
+    $('plBody').style.display = on ? '' : 'none';
+    if(!on) return;
+    $('plN').textContent = S.plan.length;
+    $('plRows').innerHTML = S.plan.map((p, i) => `<div class="pl-row" data-pli="${i}">
+        <span class="n">${esc(T().pl_nth.replace('{n}', i + 1))}</span>
+        <input type="text" inputmode="decimal" class="pl-amt" value="${p.amt}" aria-label="amount">
+        <button type="button" class="pl-pay${p.paid ? ' paid' : ''}">${esc(p.paid ? T().pl_paid : T().pl_markPaid)}</button>
+        <label class="pl-due-w">${esc(T().pl_due)}<input type="date" class="pl-due" value="${esc(p.due || '')}" aria-label="due"></label>
+        ${p.paid ? `<small>${esc(T().pl_paidOn.replace('{d}', p.paidDate || '—'))}${p.wallet ? ' · ' + esc((wallets.find(w => w.id === p.wallet) || {}).name || '') : ''}</small>` : ''}
+      </div>`).join('');
+    const sum = r2(S.plan.reduce((a,p) => a + num(p.amt), 0)), total = r2(totals().total);
+    const paid = r2(S.plan.filter(p => p.paid).reduce((a,p) => a + num(p.amt), 0));
+    $('plSum').innerHTML = esc(T().pl_sum.replace('{p}', fmt(paid)).replace('{r}', fmt(r2(sum - paid)))) +
+      (Math.abs(sum - total) >= 0.01 ? ` · <span style="color:var(--loss)">${esc(T().pl_mismatch.replace('{s}', fmt(sum)).replace('{t}', fmt(total)))}</span>` : '');
+  }
+  $('plSw').addEventListener('click', () => {
+    if(S.plan && S.plan.length){
+      if(S.plan.some(p => p.paid) && !confirm(T().pl_offAsk)) return;
+      S.plan = null;
+    } else planSplit(2);
+    renderPlan(); renderPreview();
+  });
+  $('planBox').addEventListener('click', ev => {
+    const st = ev.target.closest('[data-pln]');
+    if(st){ const n = Math.max(2, Math.min(12, S.plan.length + Number(st.dataset.pln))); if(n !== S.plan.length){ planSplit(n); renderPlan(); renderPreview(); } return; }
+    const pb = ev.target.closest('.pl-pay'); if(!pb) return;
+    const i = Number(pb.closest('[data-pli]').dataset.pli), p = S.plan[i];
+    if(p.paid){ p.paid = false; p.paidDate = ''; p.wallet = undefined; p.walletAt = 0; renderPlan(); renderPreview(); return; }
+    p.paid = true; p.paidDate = todayStr();
+    renderPlan(); renderPreview();
+    askIncomeWallet(num(p.amt), w => { p.wallet = w; p.walletAt = Date.now(); renderPlan(); toast(T().pl_saveHint); });
+  });
+  $('planBox').addEventListener('change', ev => {
+    const row = ev.target.closest('[data-pli]'); if(!row) return;
+    const i = Number(row.dataset.pli), p = S.plan[i];
+    if(ev.target.classList.contains('pl-due')) p.due = ev.target.value;
+    if(ev.target.classList.contains('pl-amt')){
+      p.amt = r2(num(ev.target.value));
+      // the last unpaid installment takes up the difference so the plan still adds up
+      const last = S.plan.length - 1;
+      if(i !== last && !S.plan[last].paid){
+        const others = S.plan.slice(0, last).reduce((a,x) => a + num(x.amt), 0);
+        S.plan[last].amt = r2(Math.max(0, totals().total - others));
+      }
+    }
+    renderPlan(); renderPreview();
+  });
+
   function renderTotals(){
     const t = totals();
     $('mSubtotal').textContent = fmt(t.subtotal);
@@ -3078,6 +3182,8 @@
     $('mProfit').textContent = fmt(t.profit);
     $('mProfitRow').classList.toggle('pos', t.profit >= 0);
     $('mProfitRow').classList.toggle('neg', t.profit < 0);
+    if(S.plan && S.plan.length && !S.plan.some(p => p.paid) && Math.abs(S.plan.reduce((a,p) => a + num(p.amt), 0) - t.total) >= 0.01) planSplit(S.plan.length);
+    if($('planBox')) renderPlan();
   }
 
   // ---------- preview ----------
@@ -3104,7 +3210,8 @@
       clientTin:$('dClientTin').value, service:S.service, date:$('dDate').value, dueDate:$('dDueDate').value,
       payMethod:S.payMethod, status:S.status, style:S.style, refInvoiceNo:$('dRefInvoice').value,
       items:S.items, discount:t.discount, deposit:t.deposit, subtotal:t.subtotal,
-      taxRate:t.taxRate, tax:t.tax, total:t.total, notes:$('dNotes').value, bizSnapshot:null
+      taxRate:t.taxRate, tax:t.tax, total:t.total, notes:$('dNotes').value, bizSnapshot:null,
+      plan: S.docType === 'invoice' && S.plan ? S.plan : null
     };
   }
   function supplierLines(b){
@@ -3199,6 +3306,8 @@
           <div class="row"><span>Deposit paid</span><span>- ${fmt(d.deposit)}</span></div>
           <div class="row grand"><span>Balance due</span><span>${fmt(d.total)}</span></div>
         </div>
+        ${d.plan && d.plan.length ? `<div class="d-plan"><div class="l">Payment schedule · ${d.plan.length} installments (due date · amount)</div><table>${d.plan.map((p, i) =>
+          `<tr><td>#${i + 1}</td><td class="dt">${esc(p.due || '')}</td><td class="num">${fmt(num(p.amt))}</td><td class="st ${p.paid ? 'paid' : 'due'}">${p.paid ? 'Paid' : 'Due'}</td></tr>`).join('')}</table></div>` : ''}
         ${payBox}
         ${d.notes ? `<div class="d-note">${esc(d.notes)}</div>` : ''}
         ${b.terms ? `<div class="d-terms">${esc(b.terms)}</div>` : ''}
@@ -3272,7 +3381,7 @@
   function newDoc(type){
     S.editingId = null; S.importNo = ''; S.customNo = ''; S.no = ''; S.docType = type || S.docType; S.status = 'unpaid';
     S.service = professions.includes(S.service) ? S.service : (professions[0] || 'Other');
-    S.styleLocked = false; S.items = [];
+    S.styleLocked = false; S.items = []; S.plan = null;
     $('docNo').readOnly = true;
     ['dClient','dClientContact','dClientTin','dRefInvoice','dCostNote','dNotes'].forEach(id => $(id).value = '');
     ['dDiscount','dDeposit','dCost'].forEach(id => $(id).value = '0');
@@ -3293,6 +3402,7 @@
     S.payMethod = rec.payMethod || 'Bank Transfer'; S.styleLocked = true;
     $('docNo').readOnly = true;
     S.items = (rec.items||[]).map(it => ({id:it.id||uid(), desc:it.desc||'', qty:num(it.qty), price:num(it.price)}));
+    S.plan = rec.plan && rec.plan.length ? rec.plan.map(p => Object.assign({}, p)) : null;
     if(!S.items.length) S.items.push({id:uid(),desc:'',qty:1,price:0});
     $('dClient').value = rec.client || '';
     $('dClientContact').value = rec.clientContact || '';
@@ -3313,7 +3423,7 @@
     setDocType(S.docType, true);
     $('docNo').value = rec.no;
     $('convertRow').style.display = 'flex';
-    $('btnConvert').style.display = (rec.docType === 'invoice' && !rec.convertedToId && rec.status !== 'void') ? '' : 'none';
+    $('btnConvert').style.display = (rec.docType === 'invoice' && !rec.convertedToId && rec.status !== 'void' && !(rec.plan && rec.plan.length)) ? '' : 'none';
     $('btnVoid').style.display = rec.status === 'void' ? 'none' : '';
     showView('editor');
   }
@@ -3329,7 +3439,8 @@
       service:S.service, date:$('dDate').value || todayStr(),
       dueDate: S.docType === 'invoice' ? $('dDueDate').value : '',
       payMethod:S.payMethod, style:S.style,
-      status: S.docType === 'invoice' ? S.status : 'paid',
+      status: S.docType === 'invoice' ? (S.plan && S.plan.length ? (S.plan.every(p => p.paid) ? 'paid' : S.plan.some(p => p.paid) ? 'partial' : (S.status === 'paid' || S.status === 'partial' ? 'unpaid' : S.status)) : S.status) : 'paid',
+      plan: S.docType === 'invoice' && S.plan && S.plan.length ? S.plan.map(p => ({ amt:r2(num(p.amt)), due:p.due || '', paid:!!p.paid, paidDate:p.paid ? (p.paidDate || todayStr()) : '', wallet:p.paid ? p.wallet : undefined, walletAt:p.paid ? (p.walletAt || 0) : 0 })) : null,
       // invoice marked paid here (not converted to a receipt): remember when the money came in
       paidDate: S.docType === 'invoice' && S.status === 'paid' ? ((docs.find(d => d.id === S.editingId) || {}).paidDate || todayStr()) : '',
       refInvoiceNo: S.docType === 'receipt' ? $('dRefInvoice').value : '',
@@ -3366,10 +3477,11 @@
     S.editingId = rec.id; S.no = rec.no;
     $('docNo').value = rec.no;
     $('convertRow').style.display = 'flex';
-    $('btnConvert').style.display = (rec.docType === 'invoice' && !rec.convertedToId && rec.status !== 'void') ? '' : 'none';
+    $('btnConvert').style.display = (rec.docType === 'invoice' && !rec.convertedToId && rec.status !== 'void' && !(rec.plan && rec.plan.length)) ? '' : 'none';
     $('btnVoid').style.display = rec.status === 'void' ? 'none' : '';
     renderPreview();
     if(!silent) toast(T().savedDoc + rec.no);
+    if(rec.plan){ S.status = rec.status; setPicker('pkStatus', T()['st_' + (STATUSES.includes(S.status) ? S.status : 'paid')]); $('btnConvert').style.display = 'none'; }
     docCostSync(rec, silent);
     docIncomeSync(rec);
     return rec;
@@ -3386,6 +3498,7 @@
     });
   }
   function docIncomeSync(rec){
+    if(rec.plan && rec.plan.length) return;   // each installment asks for its own wallet
     if(!isIncome(rec) || rec.incWallet !== undefined || !(rec.total > 0)) return;
     askIncomeWallet(rec.total, w => { const d = docs.find(x => x.id === rec.id); if(!d) return; d.incWallet = w; d.incAt = Date.now(); saveDocs(); });
   }
@@ -3501,6 +3614,14 @@
   // ============================================================
   let docFilter = 'all', catFilter = '';
   const isVoid = d => d.status === 'void';
+  // what a document brings in: [{a, date, paid}] — installments one by one, otherwise the whole total
+  function docMoney(d){
+    if(d.docType === 'invoice' && d.plan && d.plan.length && !isVoid(d) && !d.convertedToId)
+      return d.plan.map(p => ({ a:num(p.amt), date: p.paid ? (p.paidDate || d.date) : d.date, paid:!!p.paid }));
+    if(isIncome(d)) return [{ a:d.total || 0, date:docPayDate(d), paid:true }];
+    if(isOutstanding(d)) return [{ a:d.total || 0, date:d.date, paid:false }];
+    return [];
+  }
   function isOutstanding(d){ return d.docType === 'invoice' && d.status !== 'paid' && !isVoid(d) && !d.convertedToId; }
   function isIncome(d){ return !isVoid(d) && (d.docType === 'receipt' || (d.docType === 'invoice' && d.status === 'paid' && !d.convertedToId)); }
   function inRange(dateStr, s, e){
@@ -3522,8 +3643,8 @@
   function renderDocs(){
     const list = filteredDocs();
     $('statCount').textContent = list.length;
-    $('statReceived').textContent = fmt(list.filter(isIncome).reduce((s,d) => s + (d.total||0), 0));
-    $('statDue').textContent = fmt(list.filter(isOutstanding).reduce((s,d) => s + (d.total||0), 0));
+    $('statReceived').textContent = fmt(list.reduce((s,d) => s + docMoney(d).filter(m => m.paid).reduce((a,m) => a + m.a, 0), 0));
+    $('statDue').textContent = fmt(list.reduce((s,d) => s + docMoney(d).filter(m => !m.paid).reduce((a,m) => a + m.a, 0), 0));
     $('docsEmpty').textContent = T().docsEmpty;
     $('docsEmpty').style.display = list.length ? 'none' : 'block';
     $('docsList').innerHTML = list.map(d => {
@@ -4894,8 +5015,8 @@
   const ptPayDate = e => e.paidDate || e.date;
   function sourceTotals(inWin){
     // received → by the date the money came in; still owed → by the work / document date
-    const dRecv = docs.filter(d => isIncome(d) && inWin(docPayDate(d))).reduce((a,d) => a+(d.total||0), 0);
-    const dDue  = docs.filter(d => isOutstanding(d) && inWin(d.date)).reduce((a,d) => a+(d.total||0), 0);
+    let dRecv = 0, dDue = 0;
+    docs.forEach(d => docMoney(d).forEach(m => { if(inWin(m.date)){ if(m.paid) dRecv += m.a; else dDue += m.a; } }));
     let wRecv = 0, wDue = 0, wMin = 0; const wDays = new Set();
     wesEntries.forEach(e => {
       const r = wesCalc(e); if(!r) return;
@@ -5495,7 +5616,8 @@
   // money in that is linked to a wallet (follows later edits of the record itself)
   function walletIncomes(){
     const out = [];
-    docs.forEach(d => { if(d.incWallet && isIncome(d)) out.push({ id:'d:' + d.id, w:d.incWallet, at:d.incAt || 0, a:d.total || 0, t:`${d.client || T().hl_noClient} · ${d.no}`, date:docPayDate(d) }); });
+    docs.forEach(d => { if(d.plan && d.plan.length && !isVoid(d) && !d.convertedToId) d.plan.forEach((p, i) => { if(p.paid && p.wallet) out.push({ id:'i:' + d.id + ':' + i, w:p.wallet, at:p.walletAt || 0, a:num(p.amt), t:`${d.client || T().hl_noClient} · ${d.no} · ${T().pl_nth.replace('{n}', i + 1)}`, date:p.paidDate || d.date }); }); });
+    docs.forEach(d => { if(d.incWallet && isIncome(d) && !(d.plan && d.plan.length)) out.push({ id:'d:' + d.id, w:d.incWallet, at:d.incAt || 0, a:d.total || 0, t:`${d.client || T().hl_noClient} · ${d.no}`, date:docPayDate(d) }); });
     ptEntries.forEach(e => { if(e.wallet && e.paid) out.push({ id:'p:' + e.id, w:e.wallet, at:e.walletAt || 0, a:e.amount || 0, t:(e.note || T().hl_pt).split('\n')[0].slice(0, 40), date:ptPayDate(e) }); });
     Object.keys(wesPaidWallets).forEach(ym => { const l = wesPaidWallets[ym]; if(l && wesPaidMonths.includes(ym)) out.push({ id:'w:' + ym, w:l.w, at:l.at || 0, a:wesMonthPay(ym), t:T().hl_wesMonth.replace('{m}', monthTitle(ym)), date:wesPayDate(ym) }); });
     return out;
@@ -5785,6 +5907,7 @@
       if(k === 'x'){ invEntries = invEntries.filter(x => x.id !== id); saveInv(); }
       // linked incomes: only unlink from the wallet, the income record itself stays
       else if(k === 'd'){ const d = docs.find(x => x.id === id); if(d){ d.incWallet = ''; saveDocs(); } }
+      else if(k === 'i'){ const [did, idx] = id.split(':'); const d = docs.find(x => x.id === did); if(d && d.plan && d.plan[idx]){ d.plan[idx].wallet = ''; saveDocs(); } }
       else if(k === 'p'){ const e = ptEntries.find(x => x.id === id); if(e){ e.wallet = ''; savePt(); } }
       else if(k === 'w'){ delete wesPaidWallets[id]; saveWesPaid(); }
       else if(del.dataset.wltxdel.startsWith('per:')){ personalEntries = personalEntries.filter(x => x.id !== del.dataset.wltxdel.slice(4)); savePersonal(); }
@@ -6052,15 +6175,15 @@
     // recv = money in, due = still owed, month = both (this month's total income)
     const want = paid => kind === 'month' || (kind === 'recv' ? paid : !paid);
     const rows = [];
-    const docRow = d => {
+    const docRow = (d, ms) => {
       const st = isVoid(d) ? 'void' : d.convertedToId ? 'converted' : d.docType === 'invoice' ? effStatus(d.status, d.dueDate) : 'paid';
-      const cls = st === 'void' ? 'void' : isOutstanding(d) ? 'due' : '';
-      const pd = isIncome(d) ? docPayDate(d) : d.date;
-      rows.push({ date:pd || '', value:'doc:' + d.id, cls,
+      const due = ms.some(m => !m.paid), pd = ms.map(m => m.date).sort().pop() || d.date;
+      const plan = d.plan && d.plan.length ? ' · ' + T().pl_listTag.replace('{p}', d.plan.filter(p => p.paid).length).replace('{n}', d.plan.length) : '';
+      rows.push({ date:pd || '', value:'doc:' + d.id, cls: due ? 'due' : '',
         label:`${d.docType === 'invoice' ? '📄' : '🧾'} ${d.client || T().hl_noClient}`,
-        sub:`${d.no} · ${d.date || '—'}` + (pd !== d.date ? ' · ' + T().hl_paidOn.replace('{d}', pd) : ''), amt:d.total || 0, st:T()['hl_st_' + st] || '' });
+        sub:`${d.no} · ${d.date || '—'}` + (pd !== d.date && !due ? ' · ' + T().hl_paidOn.replace('{d}', pd) : '') + plan, amt:ms.reduce((a,m) => a + m.a, 0), st:T()['hl_st_' + st] || '' });
     };
-    docs.filter(d => (isIncome(d) && want(true) && inWin(docPayDate(d))) || (isOutstanding(d) && want(false) && inWin(d.date))).forEach(docRow);
+    docs.forEach(d => { const ms = docMoney(d).filter(m => want(m.paid) && inWin(m.date)); if(ms.length) docRow(d, ms); });
     {
       // Wes: one row per month (salary is paid monthly)
       const months = {};
