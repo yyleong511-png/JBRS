@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jl-backstage-v34';
+const CACHE_NAME = 'jl-backstage-v35';
 const ASSETS = [
   './',
   './index.html',

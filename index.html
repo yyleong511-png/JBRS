@@ -1142,6 +1142,7 @@
           <div class="btn-row desktop-only">
             <button class="primary" id="btnSave" data-t="btnSave">保存单据</button>
             <button class="secondary" id="btnPrint" data-t="btnPrint">存为 PDF</button>
+            <button class="primary" id="btnSend" data-t="btnSend">发送</button>
             <button class="ghost" id="btnNew" data-t="btnNew">开新单据</button>
           </div>
           <div class="btn-row" id="convertRow" style="display:none;">
@@ -1987,8 +1988,9 @@
 <div class="action-bar" id="actionBar">
   <div class="bar-inner">
     <button class="ghost" id="btnNewM" data-t="btnNewShort">新单</button>
-    <button class="primary" id="btnSaveM" data-t="btnSave">保存单据</button>
-    <button class="secondary" id="btnPrintM" data-t="btnPrint">存为 PDF</button>
+    <button class="primary" id="btnSaveM" data-t="btnSaveShort">保存</button>
+    <button class="secondary" id="btnPrintM" data-t="btnPrintShort">PDF</button>
+    <button class="secondary" id="btnSendM" data-t="btnSend" style="background:var(--green);">发送</button>
   </div>
 </div>
 
@@ -2096,7 +2098,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
@@ -2411,7 +2413,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
@@ -4265,6 +4267,81 @@
     fillSettings(); renderProfessions(); renderDocs(); renderIncome(); refreshHome(); renderPreview();
     toast(T().restored);
   });
+
+  // ============================================================
+  // send a document: PDF + ready-made message by WhatsApp or email
+  // ============================================================
+  const loadScript = srcs => new Promise(resolve => {
+    const tryNext = i => {
+      if(i >= srcs.length){ resolve(false); return; }
+      const el = document.createElement('script'); el.src = srcs[i];
+      el.onload = () => resolve(true); el.onerror = () => tryNext(i + 1);
+      document.head.appendChild(el);
+    };
+    tryNext(0);
+  });
+  async function docPdfFile(rec){
+    if(!window.html2canvas) await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js']);
+    if(!window.jspdf) await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js']);
+    if(!window.html2canvas || !window.jspdf) return null;
+    // render the document at a fixed A4-like width so phone and desktop give the same PDF
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;background:#fff;';
+    box.innerHTML = docHTML(Object.assign({}, rec));
+    document.body.appendChild(box);
+    const node = box.firstElementChild; node.style.boxShadow = 'none';
+    try{
+      await new Promise(r => setTimeout(r, 120));
+      const canvas = await html2canvas(node, { scale:2, backgroundColor:'#ffffff', useCORS:true });
+      const pdf = new window.jspdf.jsPDF({ unit:'pt', format:'a4' });
+      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+      const iw = pw, ih = canvas.height * pw / canvas.width;
+      const img = canvas.toDataURL('image/jpeg', 0.92);
+      for(let y = 0; y < ih; y += ph){ if(y) pdf.addPage(); pdf.addImage(img, 'JPEG', 0, -y, iw, ih); }
+      const name = [rec.no, rec.client].filter(Boolean).join(' ').replace(/[\\/:*?"<>|]/g, '').trim() + '.pdf';
+      return new File([pdf.output('blob')], name, { type:'application/pdf' });
+    } finally { box.remove(); }
+  }
+  function sendText(rec){
+    const name = String(rec.client || '').trim();
+    const hi = name ? `Hi ${name},` : 'Hi,';
+    if(rec.docType === 'invoice'){
+      const due = rec.plan && rec.plan.length ? (rec.plan.find(p => !p.paid) || {}).due : rec.dueDate;
+      return `${hi} this is your invoice ${rec.no}${rec.service ? ' for ' + rec.service : ''} — ${fmt(rec.total)}${due ? ', due ' + due : ''}. The payment details are in the PDF. Thank you!`;
+    }
+    const part = rec.planInfo ? ` (installment ${rec.planInfo.idx + 1} of ${rec.planInfo.n})` : '';
+    return `${hi} this is your receipt ${rec.no}${part} — ${fmt(rec.total)} received. Thank you!`;
+  }
+  async function sendDoc(){
+    const rec = saveDoc(true); if(!rec) return;
+    const c = contactOf(rec);
+    const opts = [];
+    if(c.phone) opts.push({ value:'wa', label:'WhatsApp', sub:'+' + c.phone });
+    if(c.email) opts.push({ value:'mail', label:'Email', sub:c.email });
+    if(!opts.length){ toast(T().snd_noContact); return; }
+    // make the PDF while the choice is shown, so sharing can start right on the tap (phones require that)
+    let file = null; const making = docPdfFile(rec).then(f => file = f).catch(() => null);
+    askSheet(T().snd_ask.replace('{c}', rec.client || ''), opts, async v => {
+      const text = sendText(rec);
+      const subject = `${rec.docType === 'invoice' ? 'Invoice' : 'Receipt'} ${rec.no}${biz.name ? ' · ' + biz.name : ''}`;
+      if(v === 'mail') copyText(c.email);
+      if(!file){ toast(T().snd_making); await making; }
+      // phones: share sheet with the PDF and the message attached
+      if(file && navigator.canShare && navigator.canShare({ files:[file] })){
+        try{
+          await navigator.share(v === 'mail' ? { files:[file], title:subject, text } : { files:[file], text });
+          toast(v === 'mail' ? T().snd_mailDone : T().snd_waDone);
+          return;
+        }catch(e){ if(e && e.name === 'AbortError') return; }
+      }
+      // elsewhere: download the PDF and open the chat / email with the message
+      if(file){ const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+      if(v === 'wa') window.open('https://wa.me/' + c.phone + '?text=' + encodeURIComponent(text), '_blank');
+      else location.href = 'mailto:' + c.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(text);
+      toast(file ? T().snd_attachHint : T().snd_noPdf);
+    });
+  }
+  bindBoth('btnSend', 'btnSendM', sendDoc);
 
   // ============================================================
   // import documents (PDF / JSON) from the Documents view
