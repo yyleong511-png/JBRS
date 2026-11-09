@@ -1044,6 +1044,7 @@
               <button type="button" class="picker" id="pkStatus"><span class="pk-val"></span><span class="pk-arrow">▼</span></button>
             </div>
           </div>
+          <button type="button" class="ghost" id="btnRcpFromInv" style="width:100%;margin:2px 0 12px;display:none;"></button>
           <div class="plan-box" id="planBox">
             <div class="switch-row" style="border-top:none;padding-top:0;">
               <div class="lab"><span data-t="pl_l">分期付款</span><small data-t="pl_sub">客人要分几期付，就打开；每一期可以分开标记已付</small></div>
@@ -2102,7 +2103,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
@@ -2417,7 +2418,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
@@ -3147,12 +3148,49 @@
       return { amt: i === n - 1 ? r2(total - base * (n - 1)) : base, due: o.due || toStr(d), paid: !!o.paid, paidDate: o.paidDate || '', wallet: o.wallet, walletAt: o.walletAt };
     });
   }
+  function renderRcpBtn(){
+    const b = $('btnRcpFromInv'); if(!b) return;
+    const d = S.editingId ? docs.find(x => x.id === S.editingId) : null;
+    if(!d || d.docType !== 'invoice' || isVoid(d)){ b.style.display = 'none'; return; }
+    b.style.display = '';
+    const rc = d.convertedToId ? docs.find(x => x.id === d.convertedToId) : null;
+    b.textContent = rc ? T().ri_view.replace('{no}', rc.no) : T().ri_make;
+  }
+  // 🧾 one button that does the right thing for the invoice's state
+  function receiptFromInvoice(){
+    const rec = saveDoc(true); if(!rec) return;
+    if(rec.convertedToId){ const r = docs.find(x => x.id === rec.convertedToId); if(r){ loadDoc(r); return; } }
+    if(rec.plan && rec.plan.length){
+      const paid = rec.plan.map((p, i) => ({ p, i })).filter(x => x.p.paid);
+      if(!paid.length){ toast(T().ri_noneYet); return; }
+      const todo = paid.filter(x => !(x.p.receiptId && docs.some(d => d.id === x.p.receiptId)));
+      if(todo.length === 1){ planReceipt(todo[0].i); return; }
+      askSheet(T().ri_pick, paid.map(x => ({ value:String(x.i), label:`${T().pl_nth.replace('{n}', x.i + 1)} · ${fmt(num(x.p.amt))}`,
+        sub: x.p.receiptId && docs.some(d => d.id === x.p.receiptId) ? T().pl_openRcp.replace('{no}', x.p.receiptNo || '') : T().pl_paidOn.replace('{d}', x.p.paidDate || '') })), v => planReceipt(Number(v)));
+      return;
+    }
+    if(rec.status === 'partial'){
+      // a part payment: split into "paid now" and "the rest", then receipt the paid part
+      const raw = prompt(T().ri_askAmt.replace('{t}', fmt(rec.total)));
+      if(raw === null) return;
+      const x = r2(num(raw));
+      if(!(x > 0) || x >= rec.total){ toast(T().ri_badAmt.replace('{t}', fmt(rec.total))); return; }
+      S.planCustom = true;
+      S.plan = [{ amt:x, due:todayStr(), paid:true, paidDate:todayStr() }, { amt:r2(rec.total - x), due: rec.dueDate || plusDays(30), paid:false, paidDate:'' }];
+      renderPlan();
+      askIncomeWallet(x, w => { S.plan[0].wallet = w; S.plan[0].walletAt = Date.now(); planReceipt(0); });
+      if(!wallets.length) planReceipt(0);
+      return;
+    }
+    $('btnConvert').click();   // unpaid / paid in full: mark paid and make the full receipt
+  }
   function renderPlan(){
     const on = !!(S.plan && S.plan.length);
     $('planBox').style.display = S.docType === 'invoice' ? '' : 'none';
     $('plSw').classList.toggle('on', on);
     $('plBody').style.display = on ? '' : 'none';
-    if(!on) return;
+    if(!on){ renderRcpBtn(); return; }
+    renderRcpBtn();
     $('plN').textContent = S.plan.length;
     $('plMode').innerHTML = S.planCustom
       ? `<span>${esc(T().pl_modeCustom)}</span><button type="button" data-plmode="auto">${esc(T().pl_toAuto)}</button>`
@@ -3651,6 +3689,7 @@
     renderPreview();
     if(!silent) toast(T().savedDoc + rec.no);
     if(rec.plan){ S.status = rec.status; setPicker('pkStatus', T()['st_' + (STATUSES.includes(S.status) ? S.status : 'paid')]); $('btnConvert').style.display = 'none'; }
+    renderRcpBtn();
     docCostSync(rec, silent);
     docIncomeSync(rec);
     return rec;
@@ -3713,6 +3752,7 @@
     $('btnVoid').style.display = 'none';
     $('btnConvert').style.display = 'none';
   });
+  $('btnRcpFromInv').addEventListener('click', receiptFromInvoice);
   $('btnConvert').addEventListener('click', () => {
     const inv = docs.find(d => d.id === S.editingId);
     if(!inv){ toast(T().convertNeedSave); return; }
