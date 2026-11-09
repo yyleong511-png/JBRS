@@ -1794,7 +1794,7 @@
         <button class="ghost" id="wlEditBtn" data-t="wl_edit">设定余额 / 钱包</button>
         <button class="ghost" id="rcBtn" data-t="rc_btn">🔍 对照银行记录</button>
       </div>
-      <input type="file" id="rcFile" accept=".csv,.xls,.xlsx,text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;">
+      <input type="file" id="rcFile" accept=".csv,.xls,.xlsx,.pdf,application/pdf,text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;">
     </div>
     <div class="panel" id="rcPanel" style="display:none;"></div>
     <div class="panel wl-edit" id="wlEdit" style="display:none;">
@@ -2118,7 +2118,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rc_btn:'🔍 对照银行记录', rc_pickWallet:'对照哪个钱包？', rc_cimb:'上传 CIMB 导出的 Excel（XLS）或 CSV', rc_bad:'读不到这个文件的交易，请上传银行导出的 Excel（XLS / XLSX）或 CSV', rc_noXlsx:'读 Excel 需要网络，请连上网再试，或改用 CSV',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rc_btn:'🔍 对照银行记录', rc_pickWallet:'对照哪个钱包？', rc_cimb:'上传 CIMB 导出的 PDF、Excel 或 CSV', rc_bad:'读不到这个文件的交易，请上传银行导出的 PDF、Excel（XLS / XLSX）或 CSV', rc_noXlsx:'读 PDF / Excel 需要网络，请连上网再试，或改用 CSV', rc_reading:'正在读取 PDF…',
       rc_h:'{w} · 银行记录对照', rc_range:'银行记录 {a} 到 {b}，跟系统里同一段时间的记录比较', rc_ok:'对得上', rc_diff:'金额有差', rc_bankOnly:'银行有，系统没记', rc_appOnly:'系统有，银行没有',
       rc_gap0:'这段时间银行和系统的加减完全一样 ✅', rc_gap:'这段时间系统比银行{s} {d}，看下面的项目', rc_less:'少算了', rc_more:'多算了',
       rc_bank:'银行', rc_d:'系统记 {m}，{d}', rc_moreOut:'银行多扣 {x}', rc_lessOut:'银行少扣 {x}', rc_moreIn:'实际多收 {x}', rc_lessIn:'实际少收 {x}', rc_useBank:'改成银行金额', rc_fixThere:'请到原本的页面修改', rc_add:'补记进系统', rc_fixed:'已改成 {a}', rc_added:'已补记',
@@ -2438,7 +2438,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rc_btn:'🔍 Check against bank', rc_pickWallet:'Which wallet?', rc_cimb:'Upload the Excel (XLS) or CSV exported from CIMB', rc_bad:'No transactions found — upload the Excel (XLS / XLSX) or CSV exported from your bank', rc_noXlsx:'Reading Excel needs internet — connect and try again, or use CSV',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rc_btn:'🔍 Check against bank', rc_pickWallet:'Which wallet?', rc_cimb:'Upload the PDF, Excel or CSV exported from CIMB', rc_bad:'No transactions found — upload the PDF, Excel (XLS / XLSX) or CSV exported from your bank', rc_noXlsx:'Reading PDF / Excel needs internet — connect and try again, or use CSV', rc_reading:'Reading the PDF…',
       rc_h:'{w} · bank check', rc_range:'Bank entries {a} to {b}, compared with what is logged for the same dates', rc_ok:'Matched', rc_diff:'Amount differs', rc_bankOnly:'In bank, not logged', rc_appOnly:'Logged, not in bank',
       rc_gap0:'Bank and app add up exactly for this period ✅', rc_gap:'For this period the app has {d} {s} — see below', rc_less:'too little', rc_more:'too much',
       rc_bank:'Bank', rc_d:'logged {m}; {d}', rc_moreOut:'bank took {x} more', rc_lessOut:'bank took {x} less', rc_moreIn:'{x} more came in', rc_lessIn:'{x} less came in', rc_useBank:'Use bank amount', rc_fixThere:'Edit it on its own page', rc_add:'Log it', rc_fixed:'Changed to {a}', rc_added:'Logged',
@@ -5971,6 +5971,20 @@
   // 对照银行记录 — compare a bank CSV with what is logged for a wallet
   // ============================================================
   const RC = { wallet:'', bank:null, result:null };
+  const RC_MON = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+  const rcYmd = v => {
+    v = String(v || '').trim(); let m;
+    if((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(v))) return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
+    if((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/.exec(v))) return `${m[3].length === 2 ? '20' + m[3] : m[3]}-${pad2(m[2])}-${pad2(m[1])}`;
+    if((m = /^(\d{1,2})[\s-]([a-z]{3})[a-z]*[\s-](\d{2,4})/i.exec(v)) && RC_MON[m[2].toLowerCase()]) return `${m[3].length === 2 ? '20' + m[3] : m[3]}-${pad2(RC_MON[m[2].toLowerCase()])}-${pad2(m[1])}`;
+    return '';
+  };
+  const rcMoney = v => {
+    v = String(v || '').trim(); if(!v || v === '-') return 0;
+    const neg = /^\(.*\)$/.test(v) || /^-/.test(v) || /\bdr\b/i.test(v);
+    const n = parseFloat(v.replace(/[^0-9.]/g, '')) || 0;
+    return neg ? -n : n;
+  };
   function rcParseCsv(text){
     const rows = [];
     text.replace(/^\uFEFF/, '').split(/\r?\n/).forEach(line => {
@@ -6000,20 +6014,7 @@
       hi = r;
     }
     if(hi < 0) return null;
-    const MON = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
-    const ymd = v => {
-      v = String(v || '').trim(); let m;
-      if((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(v))) return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
-      if((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/.exec(v))) return `${m[3].length === 2 ? '20' + m[3] : m[3]}-${pad2(m[2])}-${pad2(m[1])}`;
-      if((m = /^(\d{1,2})[\s-]([a-z]{3})[a-z]*[\s-](\d{2,4})/i.exec(v)) && MON[m[2].toLowerCase()]) return `${m[3].length === 2 ? '20' + m[3] : m[3]}-${pad2(MON[m[2].toLowerCase()])}-${pad2(m[1])}`;
-      return '';
-    };
-    const money = v => {
-      v = String(v || '').trim(); if(!v || v === '-') return 0;
-      const neg = /^\(.*\)$/.test(v) || /^-/.test(v) || /\bdr\b/i.test(v);
-      const n = parseFloat(v.replace(/[^0-9.]/g, '')) || 0;
-      return neg ? -n : n;
-    };
+    const ymd = rcYmd, money = rcMoney;
     const out = [];
     rows.slice(hi + 1).forEach(r => {
       const date = ymd(r[col.date]); if(!date) return;
@@ -6028,6 +6029,98 @@
       if(!a) return;
       const desc = col.desc >= 0 ? r[col.desc] : r.filter((c, k) => k !== col.date && !/^[-\d.,()\s]*$/.test(c)).join(' ');
       out.push({ date, desc: String(desc || '').replace(/\s+/g, ' ').trim(), a: Math.round(a * 100) / 100 });
+    });
+    return out;
+  }
+  // PDF statement: rebuild text lines from the page layout, then read each dated line
+  async function rcParsePdf(buf){
+    if(!window.pdfjsLib) await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js']);
+    const lib = window.pdfjsLib; if(!lib) return 'nolib';
+    const src = [...document.scripts].map(x => x.src).find(u => /pdf\.min\.js$/.test(u)) || '';
+    lib.GlobalWorkerOptions.workerSrc = src.replace(/pdf\.min\.js$/, 'pdf.worker.min.js');
+    const doc = await lib.getDocument({ data: new Uint8Array(buf) }).promise;
+    const lines = [];
+    for(let n = 1; n <= doc.numPages; n++){
+      const page = await doc.getPage(n);
+      const tc = await page.getTextContent();
+      const rows = [];
+      tc.items.forEach(it => {
+        const t = String(it.str || ''); if(!t.trim()) return;
+        const x = it.transform[4], y = it.transform[5], w = it.width || t.length * 4;
+        let row = rows.find(r => Math.abs(r.y - y) < 3);
+        if(!row){ row = { y, items:[] }; rows.push(row); }
+        row.items.push({ x, w, t });
+      });
+      rows.sort((a, b) => b.y - a.y).forEach(r => {
+        r.items.sort((a, b) => a.x - b.x);
+        const cells = [];
+        r.items.forEach(it => {
+          const last = cells[cells.length - 1];
+          if(last && it.x - last.end < 5){ last.t += (it.x - last.end > 1 ? ' ' : '') + it.t; last.end = it.x + it.w; }
+          else cells.push({ x: it.x, end: it.x + it.w, t: it.t });
+        });
+        cells.forEach(c => c.t = c.t.replace(/\s+/g, ' ').trim());
+        lines.push(cells.filter(c => c.t));
+      });
+    }
+    return rcFromLines(lines);
+  }
+  function rcFromLines(lines){
+    const isAmt = t => /^\(?-?(RM\s?)?[\d,]+\.\d{2}\)?\s*(DR|CR|-|\+)?$/i.test(t);
+    const mid = c => (c.x + c.end) / 2;
+    // header: where the money-out / money-in / balance columns sit
+    let colOut = null, colIn = null, colBal = null;
+    for(const cells of lines){
+      const low = cells.map(c => c.t.toLowerCase());
+      const o = low.findIndex(t => /withdrawal|debit|pengeluaran|money out|\(dr\)|^dr$/.test(t));
+      const i = low.findIndex(t => /deposit|credit|kemasukan|money in|\(cr\)|^cr$/.test(t));
+      if(o >= 0 && i >= 0 && low.some(t => /date|tarikh/.test(t))){
+        colOut = mid(cells[o]); colIn = mid(cells[i]);
+        const b = low.findIndex(t => /balance|baki/.test(t)); colBal = b >= 0 ? mid(cells[b]) : null;
+        break;
+      }
+    }
+    const out = []; let prevBal = null, last = null;
+    lines.forEach(cells => {
+      if(!cells.length) return;
+      const lineTxt = cells.map(c => c.t).join(' ');
+      // a date may share a cell with the description ("01/11/2026 DUITNOW…")
+      let date = '', first = cells[0].t;
+      const dm = /^(\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}[\s-][A-Za-z]{3,9}[\s-]\d{2,4})\b\s*(.*)$/.exec(first);
+      if(dm && rcYmd(dm[1])){ date = rcYmd(dm[1]); first = dm[2]; }
+      const amts = cells.filter(c => isAmt(c.t));
+      const words = [first].concat(cells.slice(1).filter(c => !isAmt(c.t)).map(c => c.t)).filter(t => t && !/^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/.test(t) && !/^[A-Z]{0,2}\d{5,}$/.test(t));
+      if(/opening balance|beginning balance|balance b\/?f|baki (awal|bawa)|brought forward/i.test(lineTxt)){
+        if(amts.length) prevBal = rcMoney(amts[amts.length - 1].t.replace(/\s*CR$/i, '')) * (/\bDR$/i.test(amts[amts.length - 1].t) ? -1 : 1);
+        last = null; return;
+      }
+      if(!date){
+        if(last && !amts.length && words.length && !/page|halaman|total|jumlah|balance|baki|closing|statement|penyata/i.test(lineTxt)) last.desc = (last.desc + ' ' + words.join(' ')).trim();
+        else last = null;
+        return;
+      }
+      if(!amts.length || /total|jumlah|closing balance|baki akhir/i.test(lineTxt)){ last = null; return; }
+      let a = 0, bal = null;
+      if(colOut != null){
+        // pick the column each number is nearest to
+        amts.forEach(c => {
+          const m = mid(c), dO = Math.abs(m - colOut), dI = Math.abs(m - colIn), dB = colBal != null ? Math.abs(m - colBal) : Infinity;
+          const v = Math.abs(rcMoney(c.t.replace(/\s*(CR|DR)$/i, '')));
+          if(dB < dO && dB < dI) bal = v * (/DR$/i.test(c.t) ? -1 : 1); else if(dO <= dI) a -= v; else a += v;
+        });
+      } else {
+        // no header: last number is the balance, the one before it the amount; the balance change gives the sign
+        const v = amts.map(c => Math.abs(rcMoney(c.t.replace(/\s*(CR|DR)$/i, ''))) * (/DR$/i.test(c.t) ? -1 : 1));
+        if(v.length >= 2){
+          bal = v[v.length - 1]; const amt = Math.abs(v[v.length - 2]);
+          if(prevBal != null) a = Math.abs((bal - prevBal) + amt) < Math.abs((bal - prevBal) - amt) ? -amt : amt;
+          else a = /CR$|^\+/i.test(amts[amts.length - 2].t) ? amt : -amt;
+        } else a = rcMoney(amts[0].t);
+      }
+      if(bal != null) prevBal = bal;
+      a = Math.round(a * 100) / 100; if(!a){ last = null; return; }
+      last = { date, desc: words.join(' ').replace(/\s+/g, ' ').trim(), a };
+      out.push(last);
     });
     return out;
   }
@@ -6099,6 +6192,16 @@
       renderRecon(); $('rcPanel').scrollIntoView({ behavior:'smooth' });
     };
     const asText = () => { const fr = new FileReader(); fr.onload = () => done(rcParseCsv(String(fr.result || ''))); fr.readAsText(f); };
+    if(/\.pdf$/i.test(f.name || '') || f.type === 'application/pdf'){
+      const fp = new FileReader();
+      fp.onload = async () => {
+        toast(T().rc_reading);
+        let r = null; try{ r = await rcParsePdf(fp.result); }catch(e){ r = null; }
+        if(r === 'nolib'){ toast(T().rc_noXlsx); return; }
+        done(r);
+      };
+      fp.readAsArrayBuffer(f); return;
+    }
     if(!/\.xlsx?$/i.test(f.name || '')){ asText(); return; }
     // Excel (.xls / .xlsx): read with SheetJS, turn each sheet into CSV text, then parse like a CSV
     const fr = new FileReader();
