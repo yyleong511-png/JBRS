@@ -822,6 +822,18 @@
   .sa-save{background:#EDF2ED;border:1px solid #D3E0D4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13.5px;line-height:1.6;}
   .sa-save b{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:18px;}
   .plan-box{background:var(--ivory);border:1px solid var(--line);border-radius:12px;padding:12px 12px 10px;margin:4px 0 14px;}
+  .rc-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0;}
+  .rc-sum div{background:var(--ivory);border-radius:10px;padding:8px 6px;text-align:center;}
+  .rc-sum b{display:block;font-size:17px;font-family:'IBM Plex Mono',monospace;}
+  .rc-sum small{font-size:10.5px;color:var(--ink-soft);}
+  .rc-sec h3{font-size:14px;margin:14px 0 4px;}
+  .rc-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px dashed var(--line);font-size:13px;}
+  .rc-item .t{min-width:0;line-height:1.45;}
+  .rc-item .t small{display:block;font-size:11px;color:var(--ink-soft);}
+  .rc-item .a{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;text-align:right;}
+  .rc-item .a small{display:block;font-size:10.5px;font-weight:600;color:var(--amber);}
+  .rc-item button{min-height:30px;font-size:11.5px;padding:3px 9px;border-radius:8px;border:1px solid var(--rose-deep);background:var(--paper);color:var(--rose-deep);cursor:pointer;white-space:nowrap;margin-top:4px;}
+  .rc-item .in{color:var(--green);} .rc-item .out{color:var(--loss);}
   .rm-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:12px;box-shadow:var(--shadow);}
   .rm-box h3{margin:0 0 4px;font-size:14px;}
   .rm-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px dashed var(--line);}
@@ -1780,8 +1792,11 @@
       <div id="wlCards" style="margin-top:8px;"></div>
       <div class="btn-row">
         <button class="ghost" id="wlEditBtn" data-t="wl_edit">设定余额 / 钱包</button>
+        <button class="ghost" id="rcBtn" data-t="rc_btn">🔍 对照银行记录</button>
       </div>
+      <input type="file" id="rcFile" accept=".csv,text/csv,text/plain" style="display:none;">
     </div>
+    <div class="panel" id="rcPanel" style="display:none;"></div>
     <div class="panel wl-edit" id="wlEdit" style="display:none;">
       <h2 data-t="wl_edit_h">设定现在的余额</h2>
       <p class="hint" data-t="wl_edit_hint">打开每个银行 / 电子钱包的 app，把现在剩下的钱填进来。保存后，之后记的收入和支出会在这个基础上加减。</p>
@@ -2103,7 +2118,12 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rc_btn:'🔍 对照银行记录', rc_pickWallet:'对照哪个钱包？', rc_cimb:'上传 CIMB 导出的 CSV', rc_bad:'读不到这个文件的交易，请上传银行导出的 CSV',
+      rc_h:'{w} · 银行记录对照', rc_range:'银行记录 {a} 到 {b}，跟系统里同一段时间的记录比较', rc_ok:'对得上', rc_diff:'金额有差', rc_bankOnly:'银行有，系统没记', rc_appOnly:'系统有，银行没有',
+      rc_gap0:'这段时间银行和系统的加减完全一样 ✅', rc_gap:'这段时间系统比银行{s} {d}，看下面的项目', rc_less:'少算了', rc_more:'多算了',
+      rc_bank:'银行', rc_d:'系统记 {m}，{d}', rc_moreOut:'银行多扣 {x}', rc_lessOut:'银行少扣 {x}', rc_moreIn:'实际多收 {x}', rc_lessIn:'实际少收 {x}', rc_useBank:'改成银行金额', rc_fixThere:'请到原本的页面修改', rc_add:'补记进系统', rc_fixed:'已改成 {a}', rc_added:'已补记',
+      rc_appOnlyHint:'可能记错钱包、日期，或银行还在处理中（pending）', rc_pickCat:'这笔 {a} 是什么支出？', rc_guess:'可能是这个', rc_close:'关闭对照',
+      rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
       l_incReceived:'单据实收', l_incProfit:'单据净利润', l_incDue:'单据未收',
@@ -2418,7 +2438,12 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rc_btn:'🔍 Check against bank', rc_pickWallet:'Which wallet?', rc_cimb:'Upload the CSV exported from CIMB', rc_bad:'No transactions found — upload the CSV exported from your bank',
+      rc_h:'{w} · bank check', rc_range:'Bank entries {a} to {b}, compared with what is logged for the same dates', rc_ok:'Matched', rc_diff:'Amount differs', rc_bankOnly:'In bank, not logged', rc_appOnly:'Logged, not in bank',
+      rc_gap0:'Bank and app add up exactly for this period ✅', rc_gap:'For this period the app has {d} {s} — see below', rc_less:'too little', rc_more:'too much',
+      rc_bank:'Bank', rc_d:'logged {m}; {d}', rc_moreOut:'bank took {x} more', rc_lessOut:'bank took {x} less', rc_moreIn:'{x} more came in', rc_lessIn:'{x} less came in', rc_useBank:'Use bank amount', rc_fixThere:'Edit it on its own page', rc_add:'Log it', rc_fixed:'Changed to {a}', rc_added:'Logged',
+      rc_appOnlyHint:'Maybe logged to the wrong wallet or date, or the bank still shows it as pending', rc_pickCat:'What was this {a}?', rc_guess:'probably this', rc_close:'Close',
+      rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
       l_incReceived:'Documents received', l_incProfit:'Documents net profit', l_incDue:'Documents outstanding',
@@ -5941,6 +5966,167 @@
   // which total to show: 'net' (after amounts owed) or 'gross'; remembered on this phone
   let wlMode = 'net'; try{ wlMode = localStorage.getItem('jl.wltotal') === 'gross' ? 'gross' : 'net'; }catch(e){}
   const walletShown = () => wlMode === 'gross' ? walletGross() : walletTotal();
+
+  // ============================================================
+  // 对照银行记录 — compare a bank CSV with what is logged for a wallet
+  // ============================================================
+  const RC = { wallet:'', bank:null, result:null };
+  function rcParseCsv(text){
+    const rows = [];
+    text.replace(/^\uFEFF/, '').split(/\r?\n/).forEach(line => {
+      if(!line.trim()) return;
+      const cells = []; let cur = '', q = false;
+      for(let k = 0; k < line.length; k++){
+        const c = line[k];
+        if(q){ if(c === '"'){ if(line[k+1] === '"'){ cur += '"'; k++; } else q = false; } else cur += c; }
+        else if(c === '"') q = true;
+        else if(c === ',' || c === '\t' || c === ';'){ cells.push(cur.trim()); cur = ''; }
+        else cur += c;
+      }
+      cells.push(cur.trim()); rows.push(cells);
+    });
+    // find the header row and what each column holds
+    const has = (h, words) => words.some(w => h.includes(w));
+    let hi = -1, col = {};
+    for(let r = 0; r < Math.min(rows.length, 30) && hi < 0; r++){
+      const hs = rows[r].map(c => c.toLowerCase());
+      const date = hs.findIndex(h => has(h, ['date', 'tarikh']) && !has(h, ['value date']));
+      if(date < 0) continue;
+      col = { date,
+        desc: hs.findIndex(h => has(h, ['description', 'details', 'keterangan', 'transaction', 'particular', 'remark']) && !has(h, ['date', 'amount', 'amaun', 'ref'])),
+        out: hs.findIndex(h => has(h, ['withdrawal', 'debit', 'pengeluaran', 'money out']) || /^dr\b|\(dr\)|\bdr$/.test(h)),
+        inn: hs.findIndex(h => has(h, ['deposit', 'credit', 'kemasukan', 'money in']) || /^cr\b|\(cr\)|\bcr$/.test(h)),
+        amt: hs.findIndex(h => h === 'amount' || has(h, ['amount (rm)', 'amaun', 'transaction amount'])) };
+      hi = r;
+    }
+    if(hi < 0) return null;
+    const MON = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+    const ymd = v => {
+      v = String(v || '').trim(); let m;
+      if((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(v))) return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
+      if((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/.exec(v))) return `${m[3].length === 2 ? '20' + m[3] : m[3]}-${pad2(m[2])}-${pad2(m[1])}`;
+      if((m = /^(\d{1,2})[\s-]([a-z]{3})[a-z]*[\s-](\d{2,4})/i.exec(v)) && MON[m[2].toLowerCase()]) return `${m[3].length === 2 ? '20' + m[3] : m[3]}-${pad2(MON[m[2].toLowerCase()])}-${pad2(m[1])}`;
+      return '';
+    };
+    const money = v => {
+      v = String(v || '').trim(); if(!v || v === '-') return 0;
+      const neg = /^\(.*\)$/.test(v) || /^-/.test(v) || /\bdr\b/i.test(v);
+      const n = parseFloat(v.replace(/[^0-9.]/g, '')) || 0;
+      return neg ? -n : n;
+    };
+    const out = [];
+    rows.slice(hi + 1).forEach(r => {
+      const date = ymd(r[col.date]); if(!date) return;
+      let a = 0;
+      if(col.out >= 0 || col.inn >= 0){
+        const o = col.out >= 0 ? Math.abs(money(r[col.out])) : 0, i = col.inn >= 0 ? Math.abs(money(r[col.inn])) : 0;
+        a = i - o;
+      } else if(col.amt >= 0){
+        a = money(r[col.amt]);
+        if(/\bdr\b/i.test(r[col.amt]) || /\bdr\b/i.test(r[col.amt + 1] || '')) a = -Math.abs(a);
+      }
+      if(!a) return;
+      const desc = col.desc >= 0 ? r[col.desc] : r.filter((c, k) => k !== col.date && !/^[-\d.,()\s]*$/.test(c)).join(' ');
+      out.push({ date, desc: String(desc || '').replace(/\s+/g, ' ').trim(), a: Math.round(a * 100) / 100 });
+    });
+    return out;
+  }
+  // everything logged for one wallet, by the date it happened
+  function rcAppRows(wid){
+    const out = [];
+    invEntries.forEach(x => { if(x.wallet === wid) out.push({ ref:'inv:' + x.id, date:x.date, a:-(x.amount || 0), t:[grabLine(x.grab), x.note].filter(Boolean).join(' — ') || xTagLabel(x.tag), fix:true }); });
+    personalEntries.forEach(x => { if(x.wallet === wid) out.push({ ref:'per:' + x.id, date:x.date, a: perType(x.type).dir === 'in' ? x.amount : -x.amount, t:x.note || perLabel(x.type), fix:true }); });
+    walletIncomes().forEach(i => { if(i.w === wid) out.push({ ref:'inc:' + i.id, date:i.date, a:i.a, t:i.t, fix:false }); });
+    walletTx.forEach(t => {
+      if(t.type === 'in' && t.wallet === wid) out.push({ ref:'wtx:' + t.id, date:t.date, a:t.amount, t:t.note || T().wl_in, fix:true });
+      if(t.type === 'move' && t.wallet === wid) out.push({ ref:'wtx:' + t.id, date:t.date, a:-t.amount, t:t.note || T().wl_move, fix:true });
+      if(t.type === 'move' && t.to === wid) out.push({ ref:'wtx:' + t.id, date:t.date, a:t.amount, t:t.note || T().wl_move, fix:true });
+    });
+    return out.map(x => Object.assign(x, { a: Math.round(x.a * 100) / 100 }));
+  }
+  function rcMatch(bank, wid){
+    const from = bank.reduce((m, b) => b.date < m ? b.date : m, '9999'), to = bank.reduce((m, b) => b.date > m ? b.date : m, '0000');
+    const app = rcAppRows(wid).filter(x => x.date >= from && x.date <= to);
+    const dd = (a, b) => Math.abs((new Date(a) - new Date(b)) / 86400000);
+    const usedA = new Set(), ok = [], diff = [], bankOnly = [];
+    const pick = (b, test) => {
+      let best = -1, bd = 99;
+      app.forEach((x, k) => { if(!usedA.has(k) && Math.sign(x.a) === Math.sign(b.a) && dd(x.date, b.date) <= 3 && test(x) && dd(x.date, b.date) < bd){ best = k; bd = dd(x.date, b.date); } });
+      return best;
+    };
+    const left = [];
+    bank.forEach(b => { const k = pick(b, x => Math.abs(x.a - b.a) < 0.005); if(k >= 0){ usedA.add(k); ok.push({ b, x:app[k] }); } else left.push(b); });
+    // close amounts (e.g. Grab + toll): within RM 5 or 10%
+    left.forEach(b => {
+      const k = pick(b, x => Math.abs(x.a - b.a) <= Math.max(5, Math.abs(b.a) * 0.1));
+      if(k >= 0){ usedA.add(k); diff.push({ b, x:app[k], d: Math.round((b.a - app[k].a) * 100) / 100 }); } else bankOnly.push(b);
+    });
+    const appOnly = app.filter((x, k) => !usedA.has(k));
+    const bankNet = bank.reduce((s, b) => s + b.a, 0), appNet = app.reduce((s, x) => s + x.a, 0);
+    return { from, to, ok, diff, bankOnly, appOnly, gap: Math.round((bankNet - appNet) * 100) / 100 };
+  }
+  function renderRecon(){
+    const r = RC.result, w = wallets.find(x => x.id === RC.wallet);
+    if(!r || !w){ $('rcPanel').style.display = 'none'; return; }
+    $('rcPanel').style.display = '';
+    const sgn = a => `<span class="${a > 0 ? 'in' : 'out'}">${a > 0 ? '+' : '−'} ${fmt(Math.abs(a))}</span>`;
+    const item = (t, sub, right, btn) => `<div class="rc-item"><div class="t">${esc(t)}<small>${esc(sub)}</small></div><div class="a">${right}${btn || ''}</div></div>`;
+    $('rcPanel').innerHTML = `<h2>${esc(T().rc_h.replace('{w}', w.name))}</h2>
+      <p class="hint">${esc(T().rc_range.replace('{a}', r.from).replace('{b}', r.to))}</p>
+      <div class="rc-sum"><div><b>${r.ok.length}</b><small>${esc(T().rc_ok)}</small></div><div><b style="color:var(--amber)">${r.diff.length}</b><small>${esc(T().rc_diff)}</small></div>
+        <div><b style="color:var(--loss)">${r.bankOnly.length}</b><small>${esc(T().rc_bankOnly)}</small></div><div><b>${r.appOnly.length}</b><small>${esc(T().rc_appOnly)}</small></div></div>
+      <div class="sa-save" style="background:${Math.abs(r.gap) < 0.01 ? '#EDF2ED' : '#FBF1E4'};border-color:${Math.abs(r.gap) < 0.01 ? '#D3E0D4' : '#EBD9BC'};">${esc(Math.abs(r.gap) < 0.01 ? T().rc_gap0 : T().rc_gap.replace('{d}', fmt(Math.abs(r.gap))).replace('{s}', r.gap < 0 ? T().rc_less : T().rc_more))}</div>
+      ${r.diff.length ? `<div class="rc-sec"><h3>⚠️ ${esc(T().rc_diff)}</h3>${r.diff.map((m, k) => item(m.x.t, `${T().rc_bank}: ${m.b.desc} · ${m.b.date}`,
+          `${sgn(m.b.a)}<small>${esc(T().rc_d.replace('{m}', fmt(Math.abs(m.x.a))).replace('{d}', (m.b.a < 0 ? (m.d < 0 ? T().rc_moreOut : T().rc_lessOut) : (m.d > 0 ? T().rc_moreIn : T().rc_lessIn)).replace('{x}', fmt(Math.abs(m.d)))))}</small>`,
+          m.x.fix ? `<br><button type="button" data-rcfix="${k}">${esc(T().rc_useBank)}</button>` : `<small style="color:var(--ink-mute)">${esc(T().rc_fixThere)}</small>`)).join('')}</div>` : ''}
+      ${r.bankOnly.length ? `<div class="rc-sec"><h3>❌ ${esc(T().rc_bankOnly)}</h3>${r.bankOnly.map((b, k) => item(b.desc || '—', b.date, sgn(b.a), `<br><button type="button" data-rcadd="${k}">${esc(T().rc_add)}</button>`)).join('')}</div>` : ''}
+      ${r.appOnly.length ? `<div class="rc-sec"><h3>❓ ${esc(T().rc_appOnly)}</h3><p class="hint" style="margin:0;">${esc(T().rc_appOnlyHint)}</p>${r.appOnly.map(x => item(x.t, x.date, sgn(x.a))).join('')}</div>` : ''}
+      ${r.ok.length ? `<details class="rc-sec"><summary style="cursor:pointer;font-size:13px;margin-top:12px;">✅ ${esc(T().rc_ok)}（${r.ok.length}）</summary>${r.ok.map(m => item(m.x.t, `${m.b.desc} · ${m.b.date}`, sgn(m.b.a))).join('')}</details>` : ''}
+      <div class="btn-row"><button class="ghost" id="rcClose">${esc(T().rc_close)}</button></div>`;
+  }
+  $('rcBtn').addEventListener('click', () => {
+    if(!wallets.length){ toast(T().wl_none); return; }
+    const go = id => { RC.wallet = id; $('rcFile').value = ''; $('rcFile').click(); };
+    const cimb = wallets.find(w => /cimb/i.test(w.name));
+    if(wallets.length === 1) go(wallets[0].id);
+    else askSheet(T().rc_pickWallet, wallets.map(w => ({ value:w.id, label:w.name, sub: w === cimb ? T().rc_cimb : '' })), go);
+  });
+  $('rcFile').addEventListener('change', ev => {
+    const f = ev.target.files && ev.target.files[0]; if(!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      const bank = rcParseCsv(String(fr.result || ''));
+      if(!bank || !bank.length){ toast(T().rc_bad); return; }
+      RC.bank = bank; RC.result = rcMatch(bank, RC.wallet);
+      renderRecon(); $('rcPanel').scrollIntoView({ behavior:'smooth' });
+    };
+    fr.readAsText(f);
+  });
+  $('rcPanel').addEventListener('click', ev => {
+    if(ev.target.closest('#rcClose')){ RC.result = null; renderRecon(); return; }
+    const fx = ev.target.closest('[data-rcfix]'), ad = ev.target.closest('[data-rcadd]');
+    const refresh = () => { RC.result = rcMatch(RC.bank, RC.wallet); renderRecon(); renderWallet(); };
+    if(fx){
+      const m = RC.result.diff[Number(fx.dataset.rcfix)]; const [k, id] = [m.x.ref.slice(0, m.x.ref.indexOf(':')), m.x.ref.slice(m.x.ref.indexOf(':') + 1)];
+      const amt = Math.abs(m.b.a);
+      if(k === 'inv'){ const x = invEntries.find(i => i.id === id); if(x){ x.amount = amt; saveInv(); } }
+      if(k === 'per'){ const x = personalEntries.find(i => i.id === id); if(x){ x.amount = amt; savePersonal(); } }
+      if(k === 'wtx'){ const x = walletTx.find(i => i.id === id); if(x){ x.amount = amt; saveWallets(); } }
+      toast(T().rc_fixed.replace('{a}', fmt(amt))); refresh();
+    }
+    if(ad){
+      const b = RC.result.bankOnly[Number(ad.dataset.rcadd)];
+      // the bank row happened after the balance was set? count it; otherwise it is already inside the balance
+      const w = wallets.find(x => x.id === RC.wallet);
+      const at = w && w.setAt && b.date < toStr(new Date(w.setAt)) ? w.setAt - 1 : Date.now();
+      if(b.a > 0){ walletTx.push({ id:uid(), at, type:'in', wallet:RC.wallet, to:'', amount:b.a, note:b.desc, date:b.date }); saveWallets(); toast(T().rc_added); refresh(); return; }
+      const guess = /grab|toll|tol|parking|touch\s*n\s*go|plus|lrt|mrt/i.test(b.desc) ? 'grab' : /food|restoran|cafe|coffee|kfc|mcd|starbucks/i.test(b.desc) ? 'food' : '';
+      askSheet(T().rc_pickCat.replace('{a}', fmt(-b.a)), X_TAGS.map(t => ({ value:t, label:xTagLabel(t), sub: t === guess ? T().rc_guess : '' })), tag => {
+        invEntries.push({ id:uid(), createdAt:at, date:b.date, amount:-b.a, note:b.desc, tag, src:'', wallet:RC.wallet }); saveInv();
+        toast(T().rc_added); refresh();
+      });
+    }
+  });
 
   // ============================================================
   // personal expenses — rent paid, utilities, rent received
