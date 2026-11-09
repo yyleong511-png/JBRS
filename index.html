@@ -833,6 +833,7 @@
   .rc-item .a{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;text-align:right;}
   .rc-item .a small{display:block;font-size:10.5px;font-weight:600;color:var(--amber);}
   .rc-item button{min-height:30px;font-size:11.5px;padding:3px 9px;border-radius:8px;border:1px solid var(--rose-deep);background:var(--paper);color:var(--rose-deep);cursor:pointer;white-space:nowrap;margin-top:4px;}
+  .btn-auto{width:100%;min-height:46px;margin-top:6px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--rose-deep),#B77A5E);color:#fff;font-size:15px;font-weight:600;cursor:pointer;}
   .rc-item .in{color:var(--green);} .rc-item .out{color:var(--loss);}
   .rm-box{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:12px;box-shadow:var(--shadow);}
   .rm-box h3{margin:0 0 4px;font-size:14px;}
@@ -2122,7 +2123,7 @@
       rc_h:'{w} · 银行记录对照', rc_range:'银行记录 {a} 到 {b}，跟系统里同一段时间的记录比较', rc_ok:'对得上', rc_diff:'金额有差', rc_bankOnly:'银行有，系统没记', rc_appOnly:'系统有，银行没有',
       rc_gap0:'这段时间银行和系统的加减完全一样 ✅', rc_gap:'这段时间系统比银行{s} {d}，看下面的项目', rc_less:'少算了', rc_more:'多算了',
       rc_bank:'银行', rc_d:'系统记 {m}，{d}', rc_moreOut:'银行多扣 {x}', rc_lessOut:'银行少扣 {x}', rc_moreIn:'实际多收 {x}', rc_lessIn:'实际少收 {x}', rc_useBank:'改成银行金额', rc_fixThere:'请到原本的页面修改', rc_add:'补记进系统', rc_fixed:'已改成 {a}', rc_added:'已补记',
-      rc_appOnlyHint:'可能记错钱包、日期，或银行还在处理中（pending）', rc_pickCat:'这笔 {a} 是什么支出？', rc_guess:'可能是这个', rc_close:'关闭对照',
+      rc_appOnlyHint:'可能记错钱包、日期，或银行还在处理中（pending）', rc_pickCat:'这笔 {a} 是什么支出？', rc_guess:'可能是这个', rc_close:'关闭对照', rc_auto:'✨ AI 自动对平', rc_autoSub:'自动认出每一笔是什么、补记漏掉的、改好金额，套用前先给你看', rc_autoH:'✨ 准备这样对平：', rc_autoHint:'打勾的会套用；分类不对就按「改」，系统会记住你的选择，下次自动用', rc_actFix:'系统记 {m} → 改成银行的 {a}', rc_whyLearn:'按你以前的选择', rc_whyUnsure:'不确定，请看一下', rc_change:'改', rc_apply:'✅ 全部套用', rc_cancel:'取消', rc_autoDone:'已自动对平 {n} 项', rc_undo:'↩️ 撤销刚才的自动对平', rc_undone:'已撤销', rc_catIn:'其他收入', rc_catBiz:'工作', rc_catPer:'个人', rc_appOnlyLeft:'另外有 {n} 项是系统有、银行没有的，不会自动删除，请在下面看一下是不是记错钱包或日期',
       rm_btn:'提醒客人', rm_h:'📅 分期快到期（{n}）', rm_open:'打开', rm_over:'已过期 {n} 天', rm_today:'今天到期', rm_soon:'还有 {n} 天到期', rm_last:'{d} 已提醒', rm_ask:'提醒 {c} 付第 {n} 期', rm_email:'邮件', rm_copy:'复制讯息', rm_copySub:'自己贴到其他 app', pl_due:'到期日', pl_makeRcp:'开收据', pl_openRcp:'收据 {no}', pl_rcpMade:'已开收据 {no}', pl_unpayAsk:'这一期已经开了收据 {no}，确定改回未付吗？（收据要自己删除）', pl_markPaid:'标记已付', pl_paid:'✓ 已付', pl_paidOn:'{d} 收到', pl_sum:'已付 {p} · 还差 {r}', pl_mismatch:'各期加起来 {s}，跟应付总额 {t} 不一样',
       pl_offAsk:'已经有几期标记已付，确定取消分期吗？', pl_saveHint:'记得按「保存单据」', pl_listTag:'分期 {p}/{n} 已付',
       l_statCount:'单据数量', l_statReceived:'已收金额', l_statDue:'未收金额',
@@ -2442,7 +2443,7 @@
       rc_h:'{w} · bank check', rc_range:'Bank entries {a} to {b}, compared with what is logged for the same dates', rc_ok:'Matched', rc_diff:'Amount differs', rc_bankOnly:'In bank, not logged', rc_appOnly:'Logged, not in bank',
       rc_gap0:'Bank and app add up exactly for this period ✅', rc_gap:'For this period the app has {d} {s} — see below', rc_less:'too little', rc_more:'too much',
       rc_bank:'Bank', rc_d:'logged {m}; {d}', rc_moreOut:'bank took {x} more', rc_lessOut:'bank took {x} less', rc_moreIn:'{x} more came in', rc_lessIn:'{x} less came in', rc_useBank:'Use bank amount', rc_fixThere:'Edit it on its own page', rc_add:'Log it', rc_fixed:'Changed to {a}', rc_added:'Logged',
-      rc_appOnlyHint:'Maybe logged to the wrong wallet or date, or the bank still shows it as pending', rc_pickCat:'What was this {a}?', rc_guess:'probably this', rc_close:'Close',
+      rc_appOnlyHint:'Maybe logged to the wrong wallet or date, or the bank still shows it as pending', rc_pickCat:'What was this {a}?', rc_guess:'probably this', rc_close:'Close', rc_auto:'✨ AI auto-balance', rc_autoSub:'Works out what each line is, logs what is missing and fixes amounts — you see it before it is applied', rc_autoH:'✨ Plan to balance:', rc_autoHint:'Ticked lines will be applied. Wrong category? Tap Change — your choice is remembered next time', rc_actFix:'logged {m} → change to the bank\'s {a}', rc_whyLearn:'from your past choice', rc_whyUnsure:'not sure — please check', rc_change:'Change', rc_apply:'✅ Apply all', rc_cancel:'Cancel', rc_autoDone:'Balanced {n} items', rc_undo:'↩️ Undo the auto-balance', rc_undone:'Undone', rc_catIn:'Other income', rc_catBiz:'Work', rc_catPer:'Personal', rc_appOnlyLeft:'{n} more items are logged but not in the bank — they are not deleted; check below whether the wallet or date is wrong',
       rm_btn:'Remind', rm_h:'📅 Installments due soon ({n})', rm_open:'Open', rm_over:'{n} days overdue', rm_today:'Due today', rm_soon:'Due in {n} days', rm_last:'reminded {d}', rm_ask:'Remind {c} about part {n}', rm_email:'Email', rm_copy:'Copy message', rm_copySub:'Paste it into another app', pl_due:'Due', pl_makeRcp:'Make receipt', pl_openRcp:'Receipt {no}', pl_rcpMade:'Receipt {no} made', pl_unpayAsk:'Receipt {no} was made for this part. Mark it unpaid anyway? (delete the receipt yourself)', pl_markPaid:'Mark paid', pl_paid:'✓ Paid', pl_paidOn:'received {d}', pl_sum:'Paid {p} · still owed {r}', pl_mismatch:'Parts add up to {s}, not the balance due of {t}',
       pl_offAsk:'Some installments are already paid. Turn installments off?', pl_saveHint:'Remember to tap Save', pl_listTag:'installments {p}/{n} paid',
       l_statCount:'Documents', l_statReceived:'Received', l_statDue:'Outstanding',
@@ -6147,8 +6148,39 @@
       app.forEach((x, k) => { if(!usedA.has(k) && Math.sign(x.a) === Math.sign(b.a) && dd(x.date, b.date) <= 3 && test(x) && dd(x.date, b.date) < bd){ best = k; bd = dd(x.date, b.date); } });
       return best;
     };
-    const left = [];
+    let left = [];
     bank.forEach(b => { const k = pick(b, x => Math.abs(x.a - b.a) < 0.005); if(k >= 0){ usedA.add(k); ok.push({ b, x:app[k] }); } else left.push(b); });
+    // same amount but logged a few more days away (bank posts late, or the date was typed wrong)
+    const pickWide = (b, test, days) => { let best = -1, bd = 99;
+      app.forEach((x, k) => { if(!usedA.has(k) && Math.sign(x.a) === Math.sign(b.a) && dd(x.date, b.date) <= days && test(x) && dd(x.date, b.date) < bd){ best = k; bd = dd(x.date, b.date); } });
+      return best; };
+    left = left.filter(b => { const k = pickWide(b, x => Math.abs(x.a - b.a) < 0.005, 10); if(k < 0) return true; usedA.add(k); ok.push({ b, x:app[k] }); return false; });
+    // several logged items that add up to one bank line (e.g. two Grab rides charged together), or the other way round
+    const near = (a, b) => dd(a, b) <= 5, same = (a, b) => Math.abs(a - b) < 0.005;
+    const combos = (list, size, target, fn) => {
+      const go = (start, picked, sum) => {
+        if(picked.length === size) return same(sum, target) ? picked.slice() : null;
+        for(let i = start; i < list.length; i++){ picked.push(list[i]); const r = go(i + 1, picked, sum + fn(list[i])); picked.pop(); if(r) return r; }
+        return null;
+      };
+      return go(0, [], 0);
+    };
+    left = left.filter(b => {
+      const cand = app.map((x, k) => k).filter(k => !usedA.has(k) && Math.sign(app[k].a) === Math.sign(b.a) && near(app[k].date, b.date) && Math.abs(app[k].a) < Math.abs(b.a)).slice(0, 14);
+      for(let n = 2; n <= 4; n++){
+        const g = combos(cand, n, b.a, k => app[k].a);
+        if(g){ g.forEach(k => usedA.add(k)); ok.push({ b, x:{ t: g.map(k => app[k].t).join(' + '), date: app[g[0]].date, a: b.a } }); return false; }
+      }
+      return true;
+    });
+    app.forEach((x, k) => {
+      if(usedA.has(k)) return;
+      const cand = left.filter(b => Math.sign(b.a) === Math.sign(x.a) && near(b.date, x.date) && Math.abs(b.a) < Math.abs(x.a)).slice(0, 14);
+      for(let n = 2; n <= 4; n++){
+        const g = combos(cand, n, x.a, b => b.a);
+        if(g){ usedA.add(k); left = left.filter(b => !g.includes(b)); ok.push({ b:{ desc: g.map(b => b.desc).join(' + '), date: g[0].date, a: x.a }, x }); return; }
+      }
+    });
     // close amounts (e.g. Grab + toll): within RM 5 or 10%
     left.forEach(b => {
       const k = pick(b, x => Math.abs(x.a - b.a) <= Math.max(5, Math.abs(b.a) * 0.1));
@@ -6157,6 +6189,92 @@
     const appOnly = app.filter((x, k) => !usedA.has(k));
     const bankNet = bank.reduce((s, b) => s + b.a, 0), appNet = app.reduce((s, x) => s + x.a, 0);
     return { from, to, ok, diff, bankOnly, appOnly, gap: Math.round((bankNet - appNet) * 100) / 100 };
+  }
+  // ---------- ✨ 自动对平: decide what to do with every difference, learning from past choices ----------
+  let rcRules = {}; try{ rcRules = JSON.parse(localStorage.getItem('jl.rcrules') || '{}') || {}; }catch(e){ rcRules = {}; }
+  const rcKey = d => String(d || '').toLowerCase().replace(/[0-9*#@:\/\\.\-_,()]+/g, ' ').replace(/\b(duitnow|to|account|from|pos|debit|credit|online|banking|transfer|trf|ibg|instant|payment|fund|tr|ref)\b/g, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0, 3).join(' ');
+  const rcLearn = (desc, cat) => { const k = rcKey(desc); if(!k) return; rcRules[k] = cat; try{ localStorage.setItem('jl.rcrules', JSON.stringify(rcRules)); }catch(e){} };
+  const rcWalletIn = desc => { // another of her wallets named in the bank line (e.g. "from TNG")
+    const d = String(desc || '').toLowerCase();
+    return wallets.find(w => w.id !== RC.wallet && (((/tng|touch\s*'?\s*n\s*'?\s*go/.test(d)) && /touch|tng/i.test(w.name)) || (w.name.length > 3 && d.includes(w.name.toLowerCase().split(' ')[0]) && !/bank/i.test(w.name.split(' ')[0]))));
+  };
+  function rcGuess(b){
+    const k = rcKey(b.desc), d = String(b.desc || '').toLowerCase();
+    if(k && rcRules[k]) return { cat: rcRules[k], why:'learn' };
+    const lk = Object.keys(rcRules).find(r => r && (k.includes(r) || r.includes(k)) && Math.min(r.length, k.length) >= 4);
+    if(lk) return { cat: rcRules[lk], why:'learn' };
+    const mw = rcWalletIn(b.desc);
+    if(mw) return { cat: 'mv:' + mw.id, why:'rule' };
+    if(b.a > 0){
+      if(/rent|sewa/.test(d)) return { cat:'per:rentin', why:'rule' };
+      return { cat:'in', why:'rule' };
+    }
+    const R = [[/grab|toll|plus\b|tol\b|parking|petronas|shell|petrol|lrt|mrt|rapid|touch\s*n\s*go|smarttag/, 'inv:grab'],
+      [/tnb|tenaga|electric/, 'per:elec'], [/air|water|syabas|sab\b|indah water/, 'per:water'],
+      [/unifi|\btm\b|time internet|maxis fibre|astro|internet|fibre/, 'per:net'], [/maxis|celcom|digi|umobile|u mobile|hotlink|yes\b|tune talk|xox/, 'per:phone'],
+      [/rent|sewa|rental/, 'per:rent'], [/shopee|lazada|zalora|uniqlo|h&m|cotton on/, 'inv:wardrobe'],
+      [/7.?eleven|7-11|kk mart|family ?mart|mydin|tesco|lotus|aeon|giant|jaya grocer|99 speed|watsons|guardian/, 'per:living'],
+      [/food|restoran|restaurant|cafe|coffee|kopi|kfc|mcd|mcdonald|starbucks|tealive|chagee|zus|nasi|mamak|sushi|bakery|foodpanda|grabfood/, 'per:food'],
+      [/cinema|gsc|tgv|netflix|spotify|youtube|game|steam/, 'per:fun'], [/canva|meta|facebook|instagram|ads|google/, 'inv:marketing'],
+      [/course|class|kelas|udemy|workshop/, 'inv:course'], [/sephora|makeup|mac\b|nars|bobbi|fenty|camera|lens|ring ?light/, 'inv:equipment']];
+    const hit = R.find(([re]) => re.test(d));
+    return hit ? { cat: hit[1], why:'rule' } : { cat:'per:living', why:'unsure' };
+  }
+  const rcCatLabel = c => {
+    if(c === 'in') return '💵 ' + T().rc_catIn;
+    if(c.startsWith('inv:')) return T().rc_catBiz + ' · ' + xTagLabel(c.slice(4));
+    if(c.startsWith('per:')) return T().rc_catPer + ' · ' + perLabel(c.slice(4));
+    if(c.startsWith('mv:')){ const w = wallets.find(x => x.id === c.slice(3)); return '🔁 ' + (w ? w.name : '?'); }
+    return c;
+  };
+  const rcCatOptions = b => {
+    const opts = [];
+    if(b.a > 0){ opts.push('in', 'per:rentin'); }
+    else { X_TAGS.forEach(t => opts.push('inv:' + t)); PER_TYPES.filter(t => t.dir === 'out').forEach(t => opts.push('per:' + t.k)); }
+    wallets.filter(w => w.id !== RC.wallet).forEach(w => opts.push('mv:' + w.id));
+    return opts;
+  };
+  function rcPlan(){
+    const r = RC.result, plan = [];
+    r.diff.forEach(m => { if(m.x.fix) plan.push({ kind:'fix', m, on:true }); });
+    r.bankOnly.forEach(b => { const g = rcGuess(b); plan.push({ kind:'add', b, cat:g.cat, why:g.why, on:true }); });
+    return plan;
+  }
+  function rcApply(plan){
+    RC.undo = JSON.stringify({ inv:invEntries, per:personalEntries, wtx:walletTx });
+    const w = wallets.find(x => x.id === RC.wallet);
+    let n = 0;
+    plan.filter(p => p.on).forEach(p => {
+      if(p.kind === 'fix'){
+        const ref = p.m.x.ref, k = ref.slice(0, ref.indexOf(':')), id = ref.slice(ref.indexOf(':') + 1), amt = Math.abs(p.m.b.a);
+        const list = k === 'inv' ? invEntries : k === 'per' ? personalEntries : walletTx;
+        const x = list.find(i => i.id === id); if(x){ x.amount = amt; n++; }
+        return;
+      }
+      const b = p.b, c = p.cat, amt = Math.abs(b.a);
+      const at = w && w.setAt && b.date < toStr(new Date(w.setAt)) ? w.setAt - 1 : Date.now();
+      if(c === 'in') walletTx.push({ id:uid(), at, type:'in', wallet:RC.wallet, to:'', amount:amt, note:b.desc, date:b.date });
+      else if(c.startsWith('mv:')) walletTx.push(b.a > 0 ? { id:uid(), at, type:'move', wallet:c.slice(3), to:RC.wallet, amount:amt, note:b.desc, date:b.date } : { id:uid(), at, type:'move', wallet:RC.wallet, to:c.slice(3), amount:amt, note:b.desc, date:b.date });
+      else if(c.startsWith('inv:')) invEntries.push({ id:uid(), createdAt:at, date:b.date, amount:amt, note:b.desc, tag:c.slice(4), src:'', wallet:RC.wallet });
+      else if(c.startsWith('per:')) personalEntries.push({ id:uid(), createdAt:at, date:b.date, type:c.slice(4), amount:amt, note:b.desc, wallet:RC.wallet });
+      if(p.why === 'user') rcLearn(b.desc, c);
+      n++;
+    });
+    saveInv(); savePersonal(); saveWallets();
+    return n;
+  }
+  function rcPlanHTML(){
+    const sgn = a => `<span class="${a > 0 ? 'in' : 'out'}">${a > 0 ? '+' : '−'} ${fmt(Math.abs(a))}</span>`;
+    const rows = RC.plan.map((p, k) => {
+      const chk = `<input type="checkbox" data-rcon="${k}" ${p.on ? 'checked' : ''} style="width:18px;height:18px;flex:none;">`;
+      if(p.kind === 'fix') return `<label class="rc-item" style="justify-content:flex-start;">${chk}<div class="t" style="flex:1;">${esc(p.m.x.t)}<small>${esc(T().rc_actFix.replace('{a}', fmt(Math.abs(p.m.b.a))).replace('{m}', fmt(Math.abs(p.m.x.a))))}</small></div><div class="a">${sgn(p.m.b.a)}</div></label>`;
+      const tag = p.why === 'learn' ? T().rc_whyLearn : p.why === 'unsure' ? T().rc_whyUnsure : '';
+      return `<div class="rc-item" style="justify-content:flex-start;">${chk}<div class="t" style="flex:1;">${esc(p.b.desc || '—')}<small>${esc(p.b.date)} · <b style="color:var(--ink)">${esc(rcCatLabel(p.cat))}</b>${tag ? ' · ' + esc(tag) : ''}</small></div><div class="a">${sgn(p.b.a)}<br><button type="button" data-rccat="${k}">${esc(T().rc_change)}</button></div></div>`;
+    }).join('');
+    return `<div class="rc-sec" style="background:var(--ivory);border-radius:12px;padding:10px 12px;margin-top:10px;"><h3 style="margin-top:0;">${esc(T().rc_autoH)}</h3>
+      <p class="hint" style="margin:0 0 4px;">${esc(T().rc_autoHint)}</p>${rows}
+      ${RC.result.appOnly.length ? `<p class="hint" style="margin:8px 0 0;">${esc(T().rc_appOnlyLeft.replace('{n}', RC.result.appOnly.length))}</p>` : ''}
+      <div class="btn-row" style="margin-top:10px;"><button class="ghost" id="rcPlanCancel">${esc(T().rc_cancel)}</button><button class="primary" id="rcApply">${esc(T().rc_apply)}</button></div></div>`;
   }
   function renderRecon(){
     const r = RC.result, w = wallets.find(x => x.id === RC.wallet);
@@ -6168,11 +6286,13 @@
       <p class="hint">${esc(T().rc_range.replace('{a}', r.from).replace('{b}', r.to))}</p>
       <div class="rc-sum"><div><b>${r.ok.length}</b><small>${esc(T().rc_ok)}</small></div><div><b style="color:var(--amber)">${r.diff.length}</b><small>${esc(T().rc_diff)}</small></div>
         <div><b style="color:var(--loss)">${r.bankOnly.length}</b><small>${esc(T().rc_bankOnly)}</small></div><div><b>${r.appOnly.length}</b><small>${esc(T().rc_appOnly)}</small></div></div>
+      ${RC.plan ? rcPlanHTML() : (r.diff.some(m => m.x.fix) || r.bankOnly.length) ? `<button class="btn-auto" id="rcAuto">${esc(T().rc_auto)}</button><p class="hint" style="margin:4px 0 0;text-align:center;">${esc(T().rc_autoSub)}</p>` : ''}
+      ${RC.undo && !RC.plan ? `<button class="ghost" id="rcUndo" style="width:100%;margin-top:8px;">${esc(T().rc_undo)}</button>` : ''}
       <div class="sa-save" style="background:${Math.abs(r.gap) < 0.01 ? '#EDF2ED' : '#FBF1E4'};border-color:${Math.abs(r.gap) < 0.01 ? '#D3E0D4' : '#EBD9BC'};">${esc(Math.abs(r.gap) < 0.01 ? T().rc_gap0 : T().rc_gap.replace('{d}', fmt(Math.abs(r.gap))).replace('{s}', r.gap < 0 ? T().rc_less : T().rc_more))}</div>
-      ${r.diff.length ? `<div class="rc-sec"><h3>⚠️ ${esc(T().rc_diff)}</h3>${r.diff.map((m, k) => item(m.x.t, `${T().rc_bank}: ${m.b.desc} · ${m.b.date}`,
+      ${r.diff.length && !RC.plan ? `<div class="rc-sec"><h3>⚠️ ${esc(T().rc_diff)}</h3>${r.diff.map((m, k) => item(m.x.t, `${T().rc_bank}: ${m.b.desc} · ${m.b.date}`,
           `${sgn(m.b.a)}<small>${esc(T().rc_d.replace('{m}', fmt(Math.abs(m.x.a))).replace('{d}', (m.b.a < 0 ? (m.d < 0 ? T().rc_moreOut : T().rc_lessOut) : (m.d > 0 ? T().rc_moreIn : T().rc_lessIn)).replace('{x}', fmt(Math.abs(m.d)))))}</small>`,
           m.x.fix ? `<br><button type="button" data-rcfix="${k}">${esc(T().rc_useBank)}</button>` : `<small style="color:var(--ink-mute)">${esc(T().rc_fixThere)}</small>`)).join('')}</div>` : ''}
-      ${r.bankOnly.length ? `<div class="rc-sec"><h3>❌ ${esc(T().rc_bankOnly)}</h3>${r.bankOnly.map((b, k) => item(b.desc || '—', b.date, sgn(b.a), `<br><button type="button" data-rcadd="${k}">${esc(T().rc_add)}</button>`)).join('')}</div>` : ''}
+      ${r.bankOnly.length && !RC.plan ? `<div class="rc-sec"><h3>❌ ${esc(T().rc_bankOnly)}</h3>${r.bankOnly.map((b, k) => item(b.desc || '—', b.date, sgn(b.a), `<br><button type="button" data-rcadd="${k}">${esc(T().rc_add)}</button>`)).join('')}</div>` : ''}
       ${r.appOnly.length ? `<div class="rc-sec"><h3>❓ ${esc(T().rc_appOnly)}</h3><p class="hint" style="margin:0;">${esc(T().rc_appOnlyHint)}</p>${r.appOnly.map(x => item(x.t, x.date, sgn(x.a))).join('')}</div>` : ''}
       ${r.ok.length ? `<details class="rc-sec"><summary style="cursor:pointer;font-size:13px;margin-top:12px;">✅ ${esc(T().rc_ok)}（${r.ok.length}）</summary>${r.ok.map(m => item(m.x.t, `${m.b.desc} · ${m.b.date}`, sgn(m.b.a))).join('')}</details>` : ''}
       <div class="btn-row"><button class="ghost" id="rcClose">${esc(T().rc_close)}</button></div>`;
@@ -6188,7 +6308,7 @@
     const f = ev.target.files && ev.target.files[0]; if(!f) return;
     const done = bank => {
       if(!bank || !bank.length){ toast(T().rc_bad); return; }
-      RC.bank = bank; RC.result = rcMatch(bank, RC.wallet);
+      RC.bank = bank; RC.plan = null; RC.undo = null; RC.result = rcMatch(bank, RC.wallet);
       renderRecon(); $('rcPanel').scrollIntoView({ behavior:'smooth' });
     };
     const asText = () => { const fr = new FileReader(); fr.onload = () => done(rcParseCsv(String(fr.result || ''))); fr.readAsText(f); };
@@ -6228,7 +6348,25 @@
     fr.readAsArrayBuffer(f);
   });
   $('rcPanel').addEventListener('click', ev => {
-    if(ev.target.closest('#rcClose')){ RC.result = null; renderRecon(); return; }
+    if(ev.target.closest('#rcClose')){ RC.result = null; RC.plan = null; RC.undo = null; renderRecon(); return; }
+    if(ev.target.closest('#rcAuto')){ RC.plan = rcPlan(); renderRecon(); return; }
+    if(ev.target.closest('#rcPlanCancel')){ RC.plan = null; renderRecon(); return; }
+    const on = ev.target.closest('[data-rcon]'); if(on){ RC.plan[Number(on.dataset.rcon)].on = on.checked; return; }
+    const cc = ev.target.closest('[data-rccat]');
+    if(cc){
+      const p = RC.plan[Number(cc.dataset.rccat)];
+      askSheet(T().rc_pickCat.replace('{a}', fmt(Math.abs(p.b.a))), rcCatOptions(p.b).map(c => ({ value:c, label:rcCatLabel(c), sub: c === p.cat ? '✓' : '' })), c => { p.cat = c; p.why = 'user'; p.on = true; renderRecon(); });
+      return;
+    }
+    if(ev.target.closest('#rcApply')){
+      const n = rcApply(RC.plan); RC.plan = null;
+      RC.result = rcMatch(RC.bank, RC.wallet); renderRecon(); renderWallet();
+      toast(T().rc_autoDone.replace('{n}', n)); return;
+    }
+    if(ev.target.closest('#rcUndo')){
+      try{ const u = JSON.parse(RC.undo); invEntries.splice(0, invEntries.length, ...u.inv); personalEntries.splice(0, personalEntries.length, ...u.per); walletTx.splice(0, walletTx.length, ...u.wtx); saveInv(); savePersonal(); saveWallets(); }catch(e){}
+      RC.undo = null; RC.result = rcMatch(RC.bank, RC.wallet); renderRecon(); renderWallet(); toast(T().rc_undone); return;
+    }
     const fx = ev.target.closest('[data-rcfix]'), ad = ev.target.closest('[data-rcadd]');
     const refresh = () => { RC.result = rcMatch(RC.bank, RC.wallet); renderRecon(); renderWallet(); };
     if(fx){
@@ -6247,7 +6385,7 @@
       if(b.a > 0){ walletTx.push({ id:uid(), at, type:'in', wallet:RC.wallet, to:'', amount:b.a, note:b.desc, date:b.date }); saveWallets(); toast(T().rc_added); refresh(); return; }
       const guess = /grab|toll|tol|parking|touch\s*n\s*go|plus|lrt|mrt/i.test(b.desc) ? 'grab' : /food|restoran|cafe|coffee|kfc|mcd|starbucks/i.test(b.desc) ? 'food' : '';
       askSheet(T().rc_pickCat.replace('{a}', fmt(-b.a)), X_TAGS.map(t => ({ value:t, label:xTagLabel(t), sub: t === guess ? T().rc_guess : '' })), tag => {
-        invEntries.push({ id:uid(), createdAt:at, date:b.date, amount:-b.a, note:b.desc, tag, src:'', wallet:RC.wallet }); saveInv();
+        invEntries.push({ id:uid(), createdAt:at, date:b.date, amount:-b.a, note:b.desc, tag, src:'', wallet:RC.wallet }); saveInv(); rcLearn(b.desc, 'inv:' + tag);
         toast(T().rc_added); refresh();
       });
     }
