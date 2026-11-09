@@ -1794,7 +1794,7 @@
         <button class="ghost" id="wlEditBtn" data-t="wl_edit">设定余额 / 钱包</button>
         <button class="ghost" id="rcBtn" data-t="rc_btn">🔍 对照银行记录</button>
       </div>
-      <input type="file" id="rcFile" accept=".csv,text/csv,text/plain" style="display:none;">
+      <input type="file" id="rcFile" accept=".csv,.xls,.xlsx,text/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none;">
     </div>
     <div class="panel" id="rcPanel" style="display:none;"></div>
     <div class="panel wl-edit" id="wlEdit" style="display:none;">
@@ -2118,7 +2118,7 @@
       l_category:'职业类别', l_search:'搜索客户', searchPh:'客户 / 品牌名称',
       clearFilters:'清除筛选', clearFilters2:'清除筛选', allCategories:'全部类别',
       pl_l:'分期付款', pl_sub:'客人要分几期付，就打开；每一期可以分开标记已付', pl_count:'分几期', pl_nth:'第 {n} 期',
-      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rc_btn:'🔍 对照银行记录', rc_pickWallet:'对照哪个钱包？', rc_cimb:'上传 CIMB 导出的 CSV', rc_bad:'读不到这个文件的交易，请上传银行导出的 CSV',
+      pl_modeAuto:'✨ 自动平均分配', pl_modeCustom:'✏️ 自定义数目', pl_toCustom:'自定义数目', pl_toAuto:'恢复自动平均分', pl_short:'还差 {d}', pl_over:'多了 {d}', pl_autoPaid:'已经有几期付了，不能重新平均分', pl_cantRemovePaid:'最后一期已经付了，不能删掉', btnSend:'发送', btnSaveShort:'保存', btnPrintShort:'PDF', snd_ask:'把单据发给 {c}', snd_noContact:'先在「客户联络」填客人的电话或邮箱', snd_making:'正在做 PDF…', snd_mailDone:'已打开邮件（邮箱已复制，贴到收件人）', snd_waDone:'已分享，选客人的对话就能发送', snd_attachHint:'PDF 已下载，拖进对话 / 邮件里再发送', snd_noPdf:'PDF 做不出来（需要网络），先用「存为 PDF」', ri_make:'🧾 开收据', ri_view:'🧾 查看收据 {no}', ri_noneYet:'先在下面标记哪一期已付，再开收据', ri_pick:'开哪一期的收据？', ri_askAmt:'这次收到多少钱？（发票总额 {t}）', ri_badAmt:'金额要大于 0、小于 {t}；全部付清请把状态改成「已付清」', rc_btn:'🔍 对照银行记录', rc_pickWallet:'对照哪个钱包？', rc_cimb:'上传 CIMB 导出的 Excel（XLS）或 CSV', rc_bad:'读不到这个文件的交易，请上传银行导出的 Excel（XLS / XLSX）或 CSV', rc_noXlsx:'读 Excel 需要网络，请连上网再试，或改用 CSV',
       rc_h:'{w} · 银行记录对照', rc_range:'银行记录 {a} 到 {b}，跟系统里同一段时间的记录比较', rc_ok:'对得上', rc_diff:'金额有差', rc_bankOnly:'银行有，系统没记', rc_appOnly:'系统有，银行没有',
       rc_gap0:'这段时间银行和系统的加减完全一样 ✅', rc_gap:'这段时间系统比银行{s} {d}，看下面的项目', rc_less:'少算了', rc_more:'多算了',
       rc_bank:'银行', rc_d:'系统记 {m}，{d}', rc_moreOut:'银行多扣 {x}', rc_lessOut:'银行少扣 {x}', rc_moreIn:'实际多收 {x}', rc_lessIn:'实际少收 {x}', rc_useBank:'改成银行金额', rc_fixThere:'请到原本的页面修改', rc_add:'补记进系统', rc_fixed:'已改成 {a}', rc_added:'已补记',
@@ -2438,7 +2438,7 @@
       l_category:'Category', l_search:'Search Client', searchPh:'Client / brand name',
       clearFilters:'Clear Filters', clearFilters2:'Clear Filters', allCategories:'All Categories',
       pl_l:'Installments', pl_sub:'Turn on when the client pays in parts; mark each one paid as it comes in', pl_count:'Number of installments', pl_nth:'Part {n}',
-      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rc_btn:'🔍 Check against bank', rc_pickWallet:'Which wallet?', rc_cimb:'Upload the CSV exported from CIMB', rc_bad:'No transactions found — upload the CSV exported from your bank',
+      pl_modeAuto:'✨ Split evenly', pl_modeCustom:'✏️ Custom amounts', pl_toCustom:'Custom amounts', pl_toAuto:'Split evenly again', pl_short:'{d} short', pl_over:'{d} over', pl_autoPaid:'Some parts are paid, so it cannot split evenly again', pl_cantRemovePaid:'The last part is paid and cannot be removed', btnSend:'Send', btnSaveShort:'Save', btnPrintShort:'PDF', snd_ask:'Send this document to {c}', snd_noContact:'Add the client\'s phone or email under client contact first', snd_making:'Making the PDF…', snd_mailDone:'Email opened (address copied — paste it as the recipient)', snd_waDone:'Shared — pick the client\'s chat to send', snd_attachHint:'PDF downloaded — drag it into the chat / email and send', snd_noPdf:'Could not make the PDF (needs internet) — use Save PDF instead', ri_make:'🧾 Make receipt', ri_view:'🧾 View receipt {no}', ri_noneYet:'Mark which part is paid below first, then make the receipt', ri_pick:'Receipt for which part?', ri_askAmt:'How much was received this time? (invoice total {t})', ri_badAmt:'Enter more than 0 and less than {t}; for full payment set the status to Paid', rc_btn:'🔍 Check against bank', rc_pickWallet:'Which wallet?', rc_cimb:'Upload the Excel (XLS) or CSV exported from CIMB', rc_bad:'No transactions found — upload the Excel (XLS / XLSX) or CSV exported from your bank', rc_noXlsx:'Reading Excel needs internet — connect and try again, or use CSV',
       rc_h:'{w} · bank check', rc_range:'Bank entries {a} to {b}, compared with what is logged for the same dates', rc_ok:'Matched', rc_diff:'Amount differs', rc_bankOnly:'In bank, not logged', rc_appOnly:'Logged, not in bank',
       rc_gap0:'Bank and app add up exactly for this period ✅', rc_gap:'For this period the app has {d} {s} — see below', rc_less:'too little', rc_more:'too much',
       rc_bank:'Bank', rc_d:'logged {m}; {d}', rc_moreOut:'bank took {x} more', rc_lessOut:'bank took {x} less', rc_moreIn:'{x} more came in', rc_lessIn:'{x} less came in', rc_useBank:'Use bank amount', rc_fixThere:'Edit it on its own page', rc_add:'Log it', rc_fixed:'Changed to {a}', rc_added:'Logged',
@@ -6093,14 +6093,36 @@
   });
   $('rcFile').addEventListener('change', ev => {
     const f = ev.target.files && ev.target.files[0]; if(!f) return;
-    const fr = new FileReader();
-    fr.onload = () => {
-      const bank = rcParseCsv(String(fr.result || ''));
+    const done = bank => {
       if(!bank || !bank.length){ toast(T().rc_bad); return; }
       RC.bank = bank; RC.result = rcMatch(bank, RC.wallet);
       renderRecon(); $('rcPanel').scrollIntoView({ behavior:'smooth' });
     };
-    fr.readAsText(f);
+    const asText = () => { const fr = new FileReader(); fr.onload = () => done(rcParseCsv(String(fr.result || ''))); fr.readAsText(f); };
+    if(!/\.xlsx?$/i.test(f.name || '')){ asText(); return; }
+    // Excel (.xls / .xlsx): read with SheetJS, turn each sheet into CSV text, then parse like a CSV
+    const fr = new FileReader();
+    fr.onload = async () => {
+      if(!window.XLSX) await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js']);
+      if(!window.XLSX){ toast(T().rc_noXlsx); return; }
+      let bank = null;
+      try{
+        const wb = XLSX.read(new Uint8Array(fr.result), { type:'array', cellDates:true });
+        const pad = n => String(n).padStart(2, '0');
+        const cell = v => {
+          if(v instanceof Date){ const d = new Date(v.getTime() + 30000); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+          const t = v == null ? '' : String(v);
+          return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+        };
+        for(const name of wb.SheetNames){
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { header:1, raw:true, defval:'' });
+          const b = rcParseCsv(rows.map(r => r.map(cell).join(',')).join('\n'));
+          if(b && b.length){ bank = b; break; }
+        }
+      }catch(e){ bank = null; }
+      if(bank && bank.length) done(bank); else asText(); // some bank ".xls" files are really text/HTML
+    };
+    fr.readAsArrayBuffer(f);
   });
   $('rcPanel').addEventListener('click', ev => {
     if(ev.target.closest('#rcClose')){ RC.result = null; renderRecon(); return; }
