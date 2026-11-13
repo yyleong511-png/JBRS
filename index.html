@@ -3407,6 +3407,14 @@
   }
 
   // ---------- preview ----------
+  // "Payment due within 14 days" follows the invoice's own date → due date gap
+  const termsDays = t => { const m = /within\s+(\d+)\s*days?|(\d+)\s*天内/i.exec(String(t || '')); return m ? Number(m[1] || m[2]) : 0; };
+  function termsWithDays(terms, d){
+    if(!d || d.docType !== 'invoice' || !d.date || !d.dueDate) return terms;
+    const n = Math.round((new Date(d.dueDate + 'T00:00:00') - new Date(d.date + 'T00:00:00')) / 86400000);
+    if(!(n > 0)) return terms;
+    return String(terms).replace(/(within\s+)\d+(\s*)days?/i, `$1${n}$2${n === 1 ? 'day' : 'days'}`).replace(/\d+(\s*)天内/, `${n}$1天内`);
+  }
   function effStatus(status, dueDate){
     if(status === 'void') return 'void';
     if(status === 'paid') return 'paid';
@@ -3535,7 +3543,7 @@
         })() : ''}
         ${payBox}
         ${d.notes ? `<div class="d-note">${esc(d.notes)}</div>` : ''}
-        ${b.terms ? `<div class="d-terms">${esc(b.terms)}</div>` : ''}
+        ${b.terms ? `<div class="d-terms">${esc(termsWithDays(b.terms, d))}</div>` : ''}
         ${signatureHTML(b)}
         ${legal}
         <div class="d-foot">${esc(d.no)} · ${name}</div>
@@ -3615,7 +3623,7 @@
     ['dClient','dClientContact','dClientTin','dRefInvoice','dCostNote','dNotes'].forEach(id => $(id).value = '');
     ['dDiscount','dDeposit','dCost'].forEach(id => $(id).value = '0');
     $('dDate').value = todayStr();
-    $('dDueDate').value = type === 'invoice' ? plusDays(14) : '';
+    $('dDueDate').value = type === 'invoice' ? plusDays(termsDays(biz.terms) || 14) : '';
     setPicker('pkService', S.service);
     setPicker('pkPayMethod', payLabel(S.payMethod));
     setPicker('pkStatus', T()['st_'+S.status]);
